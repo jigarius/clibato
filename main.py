@@ -4,10 +4,13 @@
 Clibato: CLI Backup Tool.
 """
 
+from clibato.cli import CLI
+
 
 def main():
     """Clibato Entrypoint"""
-    print('Hello world!')
+    cli = CLI()
+    cli.execute()
 
 
 if __name__ == '__main__':
