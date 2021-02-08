@@ -9,7 +9,7 @@ services:
 tooling:
   lint:
     service: main
-    cmd: pylint *.py
+    cmd: pylint *.py **/*.py
   test:
     service: main
     cmd: nosetests --rednose
