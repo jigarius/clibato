@@ -1,0 +1,15 @@
+name: Clibato
+services:
+  main:
+    type: python
+    build:
+      - pip install -r requirements.txt
+      - chmod +x /app/clibato.py
+      - ln -s /app/main.py /usr/local/bin/clibato
+tooling:
+  lint:
+    service: main
+    cmd: pylint *.py
+  test:
+    service: main
+    cmd: nosetests --rednose
