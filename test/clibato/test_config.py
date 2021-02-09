@@ -1,10 +1,12 @@
+from pathlib import Path
+import os
 import unittest
 import clibato
 
 
 class TestConfig(unittest.TestCase):
     def setUp(self):
-        self.config = clibato.config.Config({
+        self.config = clibato.Config({
             'settings': {
                 'workdir': '/tmp/clibato'
             },
@@ -16,6 +18,33 @@ class TestConfig(unittest.TestCase):
                 'remote': 'git@github.com:jigarius/clibato.git'
             }
         })
+
+    def test_from_file(self):
+        config_path = __file__
+        for i in range(3):
+            config_path = os.path.dirname(config_path)
+        config_path = os.path.join(config_path, 'misc', '.clibato.default.yml')
+
+        expectation = clibato.Config({
+            'settings': {
+                'workdir': '/tmp/clibato'
+            },
+            'contents': {
+                '.bashrc': {}
+            },
+            'destination': {
+                'type': 'repository',
+                'remote': 'git@github.com:USER/SLUG.git'
+            }
+        })
+
+        print(expectation.__dict__)
+        print(clibato.Config.from_file(config_path).__dict__)
+
+        self.assertEqual(
+            clibato.Config.from_file(config_path),
+            expectation
+        )
 
     def test_workdir(self):
         self.assertEqual(self.config.workdir(), '/tmp/clibato')

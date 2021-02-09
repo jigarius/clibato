@@ -1,6 +1,7 @@
 """Clibato Configuration"""
 
 import typing
+import yaml
 from collections import deque
 
 from .content import Content
@@ -22,6 +23,17 @@ class Config:
         self._contents = None
         self._destination = None
         self._validate()
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, type(self)) and
+            self.settings() == other.settings() and
+            self.contents() == other.contents() and
+            self.destination() == other.destination()
+        )
+
+    def settings(self):
+        return self._get('settings')
 
     def workdir(self):
         if not self._workdir:
@@ -86,6 +98,16 @@ class Config:
             result = result[cur_key]
 
         return result
+
+    @staticmethod
+    def from_file(path):
+        with open(path, 'r') as stream:
+            try:
+                data = yaml.safe_load(stream)
+            except yaml.YAMLError as error:
+                raise ConfigError(str(error))
+
+        return Config(data)
 
 
 class ConfigError(KeyError):
