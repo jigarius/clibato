@@ -7,6 +7,9 @@ services:
       - chmod +x /app/clibato.py
       - ln -s /app/main.py /usr/local/bin/clibato
 tooling:
+  python:
+    service: main
+    cmd: python3
   lint:
     service: main
     cmd: pylint *.py **/*.py
