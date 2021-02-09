@@ -1,8 +1,8 @@
-import typing
 import clibato
 
 
 class Destination:
+    """Clibato Backup Destination"""
     def __init__(self, data: dict):
         self._data = {**data}
 
@@ -12,20 +12,27 @@ class Destination:
             self.__dict__ == other.__dict__
         )
 
-    def type(self):
+    def type(self) -> str:
+        """Destination type"""
         return self._data['type']
 
     @staticmethod
     def from_dict(data: dict):
-        type = data.get('type', None)
+        """
+        Create a Destination object from a dictionary.
 
-        if type == 'repository':
+        data.type determines the type of object.
+        """
+        tipo = data.get('type', None)
+
+        if tipo == 'repository':
             return Repository(data)
 
-        raise clibato.ConfigError(f"Illegal type: {type}")
+        raise clibato.ConfigError(f"Illegal type: {tipo}")
 
 
 class Repository(Destination):
+    """Destination type: Git Repository"""
     _DEFAULT_USER_NAME = 'Clibato'
     _DEFAULT_USER_MAIL = 'clibato@jigarius.com'
     _DEFAULT_BRANCH = 'main'
@@ -42,11 +49,11 @@ class Repository(Destination):
         return self._data.get('branch', None) or self._DEFAULT_BRANCH
 
     def _user_name(self):
-        return Config.extract(self._data, 'user.name') or self._DEFAULT_USER_NAME
+        return clibato.Config.extract(self._data, 'user.name') or self._DEFAULT_USER_NAME
 
     def _user_mail(self):
-        return Config.extract(self._data, 'user.mail') or self._DEFAULT_USER_MAIL
+        return clibato.Config.extract(self._data, 'user.mail') or self._DEFAULT_USER_MAIL
 
     def _validate(self):
         if not self._remote():
-            raise ConfigError('Key cannot be empty: remote')
+            raise clibato.ConfigError('Key cannot be empty: remote')

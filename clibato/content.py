@@ -2,7 +2,9 @@ import clibato
 
 
 class Content:
-    def __init__(self, backup_path: str, config: dict = {}):
+    """Clibato Content: An item for backup/restore."""
+    def __init__(self, backup_path: str, config: dict = None):
+        config = config or {}
         self._config = {
             'source': '~/' + backup_path,
             **config,
@@ -19,9 +21,11 @@ class Content:
         )
 
     def source_path(self) -> str:
+        """Path to source file."""
         return self._config.get('source')
 
     def backup_path(self) -> str:
+        """Path to backup file."""
         return self._config.get('backup', None)
 
     def _validate(self):
