@@ -80,11 +80,7 @@ class Config:
             raise ConfigError('Key cannot be empty: destination')
 
     def _get(self, key: str):
-        value = self.extract(self._data, key)
-        if value:
-            return value
-
-        return self.extract(self._DEFAULT, key)
+        return self.extract(self._data, key) or self.extract(self._DEFAULT, key)
 
     @staticmethod
     def extract(data: dict, key: str):
