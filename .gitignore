@@ -1,3 +1,6 @@
+# Clibato config for development.
+.clibato.yml
+
 # Miscellaneous.
 .idea
 .DS_Store
