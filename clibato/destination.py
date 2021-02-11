@@ -56,7 +56,8 @@ class Destination:
 
         if tipo == 'repository':
             return Repository(data)
-        elif tipo == 'directory':
+
+        if tipo == 'directory':
             return Directory(data)
 
         raise clibato.ConfigError(f"Illegal type: {tipo}")
@@ -115,10 +116,10 @@ class Repository(Directory):
         }
     }
 
-    def backup(self):
+    def backup(self, contents):
         pass
 
-    def restore(self):
+    def restore(self, contents):
         pass
 
     def _branch(self):
