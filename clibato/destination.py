@@ -5,7 +5,7 @@ import clibato
 class Destination:
     """Clibato Backup Destination"""
     # TODO: Extend ConfigAbstract
-    # TODO: https://docs.python.org/2/library/abc.html
+    #   See https://docs.python.org/2/library/abc.html
 
     _DEFAULTS = {}
 
