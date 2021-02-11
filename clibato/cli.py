@@ -26,11 +26,17 @@ class CLI:
 
     def backup(self):
         """Action: Create backup"""
-        self._log('TODO: backup')
+        self._ensure_config()
+
+        dest = self._config.destination()
+        dest.backup(self._config.contents())
 
     def restore(self):
         """Action: Restore backup"""
-        self._log('TODO: restore')
+        self._ensure_config()
+
+        dest = self._config.destination()
+        dest.restore(self._config.contents())
 
     def _log(self, message):
         """Logs to STDOUT"""

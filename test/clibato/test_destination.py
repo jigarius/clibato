@@ -108,7 +108,19 @@ class TestDirectory(unittest.TestCase):
         )
 
     @unittest.skip('TODO')
-    def test_path_is_writable(self):
+    def test_backup(self):
+        pass
+
+    @unittest.skip('TODO')
+    def test_backup_file_not_found(self):
+        pass
+
+    @unittest.skip('TODO')
+    def test_restore(self):
+        pass
+
+    @unittest.skip('TODO')
+    def test_restore_file_not_found(self):
         pass
 
 

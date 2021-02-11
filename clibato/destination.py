@@ -1,3 +1,4 @@
+from shutil import copyfile
 import os
 import clibato
 
@@ -35,9 +36,11 @@ class Destination:
 
     def backup(self, contents):
         """Backup the contents"""
+        raise NotImplementedError()
 
     def restore(self, contents):
         """Restore the contents"""
+        raise NotImplementedError()
 
     def _validate(self):
         pass
@@ -53,12 +56,38 @@ class Destination:
 
         if tipo == 'repository':
             return Repository(data)
+        elif tipo == 'directory':
+            return Directory(data)
 
         raise clibato.ConfigError(f"Illegal type: {tipo}")
 
 
 class Directory(Destination):
     """Destination type: Directory"""
+
+    def backup(self, contents):
+        for k in contents:
+            content = contents[k]
+            try:
+                copyfile(
+                    content.source_path(),
+                    content.backup_path(self._path())
+                )
+                print(f'Backed up: {content.source_path()}')
+            except FileNotFoundError:
+                print(f'Source not found: {content.source_path()}')
+
+    def restore(self, contents):
+        for k in contents:
+            content = contents[k]
+            try:
+                copyfile(
+                    content.backup_path(self._path()),
+                    content.source_path()
+                )
+                print(f'Restored: {content.source_path()}')
+            except FileNotFoundError:
+                print(f'Backup not found: {content.backup_path()}')
 
     def _path(self):
         return self._data['path']
@@ -85,6 +114,12 @@ class Repository(Directory):
             'mail': 'clibato@jigarius.com'
         }
     }
+
+    def backup(self):
+        pass
+
+    def restore(self):
+        pass
 
     def _branch(self):
         return self._data.get('branch', None)
