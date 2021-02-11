@@ -19,7 +19,7 @@ class TestConfig(unittest.TestCase):
             }
         })
 
-    def test_from_file(self):
+    def test_from_file_with_absolute_path(self):
         config_path = __file__
         for i in range(3):
             config_path = os.path.dirname(config_path)
@@ -45,6 +45,36 @@ class TestConfig(unittest.TestCase):
             clibato.Config.from_file(config_path),
             expectation
         )
+
+    def test_from_file_with_relative_path(self):
+        pass
+
+    def test_from_file_with_home_path(self):
+        pass
+
+    def test_data(self):
+        config = clibato.Config({
+            'contents': {
+                '.bashrc': {}
+            },
+            'destination': {
+                'type': 'repository',
+                'remote': 'git@github.com:jigarius/clibato.git',
+            }
+        })
+
+        self.assertEqual(config.data(), {
+            'settings': {
+                'workdir': '~/.clibato'
+            },
+            'contents': {
+                '.bashrc': {}
+            },
+            'destination': {
+                'type': 'repository',
+                'remote': 'git@github.com:jigarius/clibato.git',
+            }
+        })
 
     def test_workdir(self):
         self.assertEqual(self.config.workdir(), '/tmp/clibato')
@@ -132,3 +162,9 @@ class TestConfig(unittest.TestCase):
             str(context.exception).strip("'"),
             "Illegal keys: bar, foo"
         )
+
+    def test_merge(self):
+        pass
+
+    def test_extract(self):
+        pass

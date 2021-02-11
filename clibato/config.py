@@ -2,6 +2,7 @@
 
 from collections import deque
 from typing import List
+import os
 import yaml
 
 from .content import Content
@@ -19,46 +20,40 @@ class Config:
     }
 
     def __init__(self, data: dict):
-        self._data = data
-        self._workdir = None
+        self._data = Config.merge(self._DEFAULT, data)
         self._contents = None
         self._destination = None
+
         self._validate()
 
     def __eq__(self, other) -> bool:
         return (
             isinstance(other, type(self)) and
-            self.settings() == other.settings() and
-            self.contents() == other.contents() and
-            self.destination() == other.destination()
+            self.data() == other.data()
         )
 
-    def settings(self) -> dict:
-        """Get the settings section."""
-        return self._get('settings')
+    def data(self):
+        """Get the underlying configuration as a dictionary"""
+        return {**self._data}
 
     def workdir(self) -> str:
         """Get the working directory."""
-        if not self._workdir:
-            self._workdir = self._get('settings.workdir')
-
-        return self._workdir
+        return self._data['settings']['workdir']
 
     def contents(self) -> List[Content]:
         """Get the contents, i.e. items to backup/restore."""
         if not self._contents:
-            data = self._get('contents')
-            for destination in data:
-                data[destination] = Content(destination, data[destination])
-            self._contents = data
+            raw_contents = self._data['contents']
+            self._contents = {}
+            for backup_path in raw_contents:
+                self._contents[backup_path] = Content(backup_path, raw_contents[backup_path])
 
         return self._contents
 
     def destination(self):
         """Get the destination configuration."""
         if not self._destination:
-            dest_data = self._get('destination')
-            self._destination = Destination.from_dict(dest_data)
+            self._destination = Destination.from_dict(self._data['destination'])
 
         return self._destination
 
@@ -70,17 +65,29 @@ class Config:
             extra_keys = ', '.join(extra_keys)
             raise ConfigError(f'Illegal keys: {extra_keys}')
 
-        if self.workdir() == '':
+        if not self._data['settings']['workdir']:
             raise ConfigError('Key cannot be empty: settings.workdir')
 
-        if len(self.contents()) == 0:
+        if not self._data['contents']:
             raise ConfigError('Key cannot be empty: contents')
 
-        if not self._data.get('destination', None):
+        if not self._data['destination']:
             raise ConfigError('Key cannot be empty: destination')
 
-    def _get(self, key: str):
-        return self.extract(self._data, key) or self.extract(self._DEFAULT, key)
+    @staticmethod
+    def merge(dict1: dict, dict2: dict):
+        """Create a dictionary where dict2 is merged into dict1"""
+        result = {**dict1}
+
+        for key in dict2:
+            if key in result and isinstance(result[key], dict):
+                if isinstance(dict2[key], dict):
+                    result[key] = Config.merge(result[key], dict2[key])
+                    continue
+
+            result[key] = dict2[key]
+
+        return result
 
     @staticmethod
     def extract(data: dict, key: str):
@@ -106,6 +113,9 @@ class Config:
     @staticmethod
     def from_file(path):
         """Create Config object from a YAML file."""
+        if path.startswith('~/'):
+            path = os.path.expanduser(path)
+
         with open(path, 'r') as stream:
             try:
                 data = yaml.safe_load(stream)
