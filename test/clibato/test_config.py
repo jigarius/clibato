@@ -46,9 +46,11 @@ class TestConfig(unittest.TestCase):
             expectation
         )
 
+    @unittest.skip('TODO')
     def test_from_file_with_relative_path(self):
         pass
 
+    @unittest.skip('TODO')
     def test_from_file_with_home_path(self):
         pass
 
@@ -163,8 +165,10 @@ class TestConfig(unittest.TestCase):
             "Illegal keys: bar, foo"
         )
 
+    @unittest.skip('TODO')
     def test_merge(self):
         pass
 
+    @unittest.skip('TODO')
     def test_extract(self):
         pass
