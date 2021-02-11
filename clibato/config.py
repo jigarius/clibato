@@ -65,7 +65,7 @@ class Config(ConfigAbstract):
         return self._destination
 
     def _validate(self) -> type(None):
-        extra_keys = self._data.keys() - self._DEFAULT.keys()
+        extra_keys = self._data.keys() - self._DEFAULTS.keys()
         if len(extra_keys) != 0:
             extra_keys = list(extra_keys)
             extra_keys.sort()
