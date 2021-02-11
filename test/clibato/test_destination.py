@@ -12,6 +12,15 @@ class TestDestination(unittest.TestCase):
             f'Class not instantiable: {clibato.Destination.__name__}'
         )
 
+    def test_new_without_type(self):
+        with self.assertRaises(clibato.ConfigError) as context:
+            clibato.Directory({'path': '/tmp'})
+
+        self.assertEqual(
+            str(context.exception).strip("'"),
+            'Key cannot be empty: type'
+        )
+
     def test_from_dict_with_repository_type(self):
         result = clibato.Destination.from_dict({
             'type': 'repository',

@@ -13,7 +13,7 @@ class Destination:
         if type(self) is Destination:
             raise NotImplementedError(f'Class not instantiable: {type(self).__name__}')
 
-        if not data['type']:
+        if not data.get('type'):
             raise clibato.ConfigError('Key cannot be empty: type')
 
         self._data = clibato.Config.merge(self._DEFAULTS, data)
