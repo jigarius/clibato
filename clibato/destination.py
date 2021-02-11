@@ -3,11 +3,21 @@ import clibato
 
 
 class Destination:
+    """Clibato Backup Destination"""
+    # TODO: Extend ConfigAbstract
     # TODO: https://docs.python.org/2/library/abc.html
 
-    """Clibato Backup Destination"""
+    _DEFAULTS = {}
+
     def __init__(self, data: dict):
-        self._data = {**data}
+        if type(self) is Destination:
+            raise NotImplementedError(f'Class not instantiable: {type(self).__name__}')
+
+        if not data['type']:
+            raise clibato.ConfigError('Key cannot be empty: type')
+
+        self._data = clibato.Config.merge(self._DEFAULTS, data)
+        self._validate()
 
     def __eq__(self, other):
         return (
@@ -29,6 +39,9 @@ class Destination:
     def restore(self, contents):
         """Restore the contents"""
 
+    def _validate(self):
+        pass
+
     @staticmethod
     def from_dict(data: dict):
         """
@@ -47,11 +60,6 @@ class Destination:
 class Directory(Destination):
     """Destination type: Directory"""
 
-    def __init__(self, data: dict):
-        super().__init__(data)
-
-        self._validate()
-
     def _path(self):
         return self._data['path']
 
@@ -69,7 +77,7 @@ class Directory(Destination):
 class Repository(Directory):
     """Destination type: Git Repository"""
 
-    _DEFAULT = {
+    _DEFAULTS = {
         'path': None,
         'branch': 'main',
         'user': {
@@ -77,12 +85,6 @@ class Repository(Directory):
             'mail': 'clibato@jigarius.com'
         }
     }
-
-    def __init__(self, data: dict):
-        data = clibato.Config.merge(self._DEFAULT, data)
-        super().__init__(data)
-
-        self._validate()
 
     def _branch(self):
         return self._data.get('branch', None)

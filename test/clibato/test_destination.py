@@ -3,9 +3,14 @@ import clibato
 
 
 class TestDestination(unittest.TestCase):
-    @unittest.skip('Use Abstract Base Class')
     def test_new_not_allowed(self):
-        pass
+        with self.assertRaises(NotImplementedError) as context:
+            clibato.Destination({'type': 'directory', 'path': '/tmp'})
+
+        self.assertEqual(
+            str(context.exception).strip("'"),
+            f'Class not instantiable: {clibato.Destination.__name__}'
+        )
 
     def test_from_dict_with_repository_type(self):
         result = clibato.Destination.from_dict({
