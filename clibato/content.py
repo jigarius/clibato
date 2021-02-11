@@ -7,7 +7,6 @@ class Content:
     def __init__(self, backup_path: str, config: dict = None):
         config = config or {}
         self._config = {
-            'source': '~/' + backup_path,
             **config,
             'backup': backup_path
         }
@@ -23,21 +22,27 @@ class Content:
 
     def source_path(self) -> str:
         """Path to source file."""
-        return self._config.get('source')
+        return self._config['source']
 
     def backup_path(self) -> str:
         """Path to backup file."""
-        return self._config.get('backup', None)
+        return self._config['backup']
 
     def _validate(self):
-        if not self.source_path():
-            raise clibato.ConfigError('Invalid source path')
-
-        if os.path.isabs(self.backup_path()):
+        if os.path.isabs(self._config['backup']):
             raise clibato.ConfigError('Backup path cannot be absolute')
 
-        backup_path_parts = self.backup_path().split('/')
+        backup_path_parts = self._config['backup'].split('/')
 
         for illegal_part in ['.', '..', '~']:
             if illegal_part in backup_path_parts:
                 raise clibato.ConfigError(f'Backup path cannot contain: {illegal_part}')
+
+        if not self._config.get('source'):
+            self._config['source'] = f'~/{self.backup_path()}'
+
+        if self._config['source'].startswith('~'):
+            self._config['source'] = os.path.expanduser(self._config['source'])
+
+        if not os.path.isabs(self._config['source']):
+            raise clibato.ConfigError(f"Source path invalid: {self._config['source']}")
