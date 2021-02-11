@@ -14,9 +14,6 @@ class Destination:
         if type(self) is Destination:
             raise NotImplementedError(f'Class not instantiable: {type(self).__name__}')
 
-        if not data.get('type'):
-            raise clibato.ConfigError('Key cannot be empty: type')
-
         self._data = clibato.Config.merge(self._DEFAULTS, data)
         self._validate()
 
@@ -43,7 +40,8 @@ class Destination:
         raise NotImplementedError()
 
     def _validate(self):
-        pass
+        if not self._data.get('type'):
+            raise clibato.ConfigError('Key cannot be empty: type')
 
     @staticmethod
     def from_dict(data: dict):
@@ -65,6 +63,10 @@ class Destination:
 
 class Directory(Destination):
     """Destination type: Directory"""
+
+    _DEFAULTS = {
+        'path': None
+    }
 
     def backup(self, contents):
         for k in contents:
@@ -94,6 +96,8 @@ class Directory(Destination):
         return self._data['path']
 
     def _validate(self):
+        super()._validate()
+
         if not self._data['path']:
             raise clibato.ConfigError('Key cannot be empty: path')
 
@@ -109,6 +113,7 @@ class Repository(Directory):
 
     _DEFAULTS = {
         'path': None,
+        'remote': None,
         'branch': 'main',
         'user': {
             'name': 'Clibato',
@@ -122,8 +127,11 @@ class Repository(Directory):
     def restore(self, contents):
         pass
 
+    def _remote(self):
+        return self._data['remote']
+
     def _branch(self):
-        return self._data.get('branch', None)
+        return self._data['branch']
 
     def _user_name(self):
         return self._data['user']['name']
@@ -132,5 +140,7 @@ class Repository(Directory):
         return self._data['user']['mail']
 
     def _validate(self):
-        if not self._data['path']:
-            raise clibato.ConfigError('Key cannot be empty: path')
+        super()._validate()
+
+        if not self._data['remote']:
+            raise clibato.ConfigError('Key cannot be empty: remote')

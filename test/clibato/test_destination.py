@@ -21,18 +21,19 @@ class TestDestination(unittest.TestCase):
             'Key cannot be empty: type'
         )
 
-    def test_from_dict_with_repository_type(self):
-        result = clibato.Destination.from_dict({
-            'type': 'repository',
-            'path': 'git@github.com:jigarius/clibato.git'
+    def test_from_dict_with_valid_type(self):
+        dest = clibato.Destination.from_dict({
+            'type': 'directory',
+            'path': '/tmp'
         })
 
-        expectation = clibato.destination.Repository({
-            'type': 'repository',
-            'path': 'git@github.com:jigarius/clibato.git'
-        })
-
-        self.assertEqual(result, expectation)
+        self.assertEqual(
+            dest,
+            clibato.destination.Directory({
+                'type': 'directory',
+                'path': '/tmp'
+            })
+        )
 
     def test_from_dict_with_illegal_type(self):
         with self.assertRaises(clibato.ConfigError) as context:
@@ -44,33 +45,58 @@ class TestDestination(unittest.TestCase):
         )
 
     def test_equality_operator(self):
-        d1 = clibato.destination.Repository({
-            'type': 'repository',
-            'path': 'git@github.com:jigarius/clibato.git'
+        subject = clibato.destination.Directory({
+            'type': 'directory',
+            'path': '/tmp',
         })
 
-        d2 = clibato.destination.Repository({
-            'type': 'repository',
-            'path': 'git@github.com:jigarius/clibato.git'
-        })
+        self.assertEqual(
+            subject,
+            clibato.destination.Directory({
+                'type': 'directory',
+                'path': '/tmp'
+            })
+        )
 
-        d3 = clibato.destination.Repository({
-            'type': 'repository',
-            'path': 'git@github.com:bunny/wabbit.git'
-        })
+        self.assertNotEqual(
+            subject,
+            clibato.destination.Directory({
+                'type': 'directory',
+                'path': '/var/www'
+            })
+        )
 
-        d4 = clibato.destination.Directory({
+        self.assertNotEqual(
+            subject,
+            clibato.destination.Repository({
+                'type': 'repository',
+                'path': '/tmp',
+                'remote': 'git@github.com:bunny/wabbit.git'
+            })
+        )
+
+
+class TestDirectory(unittest.TestCase):
+    def test_new(self):
+        dest = clibato.destination.Directory({
             'type': 'directory',
             'path': '/tmp'
         })
 
-        self.assertEqual(d1, d2)
-        self.assertNotEqual(d1, d3)
-        self.assertNotEqual(d2, d3)
-        self.assertNotEqual(d1, d4)
+        self.assertEqual(
+            dest.data(),
+            {
+                'type': 'directory',
+                'path': '/tmp'
+            }
+        )
 
+    def test_inheritance(self):
+        self.assertTrue(issubclass(
+            clibato.destination.Directory,
+            clibato.destination.Destination
+        ))
 
-class TestDirectory(unittest.TestCase):
     def test_path_is_required(self):
         with self.assertRaises(clibato.ConfigError) as context:
             clibato.destination.Directory({
@@ -125,6 +151,38 @@ class TestDirectory(unittest.TestCase):
 
 
 class TestRepository(unittest.TestCase):
+    def test_new(self):
+        subject = clibato.destination.Repository({
+            'type': 'repository',
+            'path': '/tmp',
+            'remote': 'git@github.com:jigarius/clibato.git',
+            'branch': 'backup',
+            'user': {
+                'name': 'Jigarius',
+                'mail': 'jigarius@example.com',
+            }
+        })
+
+        self.assertEqual(
+            subject.data(),
+            {
+                'type': 'repository',
+                'path': '/tmp',
+                'remote': 'git@github.com:jigarius/clibato.git',
+                'branch': 'backup',
+                'user': {
+                    'name': 'Jigarius',
+                    'mail': 'jigarius@example.com',
+                }
+            }
+        )
+
+    def test_inheritance(self):
+        self.assertTrue(issubclass(
+            clibato.destination.Repository,
+            clibato.destination.Directory
+        ))
+
     def test_path_is_required(self):
         with self.assertRaises(clibato.ConfigError) as context:
             clibato.destination.Repository({
@@ -136,17 +194,31 @@ class TestRepository(unittest.TestCase):
             'Key cannot be empty: path'
         )
 
+    def test_remote_is_required(self):
+        with self.assertRaises(clibato.ConfigError) as context:
+            clibato.destination.Repository({
+                'type': 'repository',
+                'path': '/tmp',
+            })
+
+        self.assertEqual(
+            str(context.exception).strip("'"),
+            'Key cannot be empty: remote'
+        )
+
     def test_default_values_merged(self):
         dest = clibato.destination.Repository({
             'type': 'repository',
-            'path': 'git@github.com:jigarius/clibato.git'
+            'path': '/tmp',
+            'remote': 'git@github.com:jigarius/clibato.git'
         })
 
         self.assertEqual(
             dest.data(),
             {
                 'type': 'repository',
-                'path': 'git@github.com:jigarius/clibato.git',
+                'path': '/tmp',
+                'remote': 'git@github.com:jigarius/clibato.git',
                 'branch': 'main',
                 'user': {
                     'name': 'Clibato',
