@@ -44,9 +44,9 @@ class CLI:
 
     @staticmethod
     def _argparser():
-        main_parser = argparse.ArgumentParser(prog='clibato')
-
-        common_parser = argparse.ArgumentParser(add_help=False)
+        common_parser = argparse.ArgumentParser(
+            add_help=False
+        )
         common_parser.add_argument(
             '--verbose',
             default=False,
@@ -60,6 +60,11 @@ class CLI:
             action='store',
             dest='config_file',
             help='A Clibato configuration file (YML).'
+        )
+
+        main_parser = argparse.ArgumentParser(
+            prog='clibato',
+            parents=[common_parser]
         )
 
         subparsers = main_parser.add_subparsers(dest='action')
