@@ -1,5 +1,5 @@
 import argparse
-from clibato import Config
+from clibato import Config, Logger
 
 
 class CLI:
@@ -16,13 +16,9 @@ class CLI:
             print("Run 'clibato --help' for help.")
             return
 
-        self._log(f'Action: {self._args.action}')
+        Logger.debug(f'Running action: {self._args.action}')
         method = getattr(self, self._args.action)
         method()
-
-    def init(self):
-        """Action: Initialize configuration"""
-        self._log('TODO: init')
 
     def backup(self):
         """Action: Create backup"""
@@ -38,14 +34,9 @@ class CLI:
         dest = self._config.destination()
         dest.restore(self._config.contents())
 
-    def _log(self, message):
-        """Logs to STDOUT"""
-        if self._args.verbose:
-            print('[debug]', message)
-
     def _ensure_config(self):
         if not self._config:
-            self._log(f'Loading configuration: {self._args.config_file}')
+            Logger.debug(f'Loading configuration: {self._args.config_file}')
             self._config = Config.from_file(self._args.config_file)
 
     @staticmethod

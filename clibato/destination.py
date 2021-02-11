@@ -74,9 +74,9 @@ class Directory(Destination):
                     content.source_path(),
                     content.backup_path(self._path())
                 )
-                print(f'Backed up: {content.source_path()}')
+                clibato.Logger.info(f'Backed up: {content.source_path()}')
             except FileNotFoundError:
-                print(f'Source not found: {content.source_path()}')
+                clibato.Logger.error(f'Source not found: {content.source_path()}')
 
     def restore(self, contents):
         for k in contents:
@@ -86,9 +86,9 @@ class Directory(Destination):
                     content.backup_path(self._path()),
                     content.source_path()
                 )
-                print(f'Restored: {content.source_path()}')
+                clibato.Logger.info(f'Restored: {content.source_path()}')
             except FileNotFoundError:
-                print(f'Backup not found: {content.backup_path()}')
+                clibato.Logger.error(f'Backup not found: {content.backup_path()}')
 
     def _path(self):
         return self._data['path']
