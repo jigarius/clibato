@@ -7,9 +7,6 @@ import clibato
 class TestConfig(unittest.TestCase):
     def setUp(self):
         self.config = clibato.Config({
-            'settings': {
-                'workdir': '/tmp/clibato'
-            },
             'contents': {
                 '.bashrc': {}
             },
@@ -26,9 +23,6 @@ class TestConfig(unittest.TestCase):
         config_path = os.path.join(config_path, 'misc', '.clibato.default.yml')
 
         expectation = clibato.Config({
-            'settings': {
-                'workdir': '/tmp/clibato'
-            },
             'contents': {
                 '.bashrc': {}
             },
@@ -63,9 +57,6 @@ class TestConfig(unittest.TestCase):
         })
 
         self.assertEqual(config.data(), {
-            'settings': {
-                'workdir': '~/.clibato'
-            },
             'contents': {
                 '.bashrc': {}
             },
@@ -74,21 +65,6 @@ class TestConfig(unittest.TestCase):
                 'remote': 'git@github.com:jigarius/clibato.git',
             }
         })
-
-    def test_workdir(self):
-        self.assertEqual(self.config.workdir(), '/tmp/clibato')
-
-    def test_workdir_when_undefined(self):
-        config = clibato.Config({
-            'contents': {
-                '.bashrc': {}
-            },
-            'destination': {
-                'type': 'repository',
-                'remote': 'git@github.com:jigarius/clibato.git',
-            }
-        })
-        self.assertEqual(config.workdir(), '~/.clibato')
 
     def test_contents(self):
         expectation = {

@@ -12,9 +12,6 @@ from .destination import Destination
 class Config:
     """Clibato Configuration"""
     _DEFAULT = {
-        'settings': {
-            'workdir': '~/.clibato'
-        },
         'contents': {},
         'destination': None
     }
@@ -35,10 +32,6 @@ class Config:
     def data(self):
         """Get the underlying configuration as a dictionary"""
         return {**self._data}
-
-    def workdir(self) -> str:
-        """Get the working directory."""
-        return self._data['settings']['workdir']
 
     def contents(self) -> List[Content]:
         """Get the contents, i.e. items to backup/restore."""
@@ -64,9 +57,6 @@ class Config:
             extra_keys.sort()
             extra_keys = ', '.join(extra_keys)
             raise ConfigError(f'Illegal keys: {extra_keys}')
-
-        if not self._data['settings']['workdir']:
-            raise ConfigError('Key cannot be empty: settings.workdir')
 
         if not self._data['contents']:
             raise ConfigError('Key cannot be empty: contents')

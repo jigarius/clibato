@@ -1,5 +1,3 @@
-settings:
-  workdir: "/tmp/clibato"
 contents:
   .bashrc: {}
 destination:

@@ -1,11 +1,3 @@
-settings:
-  # A working directory.
-  #
-  # Used for things like cloning the destination git repo, and committing
-  # changed files before pushing them back to the git remote.
-  #
-  # Default: ~/.clibato
-  workdir: /tmp/.clibato
 contents:
   .zshrc: {}
   .vimrc: {}
