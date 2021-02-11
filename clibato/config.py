@@ -9,29 +9,43 @@ from .content import Content
 from .destination import Destination
 
 
-class Config:
+class ConfigAbstract:
+    """Configuration Abstract"""
+
+    _DEFAULTS = {}
+
+    def __init__(self, data: dict):
+        self._data = Config.merge(self._DEFAULTS, data)
+
+        self._validate()
+
+    def data(self):
+        """Get the underlying config as a dictionary"""
+        return {**self._data}
+
+    def _validate(self):
+        """Validates the config object at instantiation"""
+
+
+class Config(ConfigAbstract):
     """Clibato Configuration"""
-    _DEFAULT = {
+
+    _DEFAULTS = {
         'contents': {},
         'destination': None
     }
 
     def __init__(self, data: dict):
-        self._data = Config.merge(self._DEFAULT, data)
         self._contents = None
         self._destination = None
 
-        self._validate()
+        super().__init__(data)
 
     def __eq__(self, other) -> bool:
         return (
             isinstance(other, type(self)) and
             self.data() == other.data()
         )
-
-    def data(self):
-        """Get the underlying configuration as a dictionary"""
-        return {**self._data}
 
     def contents(self) -> List[Content]:
         """Get the contents, i.e. items to backup/restore."""
