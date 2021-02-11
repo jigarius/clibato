@@ -12,6 +12,10 @@ class CLI:
         """Executes the CLI"""
         self._args = CLI._argparser().parse_args()
 
+        if not self._args.action:
+            print("Run 'clibato --help' for help.")
+            return
+
         self._log(f'Action: {self._args.action}')
         method = getattr(self, self._args.action)
         method()
