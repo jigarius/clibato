@@ -22,13 +22,18 @@ class TestContent(unittest.TestCase):
         with self.assertRaises(clibato.ConfigError) as context:
             clibato.Content('/.bashrc')
 
+        self.assertEqual(
+            str(context.exception).strip("'"),
+            'Backup path cannot be absolute'
+        )
+
     def test_backup_path_cannot_have_tilde(self):
         with self.assertRaises(clibato.ConfigError) as context:
             clibato.Content('~/.bashrc')
 
         self.assertEqual(
             str(context.exception).strip("'"),
-            'Backup path contains illegal part: ~'
+            'Backup path cannot contain: ~'
         )
 
     def test_backup_path_cannot_have_single_dot(self):
@@ -37,7 +42,7 @@ class TestContent(unittest.TestCase):
 
         self.assertEqual(
             str(context.exception).strip("'"),
-            'Backup path contains illegal part: .'
+            'Backup path cannot contain: .'
         )
 
     def test_backup_path_cannot_have_double_dot(self):
@@ -46,5 +51,5 @@ class TestContent(unittest.TestCase):
 
         self.assertEqual(
             str(context.exception).strip("'"),
-            'Backup path contains illegal part: ..'
+            'Backup path cannot contain: ..'
         )

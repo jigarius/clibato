@@ -1,3 +1,4 @@
+import os
 import clibato
 
 
@@ -32,11 +33,11 @@ class Content:
         if not self.source_path():
             raise clibato.ConfigError('Invalid source path')
 
-        backup_path_parts = self.backup_path().split('/')
+        if os.path.isabs(self.backup_path()):
+            raise clibato.ConfigError('Backup path cannot be absolute')
 
-        if backup_path_parts[0] == '':
-            raise clibato.ConfigError('Backup path must not begin with /')
+        backup_path_parts = self.backup_path().split('/')
 
         for illegal_part in ['.', '..', '~']:
             if illegal_part in backup_path_parts:
-                raise clibato.ConfigError(f'Backup path contains illegal part: {illegal_part}')
+                raise clibato.ConfigError(f'Backup path cannot contain: {illegal_part}')
