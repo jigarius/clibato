@@ -165,10 +165,77 @@ class TestConfig(unittest.TestCase):
             "Illegal keys: bar, foo"
         )
 
-    @unittest.skip('TODO')
     def test_merge(self):
-        pass
+        dict1 = {
+            'a': 'alpha',
+            'b': '',
+            'd': {
+                '1': 'one',
+                '2': '',
+            },
+            'e': 'error',
+        }
 
-    @unittest.skip('TODO')
+        dict2 = {
+            'a': '',
+            'b': 'beta',
+            'c': 'charlie',
+            'd': {
+                '2': 'two',
+                '3': 'three'
+            },
+            'e': 'echo'
+        }
+
+        expectation = {
+            'a': 'alpha',  # Keeps dict1 value since dict2 value is empty.
+            'b': 'beta',
+            'c': 'charlie',
+            'd': {
+                '1': 'one',
+                '2': 'two',
+                '3': 'three'
+            },
+            'e': 'echo'
+        }
+
+        self.assertEqual(
+            clibato.Config.merge(dict1, dict2),
+            expectation
+        )
+
     def test_extract(self):
-        pass
+        data = {
+            'a': 'alpha',
+            'b': {
+                'c': 'charlie',
+                'd': {
+                    'e': 'echo',
+                }
+            }
+        }
+
+        self.assertEqual(
+            clibato.Config.extract(data, 'a'),
+            'alpha'
+        )
+
+        self.assertEqual(
+            clibato.Config.extract(data, 'b.c'),
+            'charlie'
+        )
+
+        self.assertEqual(
+            clibato.Config.extract(data, 'b.d.e'),
+            'echo'
+        )
+
+        self.assertEqual(
+            clibato.Config.extract(data, 'b.f'),
+            None
+        )
+
+        self.assertEqual(
+            clibato.Config.extract(data, 'a.b'),
+            None
+        )

@@ -80,9 +80,14 @@ class Config:
         result = {**dict1}
 
         for key in dict2:
-            if key in result and isinstance(result[key], dict):
-                if isinstance(dict2[key], dict):
+            if key in result:
+                # Merge dictionaries.
+                if isinstance(result[key], dict) and isinstance(dict2[key], dict):
                     result[key] = Config.merge(result[key], dict2[key])
+                    continue
+
+                # Do not overwrite with non-empty strings.
+                if isinstance(dict2[key], str) and dict2[key] == '':
                     continue
 
             result[key] = dict2[key]
