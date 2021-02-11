@@ -4,4 +4,4 @@ contents:
   .bashrc: {}
 destination:
   type: "repository"
-  remote: "git@github.com:USER/SLUG.git"
+  path: "git@github.com:USER/SLUG.git"

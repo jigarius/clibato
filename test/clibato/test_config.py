@@ -15,7 +15,7 @@ class TestConfig(unittest.TestCase):
             },
             'destination': {
                 'type': 'repository',
-                'remote': 'git@github.com:jigarius/clibato.git'
+                'path': 'git@github.com:jigarius/clibato.git'
             }
         })
 
@@ -34,12 +34,9 @@ class TestConfig(unittest.TestCase):
             },
             'destination': {
                 'type': 'repository',
-                'remote': 'git@github.com:USER/SLUG.git'
+                'path': 'git@github.com:USER/SLUG.git'
             }
         })
-
-        print(expectation.__dict__)
-        print(clibato.Config.from_file(config_path).__dict__)
 
         self.assertEqual(
             clibato.Config.from_file(config_path),
@@ -121,7 +118,7 @@ class TestConfig(unittest.TestCase):
             },
             'destination': {
                 'type': 'repository',
-                'remote': 'git@github.com:jigarius/clibato.git'
+                'path': 'git@github.com:jigarius/clibato.git'
             }
         })
 
@@ -129,7 +126,7 @@ class TestConfig(unittest.TestCase):
             config.destination(),
             clibato.destination.Repository({
                 'type': 'repository',
-                'remote': 'git@github.com:jigarius/clibato.git'
+                'path': 'git@github.com:jigarius/clibato.git'
             })
         )
 
