@@ -15,8 +15,9 @@ ignore=.git
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
-disable=too-few-public-methods,
-        missing-module-docstring
+disable=missing-module-docstring,
+        unidiomatic-typecheck,
+        too-few-public-methods
 
 
 [REPORTS]
