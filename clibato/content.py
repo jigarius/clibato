@@ -24,9 +24,12 @@ class Content:
         """Path to source file."""
         return self._config['source']
 
-    def backup_path(self) -> str:
+    def backup_path(self, prefix: str = '') -> str:
         """Path to backup file."""
-        return self._config['backup']
+        if prefix and not prefix.endswith('/'):
+            prefix += '/'
+
+        return f"{prefix}{self._config['backup']}"
 
     def _validate(self):
         if os.path.isabs(self._config['backup']):

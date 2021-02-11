@@ -10,6 +10,13 @@ class TestContent(unittest.TestCase):
         content = clibato.Content('.bashrc')
         self.assertEqual(content.backup_path(), '.bashrc')
 
+    def test_backup_path_with_prefix(self):
+        content = clibato.Content('.bashrc')
+        self.assertEqual(
+            content.backup_path('/backup'),
+            '/backup/.bashrc'
+        )
+
     def test_source_path(self):
         content = clibato.Content(
             'todo.txt',
