@@ -1,5 +1,6 @@
 from shutil import copyfile
 import os
+from git import Repo, Actor
 import clibato
 
 
@@ -121,11 +122,42 @@ class Repository(Directory):
         }
     }
 
+    def __init__(self, data: dict):
+        super().__init__(data)
+        self._repo = None
+
     def backup(self, contents):
-        pass
+        self._git_init()
+        self._git_pull()
+
+        repo = self._repo
+
+        if repo.is_dirty():
+            clibato.Logger.error(f'Uncommitted changes found in: {self._path()}')
+            clibato.Logger.info('Commit or discard all changes and try again.')
+            return
+
+        super().backup(contents)
+
+        index = repo.index
+        index.reset()
+        for k in contents:
+            index.add(contents[k].backup_path())
+
+        change_count = len(repo.index.diff(None))
+        clibato.Logger.info(f'{change_count} change(s) detected.')
+
+        if change_count == 0:
+            return
+
+        self._git_commit('Clibato backup')
+        self._git_push()
 
     def restore(self, contents):
-        pass
+        self._git_init()
+        self._git_pull()
+
+        super().restore(contents)
 
     def _remote(self):
         return self._data['remote']
@@ -133,14 +165,48 @@ class Repository(Directory):
     def _branch(self):
         return self._data['branch']
 
-    def _user_name(self):
-        return self._data['user']['name']
-
-    def _user_mail(self):
-        return self._data['user']['mail']
-
     def _validate(self):
         super()._validate()
 
         if not self._data['remote']:
             raise clibato.ConfigError('Key cannot be empty: remote')
+
+    def _git_commit(self, message):
+        author = Actor(self._data['user']['name'], self._data['user']['mail'])
+        self._repo.index.commit(message, author=author)
+
+    def _git_init(self):
+        """Prepare Git repo and remote."""
+        if self._repo:
+            return
+
+        self._repo = repo = Repo.init(self._path(), mkdir=False)
+
+        if 'origin' in repo.remotes:
+            if repo.remotes.origin.url != self._remote():
+                clibato.Logger.debug(f'Removing incorrect remote: {repo.remotes.origin.url}')
+                repo.delete_remote(repo.remotes.origin)
+
+        if 'origin' not in repo.remotes:
+            clibato.Logger.info(f'Adding remote: {self._remote()} (origin)')
+            repo.create_remote('origin', self._remote())
+
+    def _git_pull(self):
+        """Switch branch and pull remote changes."""
+        repo = self._repo
+        remote = repo.remotes.origin
+        remote.fetch()
+
+        if self._branch() not in repo.branches:
+            clibato.Logger.info(f'Creating branch: {self._branch()}')
+            self._git_commit('Initial commit')
+            repo.create_head(self._branch())
+
+        if repo.active_branch != self._branch():
+            clibato.Logger.info(f'Switching branch: {self._branch()}')
+            repo.heads[self._branch()].checkout()
+
+    def _git_push(self):
+        """Push commits to remote."""
+        clibato.Logger.info(f'Pushing commits to origin {self._branch()}.')
+        self._repo.remotes.origin.push(self._branch())
