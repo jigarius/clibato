@@ -1,5 +1,6 @@
+import sys
 import argparse
-from clibato import Config, Logger
+from clibato import Config, ConfigError, Logger
 
 
 class CLI:
@@ -17,8 +18,15 @@ class CLI:
             return
 
         Logger.debug(f'Running action: {self._args.action}')
-        method = getattr(self, self._args.action)
-        method()
+
+        try:
+            method = getattr(self, self._args.action)
+            method()
+        except ConfigError as error:
+            Logger.error(error)
+            sys.exit(1)
+
+        sys.exit(0)
 
     def backup(self):
         """Action: Create backup"""
