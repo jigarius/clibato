@@ -18,9 +18,9 @@ class TestConfig(unittest.TestCase):
 
     def test_from_file_with_absolute_path(self):
         config_path = __file__
-        for i in range(3):
-            config_path = os.path.dirname(config_path)
-        config_path = os.path.join(config_path, 'misc', '.clibato.default.yml')
+        config_path = os.path.dirname(config_path)
+        config_path = os.path.dirname(config_path)
+        config_path = os.path.join(config_path, 'fixtures', 'clibato.test.yml')
 
         expectation = clibato.Config({
             'contents': {
