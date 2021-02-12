@@ -1,3 +1,4 @@
+import shutil
 import os
 import unittest
 import clibato
@@ -78,6 +79,14 @@ class TestDestination(unittest.TestCase):
 
 
 class TestDirectory(unittest.TestCase):
+    def setUp(self):
+        self._path = os.path.expanduser('~/backup')
+        if not os.path.isdir(self._path):
+            os.mkdir(self._path)
+
+    def tearDown(self):
+        shutil.rmtree(self._path)
+
     def test_new(self):
         dest = clibato.destination.Directory({
             'type': 'directory',
@@ -135,10 +144,6 @@ class TestDirectory(unittest.TestCase):
         )
 
     def test_path_is_tilde(self):
-        path = os.path.expanduser('~/backup')
-        if not os.path.isdir(path):
-            os.mkdir(path)
-
         subject = clibato.destination.Directory({
             'type': 'directory',
             'path': '~/backup'
@@ -148,11 +153,9 @@ class TestDirectory(unittest.TestCase):
             subject.data(),
             {
                 'type': 'directory',
-                'path': path
+                'path': os.path.expanduser('~/backup')
             }
         )
-
-        os.rmdir(path)
 
     @unittest.skip('TODO')
     def test_backup(self):
