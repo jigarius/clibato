@@ -5,7 +5,8 @@ contents:
     source: '~/Documents/todo.txt'
 destination:
   type: "repository"
-  path: "git@github.com:jigarius/clibato.git"
+  path: "/tmp/clibato"
+  remote: "git@github.com:jigarius/clibato.git"
   branch: "main"
   # The name and mail are used for 'git commit'.
   user:

@@ -28,7 +28,8 @@ class TestConfig(unittest.TestCase):
             },
             'destination': {
                 'type': 'repository',
-                'path': 'git@github.com:USER/SLUG.git'
+                'path': '/tmp/clibato',
+                'remote': 'git@github.com:USER/SLUG.git'
             }
         })
 
@@ -93,16 +94,16 @@ class TestConfig(unittest.TestCase):
                 '.bashrc': {}
             },
             'destination': {
-                'type': 'repository',
-                'path': 'git@github.com:jigarius/clibato.git'
+                'type': 'directory',
+                'path': '/tmp'
             }
         })
 
         self.assertEqual(
             config.destination(),
-            clibato.destination.Repository({
-                'type': 'repository',
-                'path': 'git@github.com:jigarius/clibato.git'
+            clibato.destination.Directory({
+                'type': 'directory',
+                'path': '/tmp'
             })
         )
 

@@ -2,4 +2,5 @@ contents:
   .bashrc: {}
 destination:
   type: "repository"
-  path: "git@github.com:USER/SLUG.git"
+  path: "/tmp/clibato"
+  remote: "git@github.com:USER/SLUG.git"
