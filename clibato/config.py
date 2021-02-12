@@ -24,6 +24,7 @@ class ConfigAbstract:
 
     def _validate(self):
         """Validates the config object at instantiation"""
+        Config.ensure_shape(self._data, self._DEFAULTS)
 
 
 class Config(ConfigAbstract):
@@ -31,14 +32,14 @@ class Config(ConfigAbstract):
 
     _DEFAULTS = {
         'contents': {},
-        'destination': None
+        'destination': {}
     }
 
     def __init__(self, data: dict):
+        super().__init__(data)
+
         self._contents = None
         self._destination = None
-
-        super().__init__(data)
 
     def __eq__(self, other) -> bool:
         return (
@@ -64,12 +65,7 @@ class Config(ConfigAbstract):
         return self._destination
 
     def _validate(self) -> type(None):
-        extra_keys = self._data.keys() - self._DEFAULTS.keys()
-        if len(extra_keys) != 0:
-            extra_keys = list(extra_keys)
-            extra_keys.sort()
-            extra_keys = ', '.join(extra_keys)
-            raise ConfigError(f'Illegal keys: {extra_keys}')
+        super()._validate()
 
         if not self._data['contents']:
             raise ConfigError('Key cannot be empty: contents')
@@ -110,6 +106,53 @@ class Config(ConfigAbstract):
                 raise ConfigError from error
 
         return Config(data)
+
+    @staticmethod
+    def ensure_shape(data: dict, shape: dict, parents=None) -> bool:
+        """
+        Checks keys in 'data' conform with the ones in 'shape'.
+
+        An error is raised if:
+          - data is missing a key that exists in shape.
+          - data has a key that shape doesn't have.
+
+        :param data: A dictionary.
+        :param shape: A dictionary with the expected shape.
+        :param parents: The parent key (for internal use).
+        """
+        extra_keys = list(data.keys() - shape.keys())
+        if extra_keys:
+            extra_keys.sort()
+            keys = map(lambda k: Config._key_name(parents, k), extra_keys)
+            keys = ', '.join(keys)
+            raise ConfigError(f'Config has illegal keys: {keys}')
+
+        missing_keys = list(shape.keys() - data.keys())
+        if missing_keys:
+            missing_keys.sort()
+            keys = map(lambda k: Config._key_name(parents, k), missing_keys)
+            keys = ', '.join(keys)
+            raise ConfigError(f'Config has missing keys: {keys}')
+
+        for key in shape:
+            if not isinstance(shape[key], dict):
+                continue
+
+            if len(shape[key]) == 0:
+                continue
+
+            if not isinstance(data[key], dict):
+                key = Config._key_name(parents, key)
+                raise ConfigError(f'Config must have keyed-values: #{key}')
+
+            Config.ensure_shape(shape[key], data[key])
+
+    @staticmethod
+    def _key_name(parents: List[str], key: str):
+        if not parents:
+            return key
+
+        return '.'.join(parents + [key])
 
 
 class ConfigError(KeyError):

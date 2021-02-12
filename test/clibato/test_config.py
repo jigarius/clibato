@@ -136,7 +136,7 @@ class TestConfig(unittest.TestCase):
 
         self.assertEqual(
             str(context.exception).strip("'"),
-            "Illegal keys: bar, foo"
+            "Config has illegal keys: bar, foo"
         )
 
     def test_merge(self):
