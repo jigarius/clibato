@@ -102,6 +102,9 @@ class Directory(Destination):
         if not self._data['path']:
             raise clibato.ConfigError('Key cannot be empty: path')
 
+        if self._data['path'].startswith('~'):
+            self._data['path'] = os.path.expanduser(self._data['path'])
+
         if not os.path.isabs(self._data['path']):
             raise clibato.ConfigError(f'Path is not absolute: {self._path()}')
 

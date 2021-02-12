@@ -1,3 +1,4 @@
+import os
 import unittest
 import clibato
 
@@ -131,6 +132,20 @@ class TestDirectory(unittest.TestCase):
         self.assertEqual(
             str(context.exception).strip("'"),
             'Path is not a directory: /tmp/foo'
+        )
+
+    def test_path_is_tilde(self):
+        subject = clibato.destination.Directory({
+            'type': 'directory',
+            'path': '~/backup'
+        })
+
+        self.assertEqual(
+            subject.data(),
+            {
+                'type': 'directory',
+                'path': os.path.expanduser('~/backup')
+            }
         )
 
     @unittest.skip('TODO')
