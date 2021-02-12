@@ -135,6 +135,10 @@ class TestDirectory(unittest.TestCase):
         )
 
     def test_path_is_tilde(self):
+        path = os.path.expanduser('~/backup')
+        if not os.path.isdir(path):
+            os.mkdir(path)
+
         subject = clibato.destination.Directory({
             'type': 'directory',
             'path': '~/backup'
@@ -144,9 +148,11 @@ class TestDirectory(unittest.TestCase):
             subject.data(),
             {
                 'type': 'directory',
-                'path': os.path.expanduser('~/backup')
+                'path': path
             }
         )
+
+        os.rmdir(path)
 
     @unittest.skip('TODO')
     def test_backup(self):
