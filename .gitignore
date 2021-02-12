@@ -1,4 +1,5 @@
-# Clibato config for development.
+# Dev files.
+sandbox
 .clibato.yml
 
 # Miscellaneous.
