@@ -1,0 +1,66 @@
+# Example: .clibato.yml
+# ======
+
+# The 'contents' section is a list of files to backup/restore.
+#
+# Each key is a 'backup path' - a relative path representing a unique file.
+# The file will be stored at the backup path during the backup process.
+#
+# Here are some sample entries.
+contents:
+
+  # The .zshrc entry implies that "$HOME/.zshrc" will be stored at
+  #  "$BACKUP/.zshrc". Since a 'source' is not specified, Clibato will search
+  # for the file in the user's home directory.
+  .zshrc: {}
+
+  # The .bunnyrc entry explicitly specifies the location of the original file,
+  # i.e. ~/Documents/readme.md.
+  .bunnyrc:
+    source: '~/Documents/bunnyrc'
+
+  # The blinky.md entry contains an absolute path to the source file.
+  blinky.md:
+    source: '/var/www/blinky.md'
+
+  # The chaos.rb entry specifies a backup path that is very different from
+  # the source. This implies that "$HOME/code/poopify.rb" will be stored at
+  # "$BACKUP/i/m/chaos.rb". Though will surely cause confusion though.
+  i/m/chaos.rb:
+    source: '~/code/poopify.rb'
+
+#
+# The 'destination' section defines where the backup should be placed.
+#
+# Choose and configure a destination based on the examples.
+destination:
+  type: "directory|repository"
+  path: "/backup"
+
+#
+# Example: Directory
+#
+# Copies files to a backup directory.
+destination.directory:
+  type: "directory"
+  # Absolute path to the directory to store the backup.
+  # The directory must exist - it won't be created automatically.
+  path: "~/backup"
+
+#
+# Example: Repository
+#
+# Pushes backups to a Git repository.
+destination.repository:
+  type: "repository"
+  # The in which the backup will be prepared.
+  path: "~/backup"
+  # URL to a Git repository.
+  remote: "git@github.com:USER/SLUG.git"
+  # The branch to which to make the backup commit.
+  # If the branch doesn't exist, it will be created.
+  branch: "main"
+  # The name and mail identify the author of the git commit.
+  user:
+    name: "John Doe"
+    mail: "john.doe@example.com"
