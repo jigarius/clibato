@@ -1,6 +1,5 @@
 """Clibato Configuration"""
 
-from collections import deque
 from typing import List
 import os
 import yaml
@@ -95,27 +94,6 @@ class Config(ConfigAbstract):
                     continue
 
             result[key] = dict2[key]
-
-        return result
-
-    @staticmethod
-    def extract(data: dict, key: str):
-        """
-        Extracts a key of the form "foo.bar" from the a dictionary.
-        """
-        key_parts = deque(key.split('.'))
-        result = {**data}
-
-        while len(key_parts) != 0:
-            cur_key = key_parts.popleft()
-
-            if not isinstance(result, dict):
-                return None
-
-            if cur_key not in result:
-                return None
-
-            result = result[cur_key]
 
         return result
 

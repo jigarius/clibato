@@ -177,39 +177,3 @@ class TestConfig(unittest.TestCase):
             clibato.Config.merge(dict1, dict2),
             expectation
         )
-
-    def test_extract(self):
-        data = {
-            'a': 'alpha',
-            'b': {
-                'c': 'charlie',
-                'd': {
-                    'e': 'echo',
-                }
-            }
-        }
-
-        self.assertEqual(
-            clibato.Config.extract(data, 'a'),
-            'alpha'
-        )
-
-        self.assertEqual(
-            clibato.Config.extract(data, 'b.c'),
-            'charlie'
-        )
-
-        self.assertEqual(
-            clibato.Config.extract(data, 'b.d.e'),
-            'echo'
-        )
-
-        self.assertEqual(
-            clibato.Config.extract(data, 'b.f'),
-            None
-        )
-
-        self.assertEqual(
-            clibato.Config.extract(data, 'a.b'),
-            None
-        )
