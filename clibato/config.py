@@ -28,7 +28,7 @@ class ConfigAbstract:
         try:
             utils.ensure_shape(self._data, self._DEFAULTS)
         except KeyError as error:
-            raise ConfigError from error
+            raise ConfigError(error) from error
 
 
 class Config(ConfigAbstract):
@@ -86,6 +86,6 @@ class Config(ConfigAbstract):
             try:
                 data = yaml.safe_load(stream)
             except yaml.YAMLError as error:
-                raise ConfigError from error
+                raise ConfigError(error) from error
 
         return Config(data)
