@@ -6,16 +6,79 @@ from clibato import Content, Directory, Config, ConfigError
 
 
 class TestConfig(unittest.TestCase):
-    def setUp(self):
-        self.config = Config({
-            'contents': {
-                '.bashrc': {}
-            },
-            'destination': {
-                'type': 'repository',
-                'path': 'git@github.com:jigarius/clibato.git'
-            }
-        })
+    def test_from_dict(self):
+        self.assertEqual(
+            Config.from_dict({
+                'contents': {
+                    '.bashrc': None,
+                    '.zshrc': None
+                },
+                'destination': {
+                    'type': 'directory',
+                    'path': '/tmp'
+                }
+            }),
+            __class__._build_config()
+        )
+
+    def test_from_dict_with_improper_contents(self):
+        with self.assertRaises(ConfigError) as context:
+            Config.from_dict({
+                'contents': {
+                    '.bashrc': {}
+                },
+                'destination': {
+                    'type': 'directory',
+                    'path': '/tmp'
+                }
+            })
+
+        self.assertEqual(
+            str(context.exception).strip("'"),
+            "Illegal value for contents/.bashrc: {}"
+        )
+
+    def test_from_dict_with_illegal_keys(self):
+        with self.assertRaises(ConfigError) as context:
+            Config.from_dict({
+                'foo': 'bunny',
+                'bar': 'wabbit',
+                'contents': {
+                    '.bashrc': None
+                },
+                'destination': {
+                    'type': 'directory',
+                    'path': '/tmp'
+                }
+            })
+
+        self.assertEqual(
+            str(context.exception).strip("'"),
+            "Config has illegal keys: bar, foo"
+        )
+
+    def test_from_dict_with_missing_keys(self):
+        required_keys = ['contents', 'destination']
+
+        for key in required_keys:
+            with self.assertRaises(ConfigError) as context:
+                data = {
+                    'contents': {
+                        '.bashrc': None
+                    },
+                    'destination': {
+                        'type': 'directory',
+                        'path': '/tmp'
+                    }
+                }
+                del data[key]
+
+                Config.from_dict(data)
+
+            self.assertEqual(
+                str(context.exception).strip("'"),
+                f'Config has missing keys: {key}'
+            )
 
     def test_from_file_with_absolute_path(self):
         config_path = __file__
@@ -23,20 +86,9 @@ class TestConfig(unittest.TestCase):
         config_path = os.path.dirname(config_path)
         config_path = os.path.join(config_path, 'fixtures', 'clibato.test.yml')
 
-        expectation = Config({
-            'contents': {
-                '.bashrc': {}
-            },
-            'destination': {
-                'type': 'repository',
-                'path': '/tmp/clibato',
-                'remote': 'git@github.com:USER/SLUG.git'
-            }
-        })
-
         self.assertEqual(
             Config.from_file(config_path),
-            expectation
+            __class__._build_config()
         )
 
     @unittest.skip('TODO')
@@ -47,92 +99,83 @@ class TestConfig(unittest.TestCase):
     def test_from_file_with_home_path(self):
         pass
 
-    def test_data(self):
-        config = Config({
+    def test__eq__(self):
+        subject = Config.from_dict({
             'contents': {
-                '.bashrc': {}
-            },
-            'destination': {
-                'type': 'repository',
-                'remote': 'git@github.com:jigarius/clibato.git',
-            }
-        })
-
-        self.assertEqual(config.data(), {
-            'contents': {
-                '.bashrc': {}
-            },
-            'destination': {
-                'type': 'repository',
-                'remote': 'git@github.com:jigarius/clibato.git',
-            }
-        })
-
-    def test_contents(self):
-        expectation = {
-            '.bashrc': Content('.bashrc', {})
-        }
-
-        self.assertEqual(self.config.contents(), expectation)
-
-    def test_contents_when_undefined(self):
-        with self.assertRaises(ConfigError) as context:
-            Config({
-                'destination': {
-                    'type': 'repository',
-                    'remote': 'git@github.com:jigarius/clibato.git'
-                }
-            })
-
-        self.assertEqual(
-            str(context.exception).strip("'"),
-            "Key cannot be empty: contents"
-        )
-
-    def test_destination(self):
-        config = Config({
-            'contents': {
-                '.bashrc': {}
+                '.bashrc': None,
+                '.zshrc': None
             },
             'destination': {
                 'type': 'directory',
-                'path': '/tmp'
+                'path': '/tmp',
             }
         })
 
         self.assertEqual(
-            config.destination(),
+            subject,
+            Config.from_dict({
+                'contents': {
+                    '.bashrc': None,
+                    '.zshrc': None
+                },
+                'destination': {
+                    'type': 'directory',
+                    'path': '/tmp',
+                }
+            })
+        )
+
+        # Difference in content
+        self.assertNotEqual(
+            subject,
+            Config.from_dict({
+                'contents': {
+                    '.bashrc': None,
+                    '.zshrc': '/tmp/.zshrc'
+                },
+                'destination': {
+                    'type': 'directory',
+                    'path': '/tmp',
+                }
+            })
+        )
+
+        # Difference in destination
+        self.assertNotEqual(
+            subject,
+            Config.from_dict({
+                'contents': {
+                    '.bashrc': None,
+                    '.zshrc': None
+                },
+                'destination': {
+                    'type': 'directory',
+                    'path': '/var',
+                }
+            })
+        )
+
+    def test_contents(self):
+        self.assertEqual(
+            __class__._build_config().contents(),
+            [
+                Content('.bashrc'),
+                Content('.zshrc')
+            ]
+        )
+
+    def test_destination(self):
+        self.assertEqual(
+            __class__._build_config().destination(),
             Directory({'path': '/tmp'})
         )
 
-    def test_destination_when_undefined(self):
-        with self.assertRaises(ConfigError) as context:
-            Config({
-                'contents': {
-                    '.bashrc': {}
-                },
-            })
+    @staticmethod
+    def _build_config(contents=None, destination=None):
+        contents = contents or [
+            Content('.bashrc'),
+            Content('.zshrc'),
+        ]
+        destination = destination or Directory({'path': '/tmp'})
 
-        self.assertEqual(
-            str(context.exception).strip("'"),
-            "Key cannot be empty: destination"
-        )
-
-    def test_illegal_keys(self):
-        with self.assertRaises(ConfigError) as context:
-            Config({
-                'foo': 'bunny',
-                'bar': 'wabbit',
-                'contents': {
-                    '.bashrc': {}
-                },
-                'destination': {
-                    'type': 'repository',
-                    'remote': 'git@github.com:jigarius/clibato.git'
-                }
-            })
-
-        self.assertEqual(
-            str(context.exception).strip("'"),
-            "Config has illegal keys: bar, foo"
-        )
+        return Config(contents, destination)

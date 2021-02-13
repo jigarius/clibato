@@ -9,51 +9,56 @@ from .content import Content
 from .destination import Destination
 
 
-class Config(utils.ConfigDict):
+class Config:
     """Clibato Configuration"""
 
-    _DEFAULTS = {
-        'contents': {},
-        'destination': {}
-    }
-
-    def __init__(self, data: dict):
-        super().__init__(data)
-
-        self._contents = None
-        self._destination = None
+    def __init__(self, contents: List[Content], destination: Destination):
+        self._contents = contents
+        self._destination = destination
 
     def __eq__(self, other) -> bool:
         return (
             isinstance(other, type(self)) and
-            self.data() == other.data()
+            self.contents() == other.contents() and
+            self.destination() == other.destination()
         )
 
     def contents(self) -> List[Content]:
         """Get the contents, i.e. items to backup/restore."""
-        if not self._contents:
-            raw_contents = self._data['contents']
-            self._contents = {}
-            for backup_path in raw_contents:
-                self._contents[backup_path] = Content(backup_path, raw_contents[backup_path])
-
         return self._contents
 
-    def destination(self):
+    def destination(self) -> Destination:
         """Get the destination configuration."""
-        if not self._destination:
-            self._destination = Destination.from_dict(self._data['destination'])
-
         return self._destination
 
-    def _validate(self) -> type(None):
-        super()._validate()
+    @staticmethod
+    def from_dict(data: dict):
+        """
+        Create Config object from a dictionary.
 
-        if not self._data['contents']:
-            raise ConfigError('Key cannot be empty: contents')
+        :except KeyError
+        """
+        try:
+            utils.ensure_shape(
+                data,
+                {'contents': {}, 'destination': {}}
+            )
+        except KeyError as error:
+            raise ConfigError(error) from error
 
-        if not self._data['destination']:
-            raise ConfigError('Key cannot be empty: destination')
+        contents = []
+        for backup_path in data['contents']:
+            source_path = data['contents'][backup_path]
+
+            if not isinstance(source_path, str) and (source_path is not None):
+                raise ConfigError(f'Illegal value for contents/{backup_path}: {source_path}')
+
+            contents.append(Content(backup_path, source_path))
+
+        return Config(
+            contents,
+            Destination.from_dict(data['destination'])
+        )
 
     @staticmethod
     def from_file(path):
@@ -66,4 +71,4 @@ class Config(utils.ConfigDict):
             except yaml.YAMLError as error:
                 raise ConfigError(error) from error
 
-        return Config(data)
+        return Config.from_dict(data)

@@ -34,7 +34,7 @@ class TestDestination(unittest.TestCase):
             'Illegal type: foobar'
         )
 
-    def test_equality_operator(self):
+    def test__eq__(self):
         subject = destination.Directory({'path': '/tmp'})
 
         self.assertEqual(
@@ -121,9 +121,7 @@ class TestDirectory(unittest.TestCase):
 
         subject = destination.Directory({'path': '~/backup'})
 
-        subject.backup({
-            '.bunny': Content('.bunny')
-        })
+        subject.backup([Content('.bunny')])
 
         self.assertEqual(
             FileSystem.read_file('~/backup/.bunny'),
@@ -134,15 +132,12 @@ class TestDirectory(unittest.TestCase):
     def test_backup_file_not_found(self):
         pass
 
-    @unittest.skip('TODO')
     def test_restore(self):
         FileSystem.write_file('~/backup/.bunny', 'I am a bunny')
 
         subject = destination.Directory({'path': '~/backup'})
 
-        subject.restore({
-            '.bunny': Content('.bunny')
-        })
+        subject.restore([Content('.bunny')])
 
         self.assertEqual(
             FileSystem.read_file('~/.bunny'),

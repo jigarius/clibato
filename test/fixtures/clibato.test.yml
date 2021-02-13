@@ -1,6 +1,6 @@
 contents:
-  .bashrc: {}
+  .bashrc:
+  .zshrc:
 destination:
-  type: "repository"
-  path: "/tmp/clibato"
-  remote: "git@github.com:USER/SLUG.git"
+  type: "directory"
+  path: "/tmp"

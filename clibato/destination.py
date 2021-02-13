@@ -60,8 +60,7 @@ class Directory(Destination):
     }
 
     def backup(self, contents):
-        for k in contents:
-            content = contents[k]
+        for content in contents:
             try:
                 copyfile(
                     content.source_path(),
@@ -72,8 +71,7 @@ class Directory(Destination):
                 Logger.error(f'Source not found: {content.source_path()}')
 
     def restore(self, contents):
-        for k in contents:
-            content = contents[k]
+        for content in contents:
             try:
                 copyfile(
                     content.backup_path(self._path()),
@@ -133,8 +131,8 @@ class Repository(Directory):
 
         index = repo.index
         index.reset()
-        for k in contents:
-            index.add(contents[k].backup_path())
+        for content in contents:
+            index.add(content.backup_path())
 
         change_count = len(repo.index.diff(None))
         Logger.info(f'{change_count} change(s) detected.')
