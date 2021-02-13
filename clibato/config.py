@@ -4,6 +4,7 @@ from typing import List
 import os
 import yaml
 
+from .error import ConfigError
 from .content import Content
 from .destination import Destination
 
@@ -153,7 +154,3 @@ class Config(ConfigAbstract):
             return key
 
         return '.'.join(parents + [key])
-
-
-class ConfigError(KeyError):
-    """Configuration Error"""
