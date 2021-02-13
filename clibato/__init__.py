@@ -2,4 +2,4 @@ from .logger import *
 from .config import *
 from .content import *
 from .destination import *
-from .cli import *
+from .clibato import *

@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
 """
-Clibato: CLI Backup Tool.
+Clibato: Entrypoint.
 """
 
-from clibato.cli import CLI
+import clibato
 
 
 def main():
     """Clibato Entrypoint"""
-    cli = CLI()
-    cli.execute()
+    app = clibato.Clibato()
+    app.execute()
 
 
 if __name__ == '__main__':

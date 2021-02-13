@@ -3,15 +3,15 @@ import argparse
 from clibato import Config, ConfigError, Logger
 
 
-class CLI:
-    """Clibato CLI"""
+class Clibato:
+    """Clibato Controller"""
     def __init__(self):
         self._args = None
         self._config = None
 
     def execute(self):
         """Executes the CLI"""
-        self._args = CLI._argparser().parse_args()
+        self._args = Clibato._argparser().parse_args()
 
         if not self._args.action:
             print("Run 'clibato --help' for help.")
