@@ -50,3 +50,7 @@ class TestUtils(unittest.TestCase):
             utils.normalize_path('~/foo/bar'),
             os.path.expanduser('~/foo/bar')
         )
+
+    @unittest.skip('Create TestEnsureShape')
+    def test_ensure_shape(self):
+        pass
