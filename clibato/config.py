@@ -9,29 +9,7 @@ from .content import Content
 from .destination import Destination
 
 
-class ConfigAbstract:
-    """Configuration Abstract"""
-
-    _DEFAULTS = {}
-
-    def __init__(self, data: dict):
-        self._data = utils.dict_merge(self._DEFAULTS, data)
-
-        self._validate()
-
-    def data(self):
-        """Get the underlying config as a dictionary"""
-        return {**self._data}
-
-    def _validate(self):
-        """Validates the config object at instantiation"""
-        try:
-            utils.ensure_shape(self._data, self._DEFAULTS)
-        except KeyError as error:
-            raise ConfigError(error) from error
-
-
-class Config(ConfigAbstract):
+class Config(utils.ConfigDict):
     """Clibato Configuration"""
 
     _DEFAULTS = {

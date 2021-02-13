@@ -1,4 +1,28 @@
 import os
+from .error import ConfigError as _ConfigError
+
+
+# TODO: Maybe use @dataclass or TypedDict?
+class ConfigDict:
+    """Configuration Abstract"""
+
+    _DEFAULTS = {}
+
+    def __init__(self, data: dict):
+        self._data = dict_merge(self._DEFAULTS, data)
+
+        self._validate()
+
+    def data(self):
+        """Get the underlying config as a dictionary"""
+        return {**self._data}
+
+    def _validate(self):
+        """Validates the config object at instantiation"""
+        try:
+            ensure_shape(self._data, self._DEFAULTS)
+        except KeyError as error:
+            raise _ConfigError(error) from error
 
 
 def dict_merge(dict1: dict, dict2: dict):

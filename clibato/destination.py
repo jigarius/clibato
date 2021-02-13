@@ -7,19 +7,14 @@ from .error import ConfigError
 from .logger import Logger
 
 
-class Destination:
+class Destination(utils.ConfigDict):
     """Clibato Backup Destination"""
-    # TODO: Extend ConfigAbstract
-    #   See https://docs.python.org/2/library/abc.html
-
-    _DEFAULTS = {}
 
     def __init__(self, data: dict):
         if type(self) is Destination:
             raise NotImplementedError(f'Class not instantiable: {type(self).__name__}')
 
-        self._data = utils.dict_merge(self._DEFAULTS, data)
-        self._validate()
+        super().__init__(data)
 
     def __eq__(self, other):
         return (
@@ -31,10 +26,6 @@ class Destination:
         """Get the underlying configuration as a dictionary"""
         return {**self._data}
 
-    def type(self) -> str:
-        """Destination type"""
-        return self._data['type']
-
     def backup(self, contents):
         """Backup the contents"""
         raise NotImplementedError()
@@ -43,10 +34,6 @@ class Destination:
         """Restore the contents"""
         raise NotImplementedError()
 
-    def _validate(self):
-        if not self._data.get('type'):
-            raise ConfigError('Key cannot be empty: type')
-
     @staticmethod
     def from_dict(data: dict):
         """
@@ -54,7 +41,7 @@ class Destination:
 
         data.type determines the type of object.
         """
-        tipo = data.get('type', None)
+        tipo = data.pop('type', None)
 
         if tipo == 'repository':
             return Repository(data)

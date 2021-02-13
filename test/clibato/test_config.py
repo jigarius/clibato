@@ -102,10 +102,7 @@ class TestConfig(unittest.TestCase):
 
         self.assertEqual(
             config.destination(),
-            Directory({
-                'type': 'directory',
-                'path': '/tmp'
-            })
+            Directory({'path': '/tmp'})
         )
 
     def test_destination_when_undefined(self):
