@@ -10,24 +10,21 @@
 contents:
 
   # The .zshrc entry implies that "$HOME/.zshrc" will be stored at
-  #  "$BACKUP/.zshrc". Since a 'source' is not specified, Clibato will search
-  # for the file in the user's home directory.
-  .zshrc: {}
+  #  "$BACKUP/.zshrc". Clibato will look for the file in the user's
+  # home directory.
+  .zshrc:
 
-  # The .bunnyrc entry explicitly specifies the location of the original file,
+  # The .bunnyrc entry specifies the location of the original file,
   # i.e. ~/Documents/readme.md.
-  .bunnyrc:
-    source: '~/Documents/bunnyrc'
+  .bunnyrc: '~/Documents/bunnyrc'
 
-  # The blinky.md entry contains an absolute path to the source file.
-  blinky.md:
-    source: '/var/www/blinky.md'
+  # The blinky.md entry specifies an absolute path to the original file.
+  blinky.md: '/var/www/blinky.md'
 
   # The chaos.rb entry specifies a backup path that is very different from
   # the source. This implies that "$HOME/code/poopify.rb" will be stored at
-  # "$BACKUP/i/m/chaos.rb". Though will surely cause confusion though.
-  i/m/chaos.rb:
-    source: '~/code/poopify.rb'
+  # "$BACKUP/i/m/chaos.rb". This will surely cause confusion though.
+  i/m/chaos.rb: '~/code/poopify.rb'
 
 #
 # The 'destination' section defines where the backup should be placed.
