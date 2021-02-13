@@ -105,8 +105,7 @@ class Directory(Destination):
         if not self._data['path']:
             raise ConfigError('Key cannot be empty: path')
 
-        if self._data['path'].startswith('~'):
-            self._data['path'] = os.path.expanduser(self._data['path'])
+        self._data['path'] = utils.normalize_path(self._data['path'])
 
         if not os.path.isabs(self._data['path']):
             raise ConfigError(f'Path is not absolute: {self._path()}')

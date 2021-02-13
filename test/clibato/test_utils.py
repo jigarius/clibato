@@ -1,4 +1,5 @@
 import unittest
+import os
 
 from clibato import utils
 
@@ -41,4 +42,11 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(
             utils.dict_merge(dict1, dict2),
             expectation
+        )
+
+    def test_normalize_path(self):
+        """Path ~/foo/bar becomes $HOME/foo/bar"""
+        self.assertEqual(
+            utils.normalize_path('~/foo/bar'),
+            os.path.expanduser('~/foo/bar')
         )

@@ -1,6 +1,6 @@
 import unittest
 
-from clibato import Content, ConfigError, destination
+from clibato import Content, ConfigError, destination, utils
 from .support import FileSystem
 
 
@@ -153,7 +153,7 @@ class TestDirectory(unittest.TestCase):
             subject.data(),
             {
                 'type': 'directory',
-                'path': FileSystem.normalize('~/backup')
+                'path': utils.normalize_path('~/backup')
             }
         )
 

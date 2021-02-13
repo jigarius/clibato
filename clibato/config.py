@@ -78,8 +78,7 @@ class Config(ConfigAbstract):
     @staticmethod
     def from_file(path):
         """Create Config object from a YAML file."""
-        if path.startswith('~/'):
-            path = os.path.expanduser(path)
+        path = utils.normalize_path(path)
 
         with open(path, 'r') as stream:
             try:

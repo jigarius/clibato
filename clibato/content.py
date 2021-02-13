@@ -1,6 +1,7 @@
 import os
 
 from .error import ConfigError
+from . import utils
 
 
 class Content:
@@ -45,8 +46,7 @@ class Content:
         if not self._config.get('source'):
             self._config['source'] = f'~/{self.backup_path()}'
 
-        if self._config['source'].startswith('~'):
-            self._config['source'] = os.path.expanduser(self._config['source'])
+        self._config['source'] = utils.normalize_path(self._config['source'])
 
         if not os.path.isabs(self._config['source']):
             raise ConfigError(f"Source path invalid: {self._config['source']}")

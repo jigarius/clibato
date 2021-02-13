@@ -1,3 +1,6 @@
+import os
+
+
 def dict_merge(dict1: dict, dict2: dict):
     """
     Create a dictionary where dict2 is merged into dict1.
@@ -24,3 +27,18 @@ def dict_merge(dict1: dict, dict2: dict):
         result[key] = dict2[key]
 
     return result
+
+
+def normalize_path(path: str) -> str:
+    """
+    Normalizes a path.
+
+    Example
+    ------
+    Input: ~/backup
+    Output: "$HOME/backup"
+
+    :param path: A path.
+    :return: Normalized path.
+    """
+    return os.path.expanduser(path)
