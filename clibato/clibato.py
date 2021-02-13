@@ -1,4 +1,5 @@
 import sys
+import os
 import argparse
 
 from .error import ConfigError
@@ -8,6 +9,8 @@ from .config import Config
 
 class Clibato:
     """Clibato Controller"""
+
+    ROOT = os.path.dirname(os.path.dirname(__file__))
 
     def __init__(self):
         self._args = None
@@ -48,7 +51,6 @@ class Clibato:
 
     def _ensure_config(self):
         if not self._config:
-            Logger.debug(f'Loading configuration: {self._args.config_file}')
             self._config = Config.from_file(self._args.config_file)
 
     @staticmethod
@@ -63,9 +65,10 @@ class Clibato:
             dest='verbose',
             help='Enable verbose output.'
         )
+        # TODO: Investigate add_argument('path', type=pathlib.Path)
         common_parser.add_argument(
             '--config-file',
-            default='~/.clibato.yml',
+            default=Config.DEFAULT_FILENAME,
             action='store',
             dest='config_file',
             help='A Clibato configuration file (YML).'

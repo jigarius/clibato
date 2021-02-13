@@ -1,11 +1,13 @@
-from pathlib import Path
+from shutil import copyfile
 import os
 import unittest
 
-from clibato import Content, Directory, Config, ConfigError
+from clibato import Clibato, Content, Directory, Config, ConfigError
 
 
 class TestConfig(unittest.TestCase):
+    _FIXTURE_PATH = os.path.join(Clibato.ROOT, 'test', 'fixtures', 'clibato.test.yml')
+
     def test_from_dict(self):
         self.assertEqual(
             Config.from_dict({
@@ -81,23 +83,32 @@ class TestConfig(unittest.TestCase):
             )
 
     def test_from_file_with_absolute_path(self):
-        config_path = __file__
-        config_path = os.path.dirname(config_path)
-        config_path = os.path.dirname(config_path)
-        config_path = os.path.join(config_path, 'fixtures', 'clibato.test.yml')
-
         self.assertEqual(
-            Config.from_file(config_path),
+            Config.from_file(self._FIXTURE_PATH),
             __class__._build_config()
         )
 
-    @unittest.skip('TODO')
     def test_from_file_with_relative_path(self):
-        pass
+        original_cwd = os.getcwd()
+        os.chdir(os.path.join(Clibato.ROOT, 'test'))
 
-    @unittest.skip('TODO')
+        self.assertEqual(
+            Config.from_file(os.path.join('fixtures', 'clibato.test.yml')),
+            __class__._build_config()
+        )
+
+        os.chdir(original_cwd)
+
     def test_from_file_with_home_path(self):
-        pass
+        path = os.path.expanduser('~/clibato.test.yml')
+        copyfile(self._FIXTURE_PATH, path)
+
+        self.assertEqual(
+            Config.from_file('clibato.test.yml'),
+            __class__._build_config()
+        )
+
+        os.remove(path)
 
     def test__eq__(self):
         subject = Config.from_dict({
