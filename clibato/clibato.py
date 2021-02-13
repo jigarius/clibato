@@ -1,10 +1,14 @@
 import sys
 import argparse
-from clibato import Config, ConfigError, Logger
+
+from .error import ConfigError
+from .logger import Logger
+from .config import Config
 
 
 class Clibato:
     """Clibato Controller"""
+
     def __init__(self):
         self._args = None
         self._config = None

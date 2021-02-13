@@ -1,12 +1,13 @@
 from pathlib import Path
 import os
 import unittest
-import clibato
+
+from clibato import Content, Directory, Config, ConfigError
 
 
 class TestConfig(unittest.TestCase):
     def setUp(self):
-        self.config = clibato.Config({
+        self.config = Config({
             'contents': {
                 '.bashrc': {}
             },
@@ -22,7 +23,7 @@ class TestConfig(unittest.TestCase):
         config_path = os.path.dirname(config_path)
         config_path = os.path.join(config_path, 'fixtures', 'clibato.test.yml')
 
-        expectation = clibato.Config({
+        expectation = Config({
             'contents': {
                 '.bashrc': {}
             },
@@ -34,7 +35,7 @@ class TestConfig(unittest.TestCase):
         })
 
         self.assertEqual(
-            clibato.Config.from_file(config_path),
+            Config.from_file(config_path),
             expectation
         )
 
@@ -47,7 +48,7 @@ class TestConfig(unittest.TestCase):
         pass
 
     def test_data(self):
-        config = clibato.Config({
+        config = Config({
             'contents': {
                 '.bashrc': {}
             },
@@ -69,14 +70,14 @@ class TestConfig(unittest.TestCase):
 
     def test_contents(self):
         expectation = {
-            '.bashrc': clibato.Content('.bashrc', {})
+            '.bashrc': Content('.bashrc', {})
         }
 
         self.assertEqual(self.config.contents(), expectation)
 
     def test_contents_when_undefined(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.Config({
+        with self.assertRaises(ConfigError) as context:
+            Config({
                 'destination': {
                     'type': 'repository',
                     'remote': 'git@github.com:jigarius/clibato.git'
@@ -89,7 +90,7 @@ class TestConfig(unittest.TestCase):
         )
 
     def test_destination(self):
-        config = clibato.Config({
+        config = Config({
             'contents': {
                 '.bashrc': {}
             },
@@ -101,15 +102,15 @@ class TestConfig(unittest.TestCase):
 
         self.assertEqual(
             config.destination(),
-            clibato.destination.Directory({
+            Directory({
                 'type': 'directory',
                 'path': '/tmp'
             })
         )
 
     def test_destination_when_undefined(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.Config({
+        with self.assertRaises(ConfigError) as context:
+            Config({
                 'contents': {
                     '.bashrc': {}
                 },
@@ -121,8 +122,8 @@ class TestConfig(unittest.TestCase):
         )
 
     def test_illegal_keys(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.Config({
+        with self.assertRaises(ConfigError) as context:
+            Config({
                 'foo': 'bunny',
                 'bar': 'wabbit',
                 'contents': {
@@ -137,43 +138,4 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(
             str(context.exception).strip("'"),
             "Config has illegal keys: bar, foo"
-        )
-
-    def test_merge(self):
-        dict1 = {
-            'a': 'alpha',
-            'b': '',
-            'd': {
-                '1': 'one',
-                '2': '',
-            },
-            'e': 'error',
-        }
-
-        dict2 = {
-            'a': '',
-            'b': 'beta',
-            'c': 'charlie',
-            'd': {
-                '2': 'two',
-                '3': 'three'
-            },
-            'e': 'echo'
-        }
-
-        expectation = {
-            'a': 'alpha',  # Keeps dict1 value since dict2 value is empty.
-            'b': 'beta',
-            'c': 'charlie',
-            'd': {
-                '1': 'one',
-                '2': 'two',
-                '3': 'three'
-            },
-            'e': 'echo'
-        }
-
-        self.assertEqual(
-            clibato.Config.merge(dict1, dict2),
-            expectation
         )

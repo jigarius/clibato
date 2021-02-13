@@ -4,6 +4,7 @@ from typing import List
 import os
 import yaml
 
+from . import utils
 from .error import ConfigError
 from .content import Content
 from .destination import Destination
@@ -15,7 +16,7 @@ class ConfigAbstract:
     _DEFAULTS = {}
 
     def __init__(self, data: dict):
-        self._data = Config.merge(self._DEFAULTS, data)
+        self._data = utils.dict_merge(self._DEFAULTS, data)
 
         self._validate()
 
@@ -75,26 +76,6 @@ class Config(ConfigAbstract):
             raise ConfigError('Key cannot be empty: destination')
 
     @staticmethod
-    def merge(dict1: dict, dict2: dict):
-        """Create a dictionary where dict2 is merged into dict1"""
-        result = {**dict1}
-
-        for key in dict2:
-            if key in result:
-                # Merge dictionaries.
-                if isinstance(result[key], dict) and isinstance(dict2[key], dict):
-                    result[key] = Config.merge(result[key], dict2[key])
-                    continue
-
-                # Do not overwrite with non-empty strings.
-                if isinstance(dict2[key], str) and dict2[key] == '':
-                    continue
-
-            result[key] = dict2[key]
-
-        return result
-
-    @staticmethod
     def from_file(path):
         """Create Config object from a YAML file."""
         if path.startswith('~/'):
@@ -121,17 +102,19 @@ class Config(ConfigAbstract):
         :param shape: A dictionary with the expected shape.
         :param parents: The parent key (for internal use).
         """
+        parents = parents or []
+
         extra_keys = list(data.keys() - shape.keys())
         if extra_keys:
             extra_keys.sort()
-            keys = map(lambda k: Config._key_name(parents, k), extra_keys)
+            keys = map(lambda k: '.'.join([*parents, k]), extra_keys)
             keys = ', '.join(keys)
             raise ConfigError(f'Config has illegal keys: {keys}')
 
         missing_keys = list(shape.keys() - data.keys())
         if missing_keys:
             missing_keys.sort()
-            keys = map(lambda k: Config._key_name(parents, k), missing_keys)
+            keys = map(lambda k: '.'.join([*parents, k]), missing_keys)
             keys = ', '.join(keys)
             raise ConfigError(f'Config has missing keys: {keys}')
 
@@ -143,14 +126,7 @@ class Config(ConfigAbstract):
                 continue
 
             if not isinstance(data[key], dict):
-                key = Config._key_name(parents, key)
+                key = '.'.join([*parents, key])
                 raise ConfigError(f'Config must have keyed-values: #{key}')
 
-            Config.ensure_shape(shape[key], data[key])
-
-    @staticmethod
-    def _key_name(parents: List[str], key: str):
-        if not parents:
-            return key
-
-        return '.'.join(parents + [key])
+            Config.ensure_shape(shape[key], data[key], [*parents, key])

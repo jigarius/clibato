@@ -1,5 +1,6 @@
 import os
-import clibato
+
+from .error import ConfigError
 
 
 class Content:
@@ -33,13 +34,13 @@ class Content:
 
     def _validate(self):
         if os.path.isabs(self._config['backup']):
-            raise clibato.ConfigError('Backup path cannot be absolute')
+            raise ConfigError('Backup path cannot be absolute')
 
         backup_path_parts = self._config['backup'].split('/')
 
         for illegal_part in ['.', '..', '~']:
             if illegal_part in backup_path_parts:
-                raise clibato.ConfigError(f'Backup path cannot contain: {illegal_part}')
+                raise ConfigError(f'Backup path cannot contain: {illegal_part}')
 
         if not self._config.get('source'):
             self._config['source'] = f'~/{self.backup_path()}'
@@ -48,4 +49,4 @@ class Content:
             self._config['source'] = os.path.expanduser(self._config['source'])
 
         if not os.path.isabs(self._config['source']):
-            raise clibato.ConfigError(f"Source path invalid: {self._config['source']}")
+            raise ConfigError(f"Source path invalid: {self._config['source']}")

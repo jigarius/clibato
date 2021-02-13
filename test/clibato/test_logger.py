@@ -2,7 +2,7 @@ import sys
 import io
 import unittest
 
-import clibato
+from clibato import Logger
 
 
 class TestLogger(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestLogger(unittest.TestCase):
         self.stdout = sys.__stdout__
 
     def test_log_info(self):
-        clibato.Logger.info('Operation successful.')
+        Logger.info('Operation successful.')
 
         self.assertEqual(
             '[info] Operation successful.\n',
@@ -22,7 +22,7 @@ class TestLogger(unittest.TestCase):
         )
 
     def test_log_error(self):
-        clibato.Logger.error('Operation failed.')
+        Logger.error('Operation failed.')
 
         self.assertEqual(
             '[error] Operation failed.\n',
@@ -30,7 +30,7 @@ class TestLogger(unittest.TestCase):
         )
 
     def test_log_debug(self):
-        clibato.Logger.debug('Feeding the bunny wabbit.')
+        Logger.debug('Feeding the bunny wabbit.')
 
         self.assertEqual(
             '[debug] Feeding the bunny wabbit.\n',

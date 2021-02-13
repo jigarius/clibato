@@ -1,24 +1,25 @@
 import os
 import unittest
-import clibato
+
+from clibato import Content, ConfigError
 
 
 class TestContent(unittest.TestCase):
     _HOME_PATH = os.path.expanduser('~')
 
     def test_backup_path(self):
-        content = clibato.Content('.bashrc')
+        content = Content('.bashrc')
         self.assertEqual(content.backup_path(), '.bashrc')
 
     def test_backup_path_with_prefix(self):
-        content = clibato.Content('.bashrc')
+        content = Content('.bashrc')
         self.assertEqual(
             content.backup_path('/backup'),
             '/backup/.bashrc'
         )
 
     def test_source_path(self):
-        content = clibato.Content(
+        content = Content(
             'todo.txt',
             {'source': '/users/jigarius/todo.txt'}
         )
@@ -28,7 +29,7 @@ class TestContent(unittest.TestCase):
         )
 
     def test_source_path_with_tilde(self):
-        content = clibato.Content(
+        content = Content(
             'todo.txt',
             {'source': '~/Documents/todo.txt'}
         )
@@ -38,8 +39,8 @@ class TestContent(unittest.TestCase):
         )
 
     def test_source_path_cannot_be_relative(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            content = clibato.Content(
+        with self.assertRaises(ConfigError) as context:
+            Content(
                 'todo.txt',
                 {'source': 'Documents/todo.txt'}
             )
@@ -50,7 +51,7 @@ class TestContent(unittest.TestCase):
         )
 
     def test_source_path_when_empty(self):
-        content = clibato.Content(
+        content = Content(
             'todo.txt',
             {'source': ''}
         )
@@ -60,15 +61,15 @@ class TestContent(unittest.TestCase):
         )
 
     def test_source_path_when_undefined(self):
-        content = clibato.Content('.bashrc')
+        content = Content('.bashrc')
         self.assertEqual(
             content.source_path(),
             f'{self._HOME_PATH}/.bashrc'
         )
 
     def test_backup_path_cannot_be_absolute(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.Content('/.bashrc')
+        with self.assertRaises(ConfigError) as context:
+            Content('/.bashrc')
 
         self.assertEqual(
             str(context.exception).strip("'"),
@@ -76,8 +77,8 @@ class TestContent(unittest.TestCase):
         )
 
     def test_backup_path_cannot_have_tilde(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.Content('~/.bashrc')
+        with self.assertRaises(ConfigError) as context:
+            Content('~/.bashrc')
 
         self.assertEqual(
             str(context.exception).strip("'"),
@@ -85,8 +86,8 @@ class TestContent(unittest.TestCase):
         )
 
     def test_backup_path_cannot_have_single_dot(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.Content('./.bashrc')
+        with self.assertRaises(ConfigError) as context:
+            Content('./.bashrc')
 
         self.assertEqual(
             str(context.exception).strip("'"),
@@ -94,8 +95,8 @@ class TestContent(unittest.TestCase):
         )
 
     def test_backup_path_cannot_have_double_dot(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.Content('../.bashrc')
+        with self.assertRaises(ConfigError) as context:
+            Content('../.bashrc')
 
         self.assertEqual(
             str(context.exception).strip("'"),

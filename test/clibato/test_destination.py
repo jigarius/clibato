@@ -1,21 +1,22 @@
 import unittest
-import clibato
+
+from clibato import Content, ConfigError, destination
 from .support import FileSystem
 
 
 class TestDestination(unittest.TestCase):
     def test_new_not_allowed(self):
         with self.assertRaises(NotImplementedError) as context:
-            clibato.Destination({'type': 'directory', 'path': '/tmp'})
+            destination.Destination({'type': 'directory', 'path': '/tmp'})
 
         self.assertEqual(
             str(context.exception).strip("'"),
-            f'Class not instantiable: {clibato.Destination.__name__}'
+            f'Class not instantiable: {destination.Destination.__name__}'
         )
 
     def test_new_without_type(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.Directory({'path': '/tmp'})
+        with self.assertRaises(ConfigError) as context:
+            destination.Directory({'path': '/tmp'})
 
         self.assertEqual(
             str(context.exception).strip("'"),
@@ -23,22 +24,22 @@ class TestDestination(unittest.TestCase):
         )
 
     def test_from_dict_with_valid_type(self):
-        dest = clibato.Destination.from_dict({
+        subject = destination.Destination.from_dict({
             'type': 'directory',
             'path': '/tmp'
         })
 
         self.assertEqual(
-            dest,
-            clibato.destination.Directory({
+            subject,
+            destination.Directory({
                 'type': 'directory',
                 'path': '/tmp'
             })
         )
 
     def test_from_dict_with_illegal_type(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.Destination.from_dict({'type': 'foobar'})
+        with self.assertRaises(ConfigError) as context:
+            destination.Destination.from_dict({'type': 'foobar'})
 
         self.assertEqual(
             str(context.exception).strip("'"),
@@ -46,14 +47,14 @@ class TestDestination(unittest.TestCase):
         )
 
     def test_equality_operator(self):
-        subject = clibato.destination.Directory({
+        subject = destination.Directory({
             'type': 'directory',
             'path': '/tmp',
         })
 
         self.assertEqual(
             subject,
-            clibato.destination.Directory({
+            destination.Directory({
                 'type': 'directory',
                 'path': '/tmp'
             })
@@ -61,7 +62,7 @@ class TestDestination(unittest.TestCase):
 
         self.assertNotEqual(
             subject,
-            clibato.destination.Directory({
+            destination.Directory({
                 'type': 'directory',
                 'path': '/var/www'
             })
@@ -69,7 +70,7 @@ class TestDestination(unittest.TestCase):
 
         self.assertNotEqual(
             subject,
-            clibato.destination.Repository({
+            destination.Repository({
                 'type': 'repository',
                 'path': '/tmp',
                 'remote': 'git@github.com:bunny/wabbit.git'
@@ -87,13 +88,13 @@ class TestDirectory(unittest.TestCase):
         FileSystem.unlink('~/source')
 
     def test_new(self):
-        dest = clibato.destination.Directory({
+        subject = destination.Directory({
             'type': 'directory',
             'path': '/tmp'
         })
 
         self.assertEqual(
-            dest.data(),
+            subject.data(),
             {
                 'type': 'directory',
                 'path': '/tmp'
@@ -102,13 +103,13 @@ class TestDirectory(unittest.TestCase):
 
     def test_inheritance(self):
         self.assertTrue(issubclass(
-            clibato.destination.Directory,
-            clibato.destination.Destination
+            destination.Directory,
+            destination.Destination
         ))
 
     def test_path_is_required(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.destination.Directory({
+        with self.assertRaises(ConfigError) as context:
+            destination.Directory({
                 'type': 'directory',
                 'path': ''
             })
@@ -119,8 +120,8 @@ class TestDirectory(unittest.TestCase):
         )
 
     def test_path_is_absolute(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.destination.Directory({
+        with self.assertRaises(ConfigError) as context:
+            destination.Directory({
                 'type': 'directory',
                 'path': 'foo/bar'
             })
@@ -131,8 +132,8 @@ class TestDirectory(unittest.TestCase):
         )
 
     def test_path_is_directory(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.destination.Directory({
+        with self.assertRaises(ConfigError) as context:
+            destination.Directory({
                 'type': 'directory',
                 'path': '/tmp/foo'
             })
@@ -143,7 +144,7 @@ class TestDirectory(unittest.TestCase):
         )
 
     def test_path_is_tilde(self):
-        subject = clibato.destination.Directory({
+        subject = destination.Directory({
             'type': 'directory',
             'path': '~/backup'
         })
@@ -159,13 +160,13 @@ class TestDirectory(unittest.TestCase):
     def test_backup(self):
         FileSystem.write_file('~/.bunny', 'I am a bunny')
 
-        subject = clibato.destination.Directory({
+        subject = destination.Directory({
             'type': 'directory',
             'path': '~/backup'
         })
 
         subject.backup({
-            '.bunny': clibato.Content('.bunny')
+            '.bunny': Content('.bunny')
         })
 
         self.assertEqual(
@@ -181,13 +182,13 @@ class TestDirectory(unittest.TestCase):
     def test_restore(self):
         FileSystem.write_file('~/backup/.bunny', 'I am a bunny')
 
-        subject = clibato.destination.Directory({
+        subject = destination.Directory({
             'type': 'directory',
             'path': '~/backup'
         })
 
         subject.restore({
-            '.bunny': clibato.Content('.bunny')
+            '.bunny': Content('.bunny')
         })
 
         self.assertEqual(
@@ -202,7 +203,7 @@ class TestDirectory(unittest.TestCase):
 
 class TestRepository(unittest.TestCase):
     def test_new(self):
-        subject = clibato.destination.Repository({
+        subject = destination.Repository({
             'type': 'repository',
             'path': '/tmp',
             'remote': 'git@github.com:jigarius/clibato.git',
@@ -229,13 +230,13 @@ class TestRepository(unittest.TestCase):
 
     def test_inheritance(self):
         self.assertTrue(issubclass(
-            clibato.destination.Repository,
-            clibato.destination.Directory
+            destination.Repository,
+            destination.Directory
         ))
 
     def test_path_is_required(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.destination.Repository({
+        with self.assertRaises(ConfigError) as context:
+            destination.Repository({
                 'type': 'repository',
             })
 
@@ -245,8 +246,8 @@ class TestRepository(unittest.TestCase):
         )
 
     def test_remote_is_required(self):
-        with self.assertRaises(clibato.ConfigError) as context:
-            clibato.destination.Repository({
+        with self.assertRaises(ConfigError) as context:
+            destination.Repository({
                 'type': 'repository',
                 'path': '/tmp',
             })
@@ -257,14 +258,14 @@ class TestRepository(unittest.TestCase):
         )
 
     def test_default_values_merged(self):
-        dest = clibato.destination.Repository({
+        subject = destination.Repository({
             'type': 'repository',
             'path': '/tmp',
             'remote': 'git@github.com:jigarius/clibato.git'
         })
 
         self.assertEqual(
-            dest.data(),
+            subject.data(),
             {
                 'type': 'repository',
                 'path': '/tmp',

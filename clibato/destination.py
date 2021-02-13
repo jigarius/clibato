@@ -1,7 +1,10 @@
 from shutil import copyfile
 import os
 from git import Repo, Actor
-import clibato
+
+from . import utils
+from .error import ConfigError
+from .logger import Logger
 
 
 class Destination:
@@ -15,7 +18,7 @@ class Destination:
         if type(self) is Destination:
             raise NotImplementedError(f'Class not instantiable: {type(self).__name__}')
 
-        self._data = clibato.Config.merge(self._DEFAULTS, data)
+        self._data = utils.dict_merge(self._DEFAULTS, data)
         self._validate()
 
     def __eq__(self, other):
@@ -42,7 +45,7 @@ class Destination:
 
     def _validate(self):
         if not self._data.get('type'):
-            raise clibato.ConfigError('Key cannot be empty: type')
+            raise ConfigError('Key cannot be empty: type')
 
     @staticmethod
     def from_dict(data: dict):
@@ -59,7 +62,7 @@ class Destination:
         if tipo == 'directory':
             return Directory(data)
 
-        raise clibato.ConfigError(f"Illegal type: {tipo}")
+        raise ConfigError(f"Illegal type: {tipo}")
 
 
 class Directory(Destination):
@@ -77,9 +80,9 @@ class Directory(Destination):
                     content.source_path(),
                     content.backup_path(self._path())
                 )
-                clibato.Logger.info(f'Backed up: {content.source_path()}')
+                Logger.info(f'Backed up: {content.source_path()}')
             except FileNotFoundError:
-                clibato.Logger.error(f'Source not found: {content.source_path()}')
+                Logger.error(f'Source not found: {content.source_path()}')
 
     def restore(self, contents):
         for k in contents:
@@ -89,9 +92,9 @@ class Directory(Destination):
                     content.backup_path(self._path()),
                     content.source_path()
                 )
-                clibato.Logger.info(f'Restored: {content.source_path()}')
+                Logger.info(f'Restored: {content.source_path()}')
             except FileNotFoundError:
-                clibato.Logger.error(f'Backup not found: {content.backup_path()}')
+                Logger.error(f'Backup not found: {content.backup_path()}')
 
     def _path(self):
         return self._data['path']
@@ -100,16 +103,16 @@ class Directory(Destination):
         super()._validate()
 
         if not self._data['path']:
-            raise clibato.ConfigError('Key cannot be empty: path')
+            raise ConfigError('Key cannot be empty: path')
 
         if self._data['path'].startswith('~'):
             self._data['path'] = os.path.expanduser(self._data['path'])
 
         if not os.path.isabs(self._data['path']):
-            raise clibato.ConfigError(f'Path is not absolute: {self._path()}')
+            raise ConfigError(f'Path is not absolute: {self._path()}')
 
         if not os.path.isdir(self._path()):
-            raise clibato.ConfigError(f'Path is not a directory: {self._path()}')
+            raise ConfigError(f'Path is not a directory: {self._path()}')
 
 
 class Repository(Directory):
@@ -136,8 +139,8 @@ class Repository(Directory):
         repo = self._repo
 
         if repo.is_dirty():
-            clibato.Logger.error(f'Uncommitted changes found in: {self._path()}')
-            clibato.Logger.info('Commit or discard all changes and try again.')
+            Logger.error(f'Uncommitted changes found in: {self._path()}')
+            Logger.info('Commit or discard all changes and try again.')
             return
 
         super().backup(contents)
@@ -148,7 +151,7 @@ class Repository(Directory):
             index.add(contents[k].backup_path())
 
         change_count = len(repo.index.diff(None))
-        clibato.Logger.info(f'{change_count} change(s) detected.')
+        Logger.info(f'{change_count} change(s) detected.')
 
         if change_count == 0:
             return
@@ -172,7 +175,7 @@ class Repository(Directory):
         super()._validate()
 
         if not self._data['remote']:
-            raise clibato.ConfigError('Key cannot be empty: remote')
+            raise ConfigError('Key cannot be empty: remote')
 
     def _git_commit(self, message):
         author = Actor(self._data['user']['name'], self._data['user']['mail'])
@@ -187,11 +190,11 @@ class Repository(Directory):
 
         if 'origin' in repo.remotes:
             if repo.remotes.origin.url != self._remote():
-                clibato.Logger.debug(f'Removing incorrect remote: {repo.remotes.origin.url}')
+                Logger.debug(f'Removing incorrect remote: {repo.remotes.origin.url}')
                 repo.delete_remote(repo.remotes.origin)
 
         if 'origin' not in repo.remotes:
-            clibato.Logger.info(f'Adding remote: {self._remote()} (origin)')
+            Logger.info(f'Adding remote: {self._remote()} (origin)')
             repo.create_remote('origin', self._remote())
 
     def _git_pull(self):
@@ -201,15 +204,15 @@ class Repository(Directory):
         remote.fetch()
 
         if self._branch() not in repo.branches:
-            clibato.Logger.info(f'Creating branch: {self._branch()}')
+            Logger.info(f'Creating branch: {self._branch()}')
             self._git_commit('Initial commit')
             repo.create_head(self._branch())
 
         if repo.active_branch != self._branch():
-            clibato.Logger.info(f'Switching branch: {self._branch()}')
+            Logger.info(f'Switching branch: {self._branch()}')
             repo.heads[self._branch()].checkout()
 
     def _git_push(self):
         """Push commits to remote."""
-        clibato.Logger.info(f'Pushing commits to origin {self._branch()}.')
+        Logger.info(f'Pushing commits to origin {self._branch()}.')
         self._repo.remotes.origin.push(self._branch())
