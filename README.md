@@ -1,7 +1,7 @@
 # Clibato: CLI Backup Tool
 
-Clibato helps is a simple backup/restore tool. I created it with the intention
-of backing up my `dot` files (and to have fun with Python).
+Clibato helps is a simple backup/restore tool. I created it to help me backup
+my `dot` files and to have fun with Python 🐍.
 
 ## Installation
 
@@ -18,11 +18,12 @@ When you run `clibato`, you can specify a config file as follows:
 
     clibato --config-file=/path/to/.clibato.yml ...
 
-If a `--config-file` is not specified, Clibato will look for a config file in
-the following directories:
+If `--config-file` is not specified, the following locations will be searched:
 
   - The directory from which the command was issued, i.e. `./.clibato.yml`.
   - The user's home directory, i.e. `~/.clibato.yml`.
+
+#### Tips
 
 Since I use clibato to back up my dot-files, I put it in my home directory.
 That way, I don't have to specify a `--config-file` all the time.
