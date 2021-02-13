@@ -6,12 +6,10 @@ from . import utils
 
 class Content:
     """Clibato Content: An item for backup/restore."""
-    def __init__(self, backup_path: str, config: dict = None):
-        config = config or {}
-        self._config = {
-            **config,
-            'backup': backup_path
-        }
+
+    def __init__(self, backup_path: str, source_path: str = None):
+        self._backup_path = backup_path
+        self._source_path = source_path or f'~/{self._backup_path}'
 
         self._validate()
 
@@ -24,29 +22,26 @@ class Content:
 
     def source_path(self) -> str:
         """Path to source file."""
-        return self._config['source']
+        return self._source_path
 
     def backup_path(self, prefix: str = '') -> str:
         """Path to backup file."""
         if prefix and not prefix.endswith('/'):
             prefix += '/'
 
-        return f"{prefix}{self._config['backup']}"
+        return f"{prefix}{self._backup_path}"
 
     def _validate(self):
-        if os.path.isabs(self._config['backup']):
+        if os.path.isabs(self._backup_path):
             raise ConfigError('Backup path cannot be absolute')
 
-        backup_path_parts = self._config['backup'].split('/')
+        backup_path_parts = self._backup_path.split('/')
 
         for illegal_part in ['.', '..', '~']:
             if illegal_part in backup_path_parts:
                 raise ConfigError(f'Backup path cannot contain: {illegal_part}')
 
-        if not self._config.get('source'):
-            self._config['source'] = f'~/{self.backup_path()}'
+        self._source_path = utils.normalize_path(self._source_path)
 
-        self._config['source'] = utils.normalize_path(self._config['source'])
-
-        if not os.path.isabs(self._config['source']):
-            raise ConfigError(f"Source path invalid: {self._config['source']}")
+        if not os.path.isabs(self._source_path):
+            raise ConfigError(f"Source path invalid: {self._source_path}")
