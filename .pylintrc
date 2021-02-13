@@ -26,4 +26,3 @@ disable=missing-module-docstring,
 # and msvs (visual studio). You can also give a reporter class, e.g.
 # mypackage.mymodule.MyReporterClass.
 output-format=colorized
-
