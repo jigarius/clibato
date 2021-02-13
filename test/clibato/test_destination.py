@@ -1,7 +1,6 @@
-import shutil
-import os
 import unittest
 import clibato
+from .support import FileSystem
 
 
 class TestDestination(unittest.TestCase):
@@ -80,12 +79,12 @@ class TestDestination(unittest.TestCase):
 
 class TestDirectory(unittest.TestCase):
     def setUp(self):
-        self._path = os.path.expanduser('~/backup')
-        if not os.path.isdir(self._path):
-            os.mkdir(self._path)
+        FileSystem.ensure('~/backup')
+        FileSystem.ensure('~/source')
 
     def tearDown(self):
-        shutil.rmtree(self._path)
+        FileSystem.unlink('~/backup')
+        FileSystem.unlink('~/source')
 
     def test_new(self):
         dest = clibato.destination.Directory({
@@ -153,13 +152,26 @@ class TestDirectory(unittest.TestCase):
             subject.data(),
             {
                 'type': 'directory',
-                'path': os.path.expanduser('~/backup')
+                'path': FileSystem.normalize('~/backup')
             }
         )
 
-    @unittest.skip('TODO')
     def test_backup(self):
-        pass
+        FileSystem.write_file('~/.bunny', 'I am a bunny')
+
+        subject = clibato.destination.Directory({
+            'type': 'directory',
+            'path': '~/backup'
+        })
+
+        subject.backup({
+            '.bunny': clibato.Content('.bunny')
+        })
+
+        self.assertEqual(
+            FileSystem.read_file('~/backup/.bunny'),
+            'I am a bunny'
+        )
 
     @unittest.skip('TODO')
     def test_backup_file_not_found(self):
@@ -167,7 +179,21 @@ class TestDirectory(unittest.TestCase):
 
     @unittest.skip('TODO')
     def test_restore(self):
-        pass
+        FileSystem.write_file('~/backup/.bunny', 'I am a bunny')
+
+        subject = clibato.destination.Directory({
+            'type': 'directory',
+            'path': '~/backup'
+        })
+
+        subject.restore({
+            '.bunny': clibato.Content('.bunny')
+        })
+
+        self.assertEqual(
+            FileSystem.read_file('~/.bunny'),
+            'I am a bunny'
+        )
 
     @unittest.skip('TODO')
     def test_restore_file_not_found(self):
