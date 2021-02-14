@@ -129,33 +129,49 @@ class TestConfig(unittest.TestCase):
             with self.assertRaisesRegex(ConfigError, message):
                 Config.from_dict(data)
 
-    def test_from_file_with_absolute_path(self):
+    def test_from_file(self):
         self.assertEqual(
             __class__._build_config(),
             Config.from_file(self._FIXTURE_PATH)
         )
 
-    def test_from_file_with_relative_path(self):
+    def test_from_file_with_non_existent_file(self):
+        with self.assertRaises(FileNotFoundError):
+            self.assertEqual(
+                __class__._build_config(),
+                Config.from_file('/tmp/.clibato.yml')
+            )
+
+    def test_locate_with_absolute_path(self):
+        self.assertEqual(
+            self._FIXTURE_PATH,
+            Config.locate(self._FIXTURE_PATH)
+        )
+
+    def test_locate_with_relative_path(self):
         original_cwd = os.getcwd()
         os.chdir(os.path.join(Clibato.ROOT, 'test'))
 
         self.assertEqual(
-            __class__._build_config(),
-            Config.from_file(os.path.join('fixtures', 'clibato.test.yml'))
+            self._FIXTURE_PATH,
+            Config.locate(os.path.join('fixtures', 'clibato.test.yml'))
         )
 
         os.chdir(original_cwd)
 
-    def test_from_file_with_home_path(self):
+    def test_locate_with_home_path(self):
         path = os.path.expanduser('~/clibato.test.yml')
         copyfile(self._FIXTURE_PATH, path)
 
         self.assertEqual(
-            __class__._build_config(),
-            Config.from_file('clibato.test.yml')
+            path,
+            Config.locate('clibato.test.yml')
         )
 
         os.remove(path)
+
+    def test_locate_with_non_existent_file(self):
+        self.assertIsNone(Config.locate('/tmp/.clibato.yml'))
 
     def test_contents(self):
         self.assertEqual(

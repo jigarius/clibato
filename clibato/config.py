@@ -81,13 +81,8 @@ class Config:
         :param path: path/to/config.yml
         :return: A Config object.
         """
-        normalized_path = Config._normalize_path(path)
-
-        if normalized_path is None:
-            raise ConfigError(f'Configuration not found: {path}')
-
-        Logger.debug(f'Loading configuration: {normalized_path}')
-        with open(normalized_path, 'r') as stream:
+        Logger.debug(f'Loading configuration: {path}')
+        with open(path, 'r') as stream:
             try:
                 data = yaml.safe_load(stream)
             except yaml.YAMLError as error:
@@ -96,7 +91,13 @@ class Config:
         return Config.from_dict(data)
 
     @staticmethod
-    def _normalize_path(path: str) -> Optional[str]:
+    def locate(path: str) -> Optional[str]:
+        """
+        Determines an absolute path to a config, if it exists.
+
+        :param path: some/config.yml.
+        :return: /path/to/some/config.yml if any.
+        """
         path = os.path.expanduser(path)
         message = 'Config not found at %s'
 

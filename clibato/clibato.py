@@ -55,7 +55,8 @@ class Clibato:
 
     def _ensure_config(self):
         if not self._config:
-            self._config = Config.from_file(self._args.config_file)
+            path = Config.locate(self._args.config_file)
+            self._config = Config.from_file(path)
 
     @staticmethod
     def _argparser():
