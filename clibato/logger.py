@@ -1,3 +1,4 @@
+# TODO: Use logging.Logger instead.
 class Logger:
     """Clibato Logger"""
 
