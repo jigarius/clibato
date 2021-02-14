@@ -9,32 +9,40 @@
 # Here are some sample entries.
 contents:
 
-  # The .zshrc entry implies that "$HOME/.zshrc" will be stored at
-  #  "$BACKUP/.zshrc". Clibato will look for the file in the user's
-  # home directory.
+  # Simply put, the format as follows.
+  #
+  # Backup path: Must be relative.
+  # Source path: See the other examples.
+  path/to/backup: /path/to/source
+
+  # Backup path: "$BACKUP/.zshrc"
+  # Source path: "$HOME/.zshrc"
   .zshrc:
 
-  # The .bunnyrc entry specifies the location of the original file,
-  # i.e. ~/Documents/readme.md.
+  # Backup path: "$BACKUP/.bunnyrc"
+  # "$HOME/Documents/bunnyrc"
   .bunnyrc: '~/Documents/bunnyrc'
 
-  # The blinky.md entry specifies an absolute path to the original file.
+  # Backup path: "$BACKUP/blinky.md"
+  # Source path: "/var/www/blinky.md".
   blinky.md: '/var/www/blinky.md'
 
-  # The chaos.rb entry specifies a backup path that is very different from
-  # the source. This implies that "$HOME/code/poopify.rb" will be stored at
-  # "$BACKUP/i/m/chaos.rb". This will surely cause confusion though.
+  # Backup path: "$BACKUP/i/m/chaos.rb"
+  # Source path: "$HOME/code/poopify.rb".
+  #
+  # This will surely cause confusion though.
   i/m/chaos.rb: '~/code/poopify.rb'
 
-#
 # The 'destination' section defines where the backup should be placed.
 #
-# Choose and configure a destination based on the examples.
+# Mainly, 'path' is the "$BACKUP" mentioned above.
+#
+# Configure a destination based on the 'destination.*' examples.
+# Once done, the examples at 'destination.*' must be removed/commented.
 destination:
   type: "directory|repository"
   path: "/backup"
 
-#
 # Example: Directory
 #
 # Copies files to a backup directory.
@@ -44,7 +52,6 @@ destination.directory:
   # The directory must exist - it won't be created automatically.
   path: "~/backup"
 
-#
 # Example: Repository
 #
 # Pushes backups to a Git repository.
@@ -58,6 +65,5 @@ destination.repository:
   # If the branch doesn't exist, it will be created.
   branch: "main"
   # The name and mail identify the author of the git commit.
-  user:
-    name: "John Doe"
-    mail: "john.doe@example.com"
+  user_name: "John Doe"
+  user_mail: "john.doe@example.com"
