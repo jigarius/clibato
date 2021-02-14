@@ -32,7 +32,7 @@ class Content:
 
     def _validate(self):
         if os.path.isabs(self._backup_path):
-            raise ConfigError('Backup path cannot be absolute')
+            raise ConfigError(f'Backup path cannot be absolute: {self._backup_path}')
 
         backup_path_parts = self._backup_path.split('/')
 

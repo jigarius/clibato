@@ -66,6 +66,7 @@ class TestConfig(unittest.TestCase):
 
     def test_from_dict(self):
         self.assertEqual(
+            __class__._build_config(),
             Config.from_dict({
                 'contents': {
                     '.bashrc': None,
@@ -75,8 +76,7 @@ class TestConfig(unittest.TestCase):
                     'type': 'directory',
                     'path': '/tmp'
                 }
-            }),
-            __class__._build_config()
+            })
         )
 
     def test_from_dict_content_entry_cannot_be_dictionary(self):
@@ -92,8 +92,8 @@ class TestConfig(unittest.TestCase):
             })
 
         self.assertEqual(
-            str(context.exception).strip("'"),
-            "Illegal value for contents/.bashrc: {}"
+            "Illegal value for contents/.bashrc: {}",
+            str(context.exception).strip("'")
         )
 
     def test_from_dict_cannot_contain_illegal_keys(self):
@@ -111,8 +111,8 @@ class TestConfig(unittest.TestCase):
             })
 
         self.assertEqual(
-            str(context.exception).strip("'"),
-            "Config has illegal keys: bar, foo"
+            "Config has illegal keys: bar, foo",
+            str(context.exception).strip("'")
         )
 
     def test_from_dict_cannot_have_missing_keys(self):
@@ -120,14 +120,14 @@ class TestConfig(unittest.TestCase):
             Config.from_dict({})
 
         self.assertEqual(
-            str(context.exception).strip("'"),
-            f'Config has missing keys: contents, destination'
+            f'Config has missing keys: contents, destination',
+            str(context.exception).strip("'")
         )
 
     def test_from_file_with_absolute_path(self):
         self.assertEqual(
-            Config.from_file(self._FIXTURE_PATH),
-            __class__._build_config()
+            __class__._build_config(),
+            Config.from_file(self._FIXTURE_PATH)
         )
 
     def test_from_file_with_relative_path(self):
@@ -135,8 +135,8 @@ class TestConfig(unittest.TestCase):
         os.chdir(os.path.join(Clibato.ROOT, 'test'))
 
         self.assertEqual(
-            Config.from_file(os.path.join('fixtures', 'clibato.test.yml')),
-            __class__._build_config()
+            __class__._build_config(),
+            Config.from_file(os.path.join('fixtures', 'clibato.test.yml'))
         )
 
         os.chdir(original_cwd)
@@ -146,8 +146,8 @@ class TestConfig(unittest.TestCase):
         copyfile(self._FIXTURE_PATH, path)
 
         self.assertEqual(
-            Config.from_file('clibato.test.yml'),
-            __class__._build_config()
+            __class__._build_config(),
+            Config.from_file('clibato.test.yml')
         )
 
         os.remove(path)
@@ -163,8 +163,8 @@ class TestConfig(unittest.TestCase):
 
     def test_destination(self):
         self.assertEqual(
-            __class__._build_config().destination(),
-            Directory('/tmp')
+            Directory('/tmp'),
+            __class__._build_config().destination()
         )
 
     @staticmethod

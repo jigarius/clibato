@@ -26,30 +26,35 @@ class TestContent(unittest.TestCase):
         )
 
     def test_backup_path(self):
-        content = Content('.bashrc')
-        self.assertEqual(content.backup_path(), '.bashrc')
+        subject = Content('.bashrc')
+
+        self.assertEqual(
+            '.bashrc',
+            subject.backup_path()
+        )
 
     def test_backup_path_with_prefix(self):
-        content = Content('.bashrc')
+        subject = Content('.bashrc')
+
         self.assertEqual(
-            content.backup_path('/backup'),
-            '/backup/.bashrc'
+            '/backup/.bashrc',
+            subject.backup_path('/backup')
         )
 
     def test_source_path(self):
-        content = Content('todo.txt', '/users/jigarius/todo.txt')
+        subject = Content('todo.txt', '/users/jigarius/todo.txt')
 
         self.assertEqual(
-            content.source_path(),
-            f'/users/jigarius/todo.txt'
+            f'/users/jigarius/todo.txt',
+            subject.source_path()
         )
 
     def test_source_path_with_tilde(self):
-        content = Content('todo.txt', '~/Documents/todo.txt')
+        subject = Content('todo.txt', '~/Documents/todo.txt')
 
         self.assertEqual(
-            content.source_path(),
-            f'{self._HOME_PATH}/Documents/todo.txt'
+            os.path.join(self._HOME_PATH, 'Documents', 'todo.txt'),
+            subject.source_path()
         )
 
     def test_source_path_cannot_be_relative(self):
@@ -57,24 +62,24 @@ class TestContent(unittest.TestCase):
             Content('todo.txt', 'Documents/todo.txt')
 
         self.assertEqual(
-            str(context.exception).strip("'"),
-            'Source path invalid: Documents/todo.txt'
+            'Source path invalid: Documents/todo.txt',
+            str(context.exception).strip("'")
         )
 
     def test_source_path_when_empty(self):
-        content = Content('todo.txt', '')
+        subject = Content('todo.txt', '')
 
         self.assertEqual(
-            content.source_path(),
-            f'{self._HOME_PATH}/todo.txt'
+            os.path.join(self._HOME_PATH, 'todo.txt'),
+            subject.source_path()
         )
 
     def test_source_path_when_undefined(self):
-        content = Content('.bashrc')
+        subject = Content('.bashrc')
 
         self.assertEqual(
-            content.source_path(),
-            f'{self._HOME_PATH}/.bashrc'
+            os.path.join(self._HOME_PATH, '.bashrc'),
+            subject.source_path()
         )
 
     def test_backup_path_cannot_be_absolute(self):
@@ -82,8 +87,8 @@ class TestContent(unittest.TestCase):
             Content('/.bashrc')
 
         self.assertEqual(
-            str(context.exception).strip("'"),
-            'Backup path cannot be absolute'
+            'Backup path cannot be absolute: /.bashrc',
+            str(context.exception).strip("'")
         )
 
     def test_backup_path_cannot_have_tilde(self):
@@ -91,8 +96,8 @@ class TestContent(unittest.TestCase):
             Content('~/.bashrc')
 
         self.assertEqual(
-            str(context.exception).strip("'"),
-            'Backup path cannot contain: ~'
+            'Backup path cannot contain: ~',
+            str(context.exception).strip("'")
         )
 
     def test_backup_path_cannot_have_single_dot(self):
@@ -100,8 +105,8 @@ class TestContent(unittest.TestCase):
             Content('./.bashrc')
 
         self.assertEqual(
-            str(context.exception).strip("'"),
-            'Backup path cannot contain: .'
+            'Backup path cannot contain: .',
+            str(context.exception).strip("'")
         )
 
     def test_backup_path_cannot_have_double_dot(self):
@@ -109,6 +114,6 @@ class TestContent(unittest.TestCase):
             Content('../.bashrc')
 
         self.assertEqual(
-            str(context.exception).strip("'"),
-            'Backup path cannot contain: ..'
+            'Backup path cannot contain: ..',
+            str(context.exception).strip("'")
         )
