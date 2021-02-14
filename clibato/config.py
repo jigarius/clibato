@@ -93,10 +93,12 @@ class Config:
     @staticmethod
     def locate(path: str) -> Optional[str]:
         """
-        Determines an absolute path to a config, if it exists.
+        Looks up a config file and returns its absolute path.
+
+        If a matching config file is not found, None is returned.
 
         :param path: some/config.yml.
-        :return: /path/to/some/config.yml if any.
+        :return: /path/to/some/config.yml if found.
         """
         path = os.path.expanduser(path)
         message = 'Config not found at %s'
@@ -121,3 +123,28 @@ class Config:
         Logger.debug(message % home_path)
 
         return None
+
+    @staticmethod
+    def absolute_path(path: str) -> str:
+        """
+        Converts a config path to an absolute path.
+
+        Example
+        ------
+        Input: ~/.clibato.yml
+        Output: $HOME/.clibato.yml
+
+        Example:
+        ------
+        Input: .clibato.yml
+        Output: $CWD/.clibato.yml
+
+        :param path: Config path.
+        :return: Absolute path to config file.
+        """
+        path = os.path.expanduser(path)
+
+        if os.path.isabs(path):
+            return path
+
+        return os.path.join(os.getcwd(), path)

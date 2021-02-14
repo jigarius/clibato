@@ -173,6 +173,18 @@ class TestConfig(unittest.TestCase):
     def test_locate_with_non_existent_file(self):
         self.assertIsNone(Config.locate('/tmp/.clibato.yml'))
 
+    def test_absolute_path_with_home_path(self):
+        self.assertEqual(
+            os.path.expanduser('~/.clibato.yml'),
+            Config.absolute_path('~/.clibato.yml')
+        )
+
+    def test_absolute_path_with_relative_path(self):
+        self.assertEqual(
+            os.path.join(os.getcwd(), '.clibato.yml'),
+            Config.absolute_path('.clibato.yml')
+        )
+
     def test_contents(self):
         self.assertEqual(
             __class__._build_config().contents(),
