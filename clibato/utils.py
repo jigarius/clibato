@@ -1,4 +1,3 @@
-import os
 from .error import ConfigError as _ConfigError
 
 
@@ -51,21 +50,6 @@ def dict_merge(dict1: dict, dict2: dict):
         result[key] = dict2[key]
 
     return result
-
-
-def normalize_path(path: str) -> str:
-    """
-    Normalizes a path.
-
-    Example
-    ------
-    Input: ~/backup
-    Output: "$HOME/backup"
-
-    :param path: A path.
-    :return: Normalized path.
-    """
-    return os.path.expanduser(path)
 
 
 def ensure_shape(data: dict, shape: dict, parents=None) -> bool:

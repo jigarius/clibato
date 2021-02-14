@@ -1,7 +1,6 @@
 import os
 
 from .error import ConfigError
-from . import utils
 
 
 class Content:
@@ -41,7 +40,7 @@ class Content:
             if illegal_part in backup_path_parts:
                 raise ConfigError(f'Backup path cannot contain: {illegal_part}')
 
-        self._source_path = utils.normalize_path(self._source_path)
+        self._source_path = os.path.expanduser(self._source_path)
 
         if not os.path.isabs(self._source_path):
             raise ConfigError(f"Source path invalid: {self._source_path}")

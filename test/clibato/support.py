@@ -2,8 +2,6 @@ import typing
 import os
 import shutil
 
-from clibato.utils import normalize_path
-
 
 class FileSystem:
     """File System Helper"""
@@ -13,7 +11,7 @@ class FileSystem:
 
     @staticmethod
     def write_file(path, data, append=False) -> type(None):
-        path = normalize_path(path)
+        path = os.path.expanduser(path)
 
         mode = 'a' if append else 'w'
         file = open(path, mode)
@@ -22,7 +20,7 @@ class FileSystem:
 
     @staticmethod
     def read_file(path) -> str:
-        path = normalize_path(path)
+        path = os.path.expanduser(path)
 
         file = open(path, 'r')
         result = file.read()
@@ -32,7 +30,7 @@ class FileSystem:
 
     @staticmethod
     def ensure(dirname: str) -> type(None):
-        path = normalize_path(dirname)
+        path = os.path.expanduser(dirname)
         if os.path.isdir(path):
             return
 
@@ -40,7 +38,7 @@ class FileSystem:
 
     @staticmethod
     def unlink(path: str) -> type(None):
-        path = normalize_path(path)
+        path = os.path.expanduser(path)
         if os.path.isdir(path):
             shutil.rmtree(path)
         elif os.path.isfile(path):

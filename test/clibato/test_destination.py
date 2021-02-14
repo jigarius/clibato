@@ -112,7 +112,7 @@ class TestDirectory(unittest.TestCase):
         self.assertEqual(
             subject.data(),
             {
-                'path': utils.normalize_path('~/backup')
+                'path': os.path.expanduser('~/backup')
             }
         )
 
