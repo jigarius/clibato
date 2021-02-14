@@ -148,7 +148,7 @@ class Repository(Directory):
         for content in contents:
             index.add(content.backup_path())
 
-        change_count = len(repo.index.diff(None))
+        change_count = len(repo.index.diff('HEAD'))
         Logger.info(f'{change_count} change(s) detected.')
 
         if change_count == 0:
