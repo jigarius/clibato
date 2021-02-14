@@ -8,13 +8,9 @@ from .support import FileSystem
 
 class TestDestination(unittest.TestCase):
     def test_new_not_allowed(self):
-        with self.assertRaises(NotImplementedError) as context:
+        message = f'Class not instantiable: {Destination.__name__}'
+        with self.assertRaisesRegex(NotImplementedError, message):
             Destination()
-
-        self.assertEqual(
-            f'Class not instantiable: {Destination.__name__}',
-            str(context.exception).strip("'")
-        )
 
     def test_from_dict(self):
         subject = Destination.from_dict({
@@ -28,13 +24,9 @@ class TestDestination(unittest.TestCase):
         )
 
     def test_from_dict_with_illegal_type(self):
-        with self.assertRaises(ConfigError) as context:
+        message = 'Illegal type: foobar'
+        with self.assertRaisesRegex(ConfigError, message):
             Destination.from_dict({'type': 'foobar'})
-
-        self.assertEqual(
-            'Illegal type: foobar',
-            str(context.exception).strip("'")
-        )
 
 
 class TestDirectory(unittest.TestCase):
@@ -76,31 +68,19 @@ class TestDirectory(unittest.TestCase):
         ))
 
     def test_path_cannot_be_empty(self):
-        with self.assertRaises(ConfigError) as context:
+        message = 'Path cannot be empty'
+        with self.assertRaisesRegex(ConfigError, message):
             Directory('')
 
-        self.assertEqual(
-            'Path cannot be empty',
-            str(context.exception).strip("'")
-        )
-
     def test_path_must_be_absolute(self):
-        with self.assertRaises(ConfigError) as context:
+        message = 'Path is not absolute: foo/bar'
+        with self.assertRaisesRegex(ConfigError, message):
             Directory('foo/bar')
 
-        self.assertEqual(
-            'Path is not absolute: foo/bar',
-            str(context.exception).strip("'")
-        )
-
     def test_path_must_be_directory(self):
-        with self.assertRaises(ConfigError) as context:
+        message = 'Path is not a directory: /tmp/foo'
+        with self.assertRaisesRegex(ConfigError, message):
             Directory('/tmp/foo')
-
-        self.assertEqual(
-            'Path is not a directory: /tmp/foo',
-            str(context.exception).strip("'")
-        )
 
     def test_path_has_tilde(self):
         subject = Directory('~/backup')
@@ -175,22 +155,14 @@ class TestRepository(unittest.TestCase):
         self.assertTrue(issubclass(Repository, Directory))
 
     def test_path_cannot_be_empty(self):
-        with self.assertRaises(ConfigError) as context:
+        message = 'Path cannot be empty'
+        with self.assertRaisesRegex(ConfigError, message):
             Repository('', 'git@github.com:jigarius/clibato.git')
 
-        self.assertEqual(
-            'Path cannot be empty',
-            str(context.exception).strip("'")
-        )
-
     def test_remote_cannot_be_empty(self):
-        with self.assertRaises(ConfigError) as context:
+        message = 'Remote cannot be empty'
+        with self.assertRaisesRegex(ConfigError, message):
             Repository('/tmp', '')
-
-        self.assertEqual(
-            'Remote cannot be empty',
-            str(context.exception).strip("'")
-        )
 
     def test_default_values_merged(self):
         subject = Repository('/tmp', 'git@github.com:jigarius/clibato.git')

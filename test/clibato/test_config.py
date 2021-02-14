@@ -80,7 +80,8 @@ class TestConfig(unittest.TestCase):
         )
 
     def test_from_dict_content_entry_cannot_be_dictionary(self):
-        with self.assertRaises(ConfigError) as context:
+        message = 'Illegal value for contents/.bashrc: {}'
+        with self.assertRaisesRegex(ConfigError, message):
             Config.from_dict({
                 'contents': {
                     '.bashrc': {}
@@ -91,13 +92,9 @@ class TestConfig(unittest.TestCase):
                 }
             })
 
-        self.assertEqual(
-            "Illegal value for contents/.bashrc: {}",
-            str(context.exception).strip("'")
-        )
-
     def test_from_dict_cannot_contain_illegal_keys(self):
-        with self.assertRaises(ConfigError) as context:
+        message = 'Config has illegal keys: bar, foo'
+        with self.assertRaisesRegex(ConfigError, message):
             Config.from_dict({
                 'foo': 'bunny',
                 'bar': 'wabbit',
@@ -110,19 +107,10 @@ class TestConfig(unittest.TestCase):
                 }
             })
 
-        self.assertEqual(
-            'Config has illegal keys: bar, foo',
-            str(context.exception).strip("'")
-        )
-
     def test_from_dict_cannot_have_missing_keys(self):
-        with self.assertRaises(ConfigError) as context:
+        message = f'Config has missing keys: contents, destination'
+        with self.assertRaisesRegex(ConfigError, message):
             Config.from_dict({})
-
-        self.assertEqual(
-            f'Config has missing keys: contents, destination',
-            str(context.exception).strip("'")
-        )
 
     def test_from_dict_values_must_be_dictionary(self):
         for key in ['contents', 'destination']:
@@ -137,13 +125,9 @@ class TestConfig(unittest.TestCase):
             }
             data[key] = 'oops'
 
-            with self.assertRaises(ConfigError) as context:
+            message = f'Config has illegal value for: {key}'
+            with self.assertRaisesRegex(ConfigError, message):
                 Config.from_dict(data)
-
-            self.assertEqual(
-                f'Config has illegal value for: {key}',
-                str(context.exception).strip("'")
-            )
 
     def test_from_file_with_absolute_path(self):
         self.assertEqual(

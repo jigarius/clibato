@@ -58,13 +58,9 @@ class TestContent(unittest.TestCase):
         )
 
     def test_source_path_cannot_be_relative(self):
-        with self.assertRaises(ConfigError) as context:
+        message = 'Source path invalid: Documents/todo.txt'
+        with self.assertRaisesRegex(ConfigError, message):
             Content('todo.txt', 'Documents/todo.txt')
-
-        self.assertEqual(
-            'Source path invalid: Documents/todo.txt',
-            str(context.exception).strip("'")
-        )
 
     def test_source_path_when_empty(self):
         subject = Content('todo.txt', '')
@@ -83,37 +79,14 @@ class TestContent(unittest.TestCase):
         )
 
     def test_backup_path_cannot_be_absolute(self):
-        with self.assertRaises(ConfigError) as context:
+        message = 'Backup path cannot be absolute: /.bashrc'
+        with self.assertRaisesRegex(ConfigError, message):
             Content('/.bashrc')
 
-        self.assertEqual(
-            'Backup path cannot be absolute: /.bashrc',
-            str(context.exception).strip("'")
-        )
+    def test_backup_path_cannot_contain_illegal_elements(self):
+        illegal_parts = ['~', '.', '..']
 
-    def test_backup_path_cannot_have_tilde(self):
-        with self.assertRaises(ConfigError) as context:
-            Content('~/.bashrc')
-
-        self.assertEqual(
-            'Backup path cannot contain: ~',
-            str(context.exception).strip("'")
-        )
-
-    def test_backup_path_cannot_have_single_dot(self):
-        with self.assertRaises(ConfigError) as context:
-            Content('./.bashrc')
-
-        self.assertEqual(
-            'Backup path cannot contain: .',
-            str(context.exception).strip("'")
-        )
-
-    def test_backup_path_cannot_have_double_dot(self):
-        with self.assertRaises(ConfigError) as context:
-            Content('../.bashrc')
-
-        self.assertEqual(
-            'Backup path cannot contain: ..',
-            str(context.exception).strip("'")
-        )
+        for part in illegal_parts:
+            message = f'Backup path cannot contain: {part}'
+            with self.assertRaisesRegex(ConfigError, message):
+                Content(f'{part}/.bashrc')
