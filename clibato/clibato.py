@@ -1,8 +1,9 @@
+from shutil import copyfile
 import sys
 import os
 import argparse
 
-from .error import ConfigError
+from .error import ActionError, ConfigError
 from .logger import Logger
 from .config import Config
 
@@ -29,7 +30,7 @@ class Clibato:
         try:
             method = getattr(self, self._args.action)
             method()
-        except ConfigError as error:
+        except (ConfigError, ActionError) as error:
             Logger.error(error)
             sys.exit(1)
 
@@ -37,7 +38,22 @@ class Clibato:
 
     def init(self):
         """Action: Initialize configuration"""
-        Logger.error('TODO: Implement init')
+        path = Config.absolute_path(self._args.config_file)
+
+        if os.path.isfile(path):
+            raise ActionError(f'Configuration already exists: {path}')
+
+        copyfile(
+            os.path.join(Clibato.ROOT, '.clibato.example.yml'),
+            path
+        )
+
+        print('Configuration created: %s' % path)
+        print('')
+        print('Modify the file as per your requirements.')
+        print('Once done, you can run the following commands.')
+        print('clibato backup: Perform a backup')
+        print('clibato restore: Restore previous backup')
 
     def backup(self):
         """Action: Create backup"""
