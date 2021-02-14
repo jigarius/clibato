@@ -1,7 +1,7 @@
 # Clibato: CLI Backup Tool
 
-Clibato helps is a simple backup/restore tool. I created it to help me backup
-my `dot` files and to have fun with Python 🐍.
+Clibato is a simple backup/restore tool. I created it to help me backup
+my `.dot` files and to have fun with Python 🐍.
 
 ## Installation
 
