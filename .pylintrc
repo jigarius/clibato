@@ -17,7 +17,8 @@ ignore=.git
 # --disable=W".
 disable=missing-module-docstring,
         unidiomatic-typecheck,
-        too-few-public-methods
+        too-few-public-methods,
+        too-many-arguments
 
 
 [REPORTS]

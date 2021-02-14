@@ -178,7 +178,7 @@ class TestConfig(unittest.TestCase):
     def test_destination(self):
         self.assertEqual(
             __class__._build_config().destination(),
-            Directory({'path': '/tmp'})
+            Directory('/tmp')
         )
 
     @staticmethod
@@ -187,6 +187,6 @@ class TestConfig(unittest.TestCase):
             Content('.bashrc'),
             Content('.zshrc'),
         ]
-        destination = destination or Directory({'path': '/tmp'})
+        destination = destination or Directory('/tmp')
 
         return Config(contents, destination)

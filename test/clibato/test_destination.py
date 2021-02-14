@@ -1,54 +1,35 @@
+import os
 import unittest
 
-from clibato import Content, ConfigError, destination, utils
+from clibato import Content, ConfigError, utils
+from clibato.destination import *
 from .support import FileSystem
 
 
 class TestDestination(unittest.TestCase):
-    def test__eq__(self):
-        subject = destination.Directory({'path': '/tmp'})
-
-        self.assertEqual(
-            subject,
-            destination.Directory({'path': '/tmp'})
-        )
-
-        self.assertNotEqual(
-            subject,
-            destination.Directory({'path': '/var/www'})
-        )
-
-        self.assertNotEqual(
-            subject,
-            destination.Repository({
-                'path': '/tmp',
-                'remote': 'git@github.com:bunny/wabbit.git'
-            })
-        )
-
     def test_new_not_allowed(self):
         with self.assertRaises(NotImplementedError) as context:
-            destination.Destination({'type': 'directory', 'path': '/tmp'})
+            Destination()
 
         self.assertEqual(
             str(context.exception).strip("'"),
-            f'Class not instantiable: {destination.Destination.__name__}'
+            f'Class not instantiable: {Destination.__name__}'
         )
 
-    def test_from_dict_with_valid_type(self):
-        subject = destination.Destination.from_dict({
+    def test_from_dict(self):
+        subject = Destination.from_dict({
             'type': 'directory',
             'path': '/tmp'
         })
 
         self.assertEqual(
             subject,
-            destination.Directory({'path': '/tmp'})
+            Directory('/tmp')
         )
 
     def test_from_dict_with_illegal_type(self):
         with self.assertRaises(ConfigError) as context:
-            destination.Destination.from_dict({'type': 'foobar'})
+            Destination.from_dict({'type': 'foobar'})
 
         self.assertEqual(
             str(context.exception).strip("'"),
@@ -66,61 +47,73 @@ class TestDirectory(unittest.TestCase):
         FileSystem.unlink('~/source')
 
     def test_new(self):
-        subject = destination.Directory({'path': '/tmp'})
+        subject = Directory('/tmp')
+
+        self.assertIsInstance(subject, Directory)
+
+    def test__eq__(self):
+        subject = Directory('/tmp')
 
         self.assertEqual(
-            subject.data(),
-            {'path': '/tmp'}
+            subject,
+            Directory('/tmp')
+        )
+
+        self.assertNotEqual(
+            subject,
+            Directory('/var/www')
+        )
+
+        self.assertNotEqual(
+            subject,
+            Repository('/tmp', 'git@github.com:bunny/wabbit.git')
         )
 
     def test_inheritance(self):
         self.assertTrue(issubclass(
-            destination.Directory,
-            destination.Destination
+            Directory,
+            Destination
         ))
 
-    def test_path_is_required(self):
+    def test_path_cannot_be_empty(self):
         with self.assertRaises(ConfigError) as context:
-            destination.Directory({'path': ''})
+            Directory('')
 
         self.assertEqual(
             str(context.exception).strip("'"),
-            'Key cannot be empty: path'
+            'Path cannot be empty'
         )
 
-    def test_path_is_absolute(self):
+    def test_path_must_be_absolute(self):
         with self.assertRaises(ConfigError) as context:
-            destination.Directory({'path': 'foo/bar'})
+            Directory('foo/bar')
 
         self.assertEqual(
             str(context.exception).strip("'"),
             'Path is not absolute: foo/bar'
         )
 
-    def test_path_is_directory(self):
+    def test_path_must_be_directory(self):
         with self.assertRaises(ConfigError) as context:
-            destination.Directory({'path': '/tmp/foo'})
+            Directory('/tmp/foo')
 
         self.assertEqual(
             str(context.exception).strip("'"),
             'Path is not a directory: /tmp/foo'
         )
 
-    def test_path_is_tilde(self):
-        subject = destination.Directory({'path': '~/backup'})
+    def test_path_has_tilde(self):
+        subject = Directory('~/backup')
 
         self.assertEqual(
-            subject.data(),
-            {
-                'path': os.path.expanduser('~/backup')
-            }
+            subject._path,
+            os.path.expanduser('~/backup')
         )
 
     def test_backup(self):
         FileSystem.write_file('~/.bunny', 'I am a bunny')
 
-        subject = destination.Directory({'path': '~/backup'})
-
+        subject = Directory('~/backup')
         subject.backup([Content('.bunny')])
 
         self.assertEqual(
@@ -135,8 +128,7 @@ class TestDirectory(unittest.TestCase):
     def test_restore(self):
         FileSystem.write_file('~/backup/.bunny', 'I am a bunny')
 
-        subject = destination.Directory({'path': '~/backup'})
-
+        subject = Directory('~/backup')
         subject.restore([Content('.bunny')])
 
         self.assertEqual(
@@ -151,72 +143,64 @@ class TestDirectory(unittest.TestCase):
 
 class TestRepository(unittest.TestCase):
     def test_new(self):
-        subject = destination.Repository({
-            'path': '/tmp',
-            'remote': 'git@github.com:jigarius/clibato.git',
-            'branch': 'backup',
-            'user': {
-                'name': 'Jigarius',
-                'mail': 'jigarius@example.com',
-            }
-        })
+        subject = Repository(
+            '/tmp',
+            'git@github.com:jigarius/clibato.git',
+            'backup',
+            'Jigarius',
+            'jigarius@example.com',
+        )
+
+        self.assertIsInstance(subject, Repository)
+
+    def test__eq__(self):
+        subject = Repository('/tmp', 'git@github.com:bunny/wabbit.git')
 
         self.assertEqual(
-            subject.data(),
-            {
-                'path': '/tmp',
-                'remote': 'git@github.com:jigarius/clibato.git',
-                'branch': 'backup',
-                'user': {
-                    'name': 'Jigarius',
-                    'mail': 'jigarius@example.com',
-                }
-            }
+            subject,
+            Repository('/tmp', 'git@github.com:bunny/wabbit.git')
+        )
+
+        self.assertNotEqual(
+            subject,
+            Repository('/tmp', 'git@github.com:bucky/wabbit.git')
+        )
+
+        self.assertNotEqual(
+            subject,
+            Directory('/tmp')
         )
 
     def test_inheritance(self):
         self.assertTrue(issubclass(
-            destination.Repository,
-            destination.Directory
+            Repository,
+            Directory
         ))
 
-    def test_path_is_required(self):
+    def test_path_cannot_be_empty(self):
         with self.assertRaises(ConfigError) as context:
-            destination.Repository({
-                'remote': 'git@github.com:jigarius/clibato.git',
-            })
+            Repository('', 'git@github.com:jigarius/clibato.git')
 
         self.assertEqual(
             str(context.exception).strip("'"),
-            'Key cannot be empty: path'
+            'Path cannot be empty'
         )
 
-    def test_remote_is_required(self):
+    def test_remote_cannot_be_empty(self):
         with self.assertRaises(ConfigError) as context:
-            destination.Repository({
-                'path': '/tmp',
-            })
+            Repository('/tmp', '')
 
         self.assertEqual(
             str(context.exception).strip("'"),
-            'Key cannot be empty: remote'
+            'Remote cannot be empty'
         )
 
     def test_default_values_merged(self):
-        subject = destination.Repository({
-            'path': '/tmp',
-            'remote': 'git@github.com:jigarius/clibato.git'
-        })
-
-        self.assertEqual(
-            subject.data(),
-            {
-                'path': '/tmp',
-                'remote': 'git@github.com:jigarius/clibato.git',
-                'branch': 'main',
-                'user': {
-                    'name': 'Clibato',
-                    'mail': 'clibato@jigarius.com'
-                }
-            }
+        subject = Repository(
+            '/tmp',
+            'git@github.com:jigarius/clibato.git'
         )
+
+        self.assertEqual(subject._branch, 'main')
+        self.assertEqual(subject._author.name, 'Clibato')
+        self.assertEqual(subject._author.email, 'clibato@jigarius.com')
