@@ -35,6 +35,10 @@ class Clibato:
 
         sys.exit(0)
 
+    def init(self):
+        """Action: Initialize configuration"""
+        Logger.error('TODO: Implement init')
+
     def backup(self):
         """Action: Create backup"""
         self._ensure_config()
