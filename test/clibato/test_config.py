@@ -111,7 +111,7 @@ class TestConfig(unittest.TestCase):
             })
 
         self.assertEqual(
-            "Config has illegal keys: bar, foo",
+            'Config has illegal keys: bar, foo',
             str(context.exception).strip("'")
         )
 
@@ -123,6 +123,27 @@ class TestConfig(unittest.TestCase):
             f'Config has missing keys: contents, destination',
             str(context.exception).strip("'")
         )
+
+    def test_from_dict_values_must_be_dictionary(self):
+        for key in ['contents', 'destination']:
+            data = {
+                'contents': {
+                    '.bashrc': None
+                },
+                'destination': {
+                    'type': 'directory',
+                    'path': '/tmp'
+                }
+            }
+            data[key] = 'oops'
+
+            with self.assertRaises(ConfigError) as context:
+                Config.from_dict(data)
+
+            self.assertEqual(
+                f'Config has illegal value for: {key}',
+                str(context.exception).strip("'")
+            )
 
     def test_from_file_with_absolute_path(self):
         self.assertEqual(
