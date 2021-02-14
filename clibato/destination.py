@@ -31,15 +31,17 @@ class Destination:
 
         data.type determines the type of object.
         """
-        tipo = data.pop('type', None)
+        try:
+            tipo = data.pop('type', None)
 
-        if tipo == 'repository':
-            return Repository(**data)
+            if tipo == 'repository':
+                return Repository(**data)
+            if tipo == 'directory':
+                return Directory(**data)
 
-        if tipo == 'directory':
-            return Directory(**data)
-
-        raise ConfigError(f"Illegal type: {tipo}")
+            raise ConfigError(f"Illegal type: {tipo}")
+        except TypeError as error:
+            raise ConfigError(error) from error
 
 
 class Directory(Destination):

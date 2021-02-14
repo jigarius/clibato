@@ -33,6 +33,14 @@ class TestDestination(unittest.TestCase):
         with self.assertRaisesRegex(ConfigError, message):
             Destination.from_dict({'type': 'foobar'})
 
+    def test_from_dict_with_arg_mismatch(self):
+        """.from_dict() fails with on argument mismatch"""
+        with self.assertRaises(ConfigError):
+            Destination.from_dict({
+                'type': 'directory',
+                'remote': 'git@github.com:jigarius/clibato.git'
+            })
+
 
 class TestDirectory(unittest.TestCase):
     """Test destination.Directory"""
