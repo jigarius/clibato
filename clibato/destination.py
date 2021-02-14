@@ -57,6 +57,10 @@ class Directory(Destination):
             self._path == other._path
         )
 
+    def path(self):
+        """Storage path"""
+        return self._path
+
     def backup(self, contents):
         for content in contents:
             try:
