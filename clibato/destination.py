@@ -66,13 +66,22 @@ class Directory(Destination):
     def backup(self, contents):
         for content in contents:
             try:
+                backup_path = content.backup_path(self._path)
+
+                # Ensure backup directory exists.
+                backup_dir = os.path.dirname(backup_path)
+                if not os.path.isdir(backup_dir):
+                    Logger.debug(f'Created directory: {backup_dir}')
+                    os.makedirs(backup_dir)
+
                 copyfile(
                     content.source_path(),
-                    content.backup_path(self._path)
+                    backup_path
                 )
+
                 Logger.info(f'Backed up: {content.source_path()}')
-            except FileNotFoundError:
-                Logger.error(f'Source not found: {content.source_path()}')
+            except FileNotFoundError as error:
+                Logger.error(error)
 
     def restore(self, contents):
         for content in contents:

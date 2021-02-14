@@ -47,11 +47,9 @@ class TestDirectory(unittest.TestCase):
 
     def setUp(self):
         FileSystem.ensure('~/backup')
-        FileSystem.ensure('~/source')
 
     def tearDown(self):
         FileSystem.remove('~/backup')
-        FileSystem.remove('~/source')
 
     def test_new(self):
         """Instance creation."""
@@ -120,15 +118,27 @@ class TestDirectory(unittest.TestCase):
 
     def test_backup(self):
         """.backup()"""
+        FileSystem.ensure('~/hole')
         FileSystem.write_file('~/.bunny', 'I am a bunny')
+        FileSystem.write_file('~/hole/.wabbit', 'I am a wabbit')
 
         subject = Directory('~/backup')
-        subject.backup([Content('.bunny')])
+        subject.backup([
+            Content('.bunny'),
+            Content('hole/.wabbit')
+        ])
 
         self.assertEqual(
             'I am a bunny',
             FileSystem.read_file('~/backup/.bunny')
         )
+        self.assertEqual(
+            'I am a wabbit',
+            FileSystem.read_file('~/backup/hole/.wabbit')
+        )
+
+        FileSystem.remove('~/.bunny')
+        FileSystem.remove('~/hole/.wabbit')
 
     @unittest.skip('TODO')
     def test_backup_file_not_found(self):
