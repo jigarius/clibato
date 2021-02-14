@@ -79,7 +79,7 @@ class TestConfig(unittest.TestCase):
             __class__._build_config()
         )
 
-    def test_from_dict_with_improper_contents(self):
+    def test_from_dict_content_entry_cannot_be_dictionary(self):
         with self.assertRaises(ConfigError) as context:
             Config.from_dict({
                 'contents': {
@@ -96,7 +96,7 @@ class TestConfig(unittest.TestCase):
             "Illegal value for contents/.bashrc: {}"
         )
 
-    def test_from_dict_with_illegal_keys(self):
+    def test_from_dict_cannot_contain_illegal_keys(self):
         with self.assertRaises(ConfigError) as context:
             Config.from_dict({
                 'foo': 'bunny',
@@ -115,28 +115,14 @@ class TestConfig(unittest.TestCase):
             "Config has illegal keys: bar, foo"
         )
 
-    def test_from_dict_with_missing_keys(self):
-        required_keys = ['contents', 'destination']
+    def test_from_dict_cannot_have_missing_keys(self):
+        with self.assertRaises(ConfigError) as context:
+            Config.from_dict({})
 
-        for key in required_keys:
-            with self.assertRaises(ConfigError) as context:
-                data = {
-                    'contents': {
-                        '.bashrc': None
-                    },
-                    'destination': {
-                        'type': 'directory',
-                        'path': '/tmp'
-                    }
-                }
-                del data[key]
-
-                Config.from_dict(data)
-
-            self.assertEqual(
-                str(context.exception).strip("'"),
-                f'Config has missing keys: {key}'
-            )
+        self.assertEqual(
+            str(context.exception).strip("'"),
+            f'Config has missing keys: contents, destination'
+        )
 
     def test_from_file_with_absolute_path(self):
         self.assertEqual(

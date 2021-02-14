@@ -4,7 +4,6 @@ import os
 from typing import List, Optional
 import yaml
 
-from . import utils
 from .error import ConfigError
 from .logger import Logger
 from .content import Content
@@ -40,15 +39,23 @@ class Config:
         """
         Create Config object from a dictionary.
 
-        :except KeyError
+        :except ConfigError
         """
-        try:
-            utils.ensure_shape(
-                data,
-                {'contents': {}, 'destination': {}}
-            )
-        except KeyError as error:
-            raise ConfigError(error) from error
+        required_keys = ['contents', 'destination']
+
+        extra_keys = list(data.keys() - required_keys)
+        if extra_keys:
+            extra_keys.sort()
+            raise ConfigError('Config has illegal keys: %s' % ', '.join(extra_keys))
+
+        missing_keys = list(required_keys - data.keys())
+        if missing_keys:
+            missing_keys.sort()
+            raise ConfigError('Config has missing keys: %s' % ', '.join(missing_keys))
+
+        for key in required_keys:
+            if not isinstance(data[key], dict):
+                raise ConfigError('Config has illegal value for: %s' % key)
 
         contents = []
         for backup_path in data['contents']:
