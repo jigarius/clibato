@@ -3,6 +3,7 @@ sandbox
 .clibato.yml
 
 # Miscellaneous.
+.coverage
 .idea
 .DS_Store
 __pycache__
