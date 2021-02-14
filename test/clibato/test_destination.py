@@ -5,6 +5,27 @@ from .support import FileSystem
 
 
 class TestDestination(unittest.TestCase):
+    def test__eq__(self):
+        subject = destination.Directory({'path': '/tmp'})
+
+        self.assertEqual(
+            subject,
+            destination.Directory({'path': '/tmp'})
+        )
+
+        self.assertNotEqual(
+            subject,
+            destination.Directory({'path': '/var/www'})
+        )
+
+        self.assertNotEqual(
+            subject,
+            destination.Repository({
+                'path': '/tmp',
+                'remote': 'git@github.com:bunny/wabbit.git'
+            })
+        )
+
     def test_new_not_allowed(self):
         with self.assertRaises(NotImplementedError) as context:
             destination.Destination({'type': 'directory', 'path': '/tmp'})
@@ -32,27 +53,6 @@ class TestDestination(unittest.TestCase):
         self.assertEqual(
             str(context.exception).strip("'"),
             'Illegal type: foobar'
-        )
-
-    def test__eq__(self):
-        subject = destination.Directory({'path': '/tmp'})
-
-        self.assertEqual(
-            subject,
-            destination.Directory({'path': '/tmp'})
-        )
-
-        self.assertNotEqual(
-            subject,
-            destination.Directory({'path': '/var/www'})
-        )
-
-        self.assertNotEqual(
-            subject,
-            destination.Repository({
-                'path': '/tmp',
-                'remote': 'git@github.com:bunny/wabbit.git'
-            })
         )
 
 

@@ -8,6 +8,62 @@ from clibato import Clibato, Content, Directory, Config, ConfigError
 class TestConfig(unittest.TestCase):
     _FIXTURE_PATH = os.path.join(Clibato.ROOT, 'test', 'fixtures', 'clibato.test.yml')
 
+    def test__eq__(self):
+        subject = Config.from_dict({
+            'contents': {
+                '.bashrc': None,
+                '.zshrc': None
+            },
+            'destination': {
+                'type': 'directory',
+                'path': '/tmp',
+            }
+        })
+
+        self.assertEqual(
+            subject,
+            Config.from_dict({
+                'contents': {
+                    '.bashrc': None,
+                    '.zshrc': None
+                },
+                'destination': {
+                    'type': 'directory',
+                    'path': '/tmp',
+                }
+            })
+        )
+
+        # Difference in content
+        self.assertNotEqual(
+            subject,
+            Config.from_dict({
+                'contents': {
+                    '.bashrc': None,
+                    '.zshrc': '/tmp/.zshrc'
+                },
+                'destination': {
+                    'type': 'directory',
+                    'path': '/tmp',
+                }
+            })
+        )
+
+        # Difference in destination
+        self.assertNotEqual(
+            subject,
+            Config.from_dict({
+                'contents': {
+                    '.bashrc': None,
+                    '.zshrc': None
+                },
+                'destination': {
+                    'type': 'directory',
+                    'path': '/var',
+                }
+            })
+        )
+
     def test_from_dict(self):
         self.assertEqual(
             Config.from_dict({
@@ -109,62 +165,6 @@ class TestConfig(unittest.TestCase):
         )
 
         os.remove(path)
-
-    def test__eq__(self):
-        subject = Config.from_dict({
-            'contents': {
-                '.bashrc': None,
-                '.zshrc': None
-            },
-            'destination': {
-                'type': 'directory',
-                'path': '/tmp',
-            }
-        })
-
-        self.assertEqual(
-            subject,
-            Config.from_dict({
-                'contents': {
-                    '.bashrc': None,
-                    '.zshrc': None
-                },
-                'destination': {
-                    'type': 'directory',
-                    'path': '/tmp',
-                }
-            })
-        )
-
-        # Difference in content
-        self.assertNotEqual(
-            subject,
-            Config.from_dict({
-                'contents': {
-                    '.bashrc': None,
-                    '.zshrc': '/tmp/.zshrc'
-                },
-                'destination': {
-                    'type': 'directory',
-                    'path': '/tmp',
-                }
-            })
-        )
-
-        # Difference in destination
-        self.assertNotEqual(
-            subject,
-            Config.from_dict({
-                'contents': {
-                    '.bashrc': None,
-                    '.zshrc': None
-                },
-                'destination': {
-                    'type': 'directory',
-                    'path': '/var',
-                }
-            })
-        )
 
     def test_contents(self):
         self.assertEqual(
