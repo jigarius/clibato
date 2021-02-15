@@ -68,7 +68,7 @@ class TestDirectory(unittest.TestCase):
 
         self.assertNotEqual(
             subject,
-            Directory('/var/www')
+            Directory('~/')
         )
 
         self.assertNotEqual(
