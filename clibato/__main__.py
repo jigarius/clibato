@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 
-"""
-Clibato: Entrypoint.
-"""
-
-import clibato
+from clibato import Clibato
 
 
 def main():
     """Clibato Entrypoint"""
-    app = clibato.Clibato()
+    app = Clibato()
     app.execute()
 
 
