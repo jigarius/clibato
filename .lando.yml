@@ -3,7 +3,7 @@ services:
   main:
     type: python
     build:
-      - pip install -r requirements.txt
+      - pip install -r requirements.txt -r requirements-dev.txt
       - chmod +x /app/main.py
       - ln -s /app/main.py /usr/local/bin/clibato
 tooling:
