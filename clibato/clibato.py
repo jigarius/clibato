@@ -86,7 +86,6 @@ class Clibato:
             dest='verbose',
             help='Enable verbose output.'
         )
-        # TODO: Investigate add_argument('path', type=pathlib.Path)
         common_parser.add_argument(
             '--config-file',
             default=Config.DEFAULT_FILENAME,
