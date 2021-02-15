@@ -3,7 +3,7 @@ import unittest
 
 from clibato import Content, ConfigError
 from clibato.destination import Destination, Directory, Repository
-from .support import FileSystem
+from support import FileSystem
 
 
 class TestDestination(unittest.TestCase):
