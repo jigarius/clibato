@@ -1,8 +1,10 @@
 import os
+import pathlib
+import tempfile
 import unittest
 
 from clibato import Content, ConfigError, Destination, Directory, Repository
-from .support import FileSystem
+from .support import TestCase, FileSystem
 
 
 class TestDestination(unittest.TestCase):
@@ -41,14 +43,8 @@ class TestDestination(unittest.TestCase):
             })
 
 
-class TestDirectory(unittest.TestCase):
+class TestDirectory(TestCase):
     """Test destination.Directory"""
-
-    def setUp(self):
-        FileSystem.ensure('~/backup')
-
-    def tearDown(self):
-        FileSystem.remove('~/backup')
 
     def test_new(self):
         """Instance creation."""
@@ -101,43 +97,40 @@ class TestDirectory(unittest.TestCase):
             Directory('foo/bar')
 
     def test_path_must_be_directory(self):
-        """Path must be a directory"""
+        """Path must be a directory that exists"""
         message = 'Path is not a directory: /tmp/foo'
         with self.assertRaisesRegex(ConfigError, message):
             Directory('/tmp/foo')
 
     def test_path_has_tilde(self):
-        """Path cannot contain tilde (~)"""
+        """Path can contain tilde (~)"""
+        backup_path = pathlib.Path.home() / 'backup'
+        backup_path.mkdir()
         subject = Directory('~/backup')
 
-        self.assertEqual(
-            os.path.expanduser('~/backup'),
-            subject.path()
-        )
+        self.assertEqual(os.path.expanduser('~/backup'), subject.path())
+
+        backup_path.rmdir()
 
     def test_backup(self):
         """.backup()"""
-        FileSystem.ensure('~/hole')
-        FileSystem.write_file('~/.bunny', 'I am a bunny')
-        FileSystem.write_file('~/hole/.wabbit', 'I am a wabbit')
+        source_dir = tempfile.TemporaryDirectory()
+        source_path = pathlib.Path(source_dir.name)
 
-        subject = Directory('~/backup')
+        backup_dir = tempfile.TemporaryDirectory()
+        backup_path = pathlib.Path(backup_dir.name)
+
+        FileSystem.write_file(source_path / '.bunny', 'I am a bunny')
+        FileSystem.write_file(source_path / 'hole' / '.wabbit', 'I am a wabbit')
+
+        subject = Directory(backup_dir.name)
         subject.backup([
-            Content('.bunny'),
-            Content('hole/.wabbit')
+            Content('.bunny', source_path / '.bunny'),
+            Content(os.path.join('hole', '.wabbit'), source_path / 'hole' / '.wabbit')
         ])
 
-        self.assertEqual(
-            'I am a bunny',
-            FileSystem.read_file('~/backup/.bunny')
-        )
-        self.assertEqual(
-            'I am a wabbit',
-            FileSystem.read_file('~/backup/hole/.wabbit')
-        )
-
-        FileSystem.remove('~/.bunny')
-        FileSystem.remove('~/hole/.wabbit')
+        self.assert_file_contents(backup_path / '.bunny', 'I am a bunny')
+        self.assert_file_contents(backup_path / 'hole' / '.wabbit', 'I am a wabbit')
 
     @unittest.skip('TODO')
     def test_backup_file_not_found(self):
@@ -145,15 +138,23 @@ class TestDirectory(unittest.TestCase):
 
     def test_restore(self):
         """.restore()"""
-        FileSystem.write_file('~/backup/.bunny', 'I am a bunny')
+        source_dir = tempfile.TemporaryDirectory()
+        source_path = pathlib.Path(source_dir.name)
 
-        subject = Directory('~/backup')
-        subject.restore([Content('.bunny')])
+        backup_dir = tempfile.TemporaryDirectory()
+        backup_path = pathlib.Path(backup_dir.name)
 
-        self.assertEqual(
-            'I am a bunny',
-            FileSystem.read_file('~/.bunny')
-        )
+        FileSystem.write_file(backup_path / '.bunny', 'I am a bunny')
+        FileSystem.write_file(backup_path / 'hole' / '.wabbit', 'I am a wabbit')
+
+        subject = Directory(backup_dir.name)
+        subject.restore([
+            Content('.bunny', source_path / '.bunny'),
+            Content(os.path.join('hole', '.wabbit'), source_path / 'hole' / '.wabbit')
+        ])
+
+        self.assert_file_contents(source_path / '.bunny', 'I am a bunny')
+        self.assert_file_contents(source_path / 'hole' / '.wabbit', 'I am a wabbit')
 
     @unittest.skip('TODO')
     def test_restore_file_not_found(self):
