@@ -3,16 +3,19 @@ services:
   main:
     type: python
     build:
-      - pip install -r requirements.txt -r requirements-dev.txt
-      - chmod +x /app/main.py
-      - ln -s /app/main.py /usr/local/bin/clibato
+      - echo "Installing dependencies..."
+      - make install
+      - pip install -e .
 tooling:
+  clibato:
+    service: main
+    cmd: clibato
   python:
     service: main
     cmd: python3
   lint:
     service: main
-    cmd: pylint main.py clibato test
+    cmd: make lint
   test:
     service: main
-    cmd: nosetests --rednose
+    cmd: make test
