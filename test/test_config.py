@@ -1,11 +1,11 @@
 from shutil import copyfile
 import os
-import unittest
 
 from clibato import Clibato, Content, Directory, Config, ConfigError
+from .support import TestCase
 
 
-class TestConfig(unittest.TestCase):
+class TestConfig(TestCase):
     """Test clibato.Config"""
 
     _FIXTURE_PATH = os.path.join(Clibato.ROOT, 'test', 'fixtures', 'clibato.test.yml')
@@ -139,9 +139,17 @@ class TestConfig(unittest.TestCase):
 
     def test_from_file(self):
         """.from_file()"""
-        self.assertEqual(
-            TestConfig._build_config(),
-            Config.from_file(self._FIXTURE_PATH)
+        with self.assertLogs('clibato') as context:
+            self.assertEqual(
+                TestConfig._build_config(),
+                Config.from_file(self._FIXTURE_PATH)
+            )
+
+        self.assert_length(context.records, 1)
+        self.assert_log_record(
+            context.records[0],
+            level='INFO',
+            message=f'Loading configuration: {self._FIXTURE_PATH}'
         )
 
     def test_from_file_with_non_existent_file(self):

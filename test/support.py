@@ -1,5 +1,7 @@
 import os
 import shutil
+import logging
+import unittest
 
 
 class FileSystem:
@@ -71,3 +73,31 @@ class FileSystem:
             shutil.rmtree(path)
         elif os.path.isfile(path):
             os.remove(path)
+
+
+class TestCase(unittest.TestCase):
+    """Clibato Test Case"""
+
+    def assert_length(self, item, length: int) -> None:
+        """
+        Assert whether an item has an expected length
+
+        :param item: The item.
+        :param length: Expected length.
+        :return: None
+        """
+        self.assertEqual(length, len(item))
+
+    def assert_log_record(self, record: logging.LogRecord, message: str, level: str) -> None:
+        """
+        Asserts equality of log record properties.
+
+        :param record: A logging.LogRecord.
+        :param message: Expected message.
+        :param level: Expected level name, e.g. INFO, WARNING, ERROR.
+        :return: None
+        """
+        expectation = {'level': level, 'message': message}
+        real = {'level': record.levelname, 'message': record.message}
+
+        self.assertEqual(expectation, real, 'Log record mismatch')
