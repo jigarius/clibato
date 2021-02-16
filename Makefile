@@ -27,6 +27,7 @@ test:
 
 ## Build and upload a release
 release:
+	rm -rf clibato.egg-info/*
 	rm -rf dist/*
 	pip install twine
 	python setup.py sdist
