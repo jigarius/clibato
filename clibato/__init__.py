@@ -21,7 +21,7 @@ class Clibato:
 
     def execute(self):
         """Executes the CLI"""
-        self._args = Clibato._argparser().parse_args()
+        self._args = Clibato._main_argparser().parse_args()
 
         if not self._args.action:
             print("Run 'clibato --help' for help.")
@@ -77,10 +77,20 @@ class Clibato:
             self._config = Config.from_file(path)
 
     @staticmethod
-    def _argparser():
-        common_parser = argparse.ArgumentParser(
-            add_help=False
-        )
+    def _main_argparser():
+        common_parser = Clibato._common_argparser()
+        main_parser = argparse.ArgumentParser(prog='clibato', parents=[common_parser])
+
+        subparsers = main_parser.add_subparsers(dest='action')
+        subparsers.add_parser('init', help='Initialize configuration', parents=[common_parser])
+        subparsers.add_parser('backup', help='Create backup', parents=[common_parser])
+        subparsers.add_parser('restore', help='Restore backup', parents=[common_parser])
+
+        return main_parser
+
+    @staticmethod
+    def _common_argparser():
+        common_parser = argparse.ArgumentParser(add_help=False)
         common_parser.add_argument(
             '--verbose',
             default=False,
@@ -96,29 +106,4 @@ class Clibato:
             help='A Clibato configuration file (YML).'
         )
 
-        main_parser = argparse.ArgumentParser(
-            prog='clibato',
-            parents=[common_parser]
-        )
-
-        subparsers = main_parser.add_subparsers(dest='action')
-
-        subparsers.add_parser(
-            'init',
-            help='Initialize configuration',
-            parents=[common_parser]
-        )
-
-        subparsers.add_parser(
-            'backup',
-            help='Create backup',
-            parents=[common_parser]
-        )
-
-        subparsers.add_parser(
-            'restore',
-            help='Restore backup',
-            parents=[common_parser]
-        )
-
-        return main_parser
+        return common_parser
