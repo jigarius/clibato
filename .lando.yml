@@ -6,6 +6,10 @@ services:
       - echo "Installing dependencies..."
       - make install
       - pip install -e .
+    overrides:
+      environment:
+        TERM: xterm-256color
+        PIP_USER: 'false'
 tooling:
   clibato:
     service: main
