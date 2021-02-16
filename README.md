@@ -1,11 +1,25 @@
 # Clibato: CLI Backup Tool
 
 Clibato is a simple backup/restore tool. I created it to help me backup
-my `.dot` files and to have fun with Python 🐍.
+and restore my `.dot` files, and to have fun with Python 🐍.
+
+>The name Clibato stands for (CLI) (ba)ckup (to)ol.
+
+## Quick start
+
+    pip install clibato # Installation
+    clibato init --config-file=~/.clibato.yml
+    vim ~/.clibato.yml # Configuration (required)
+    clibato backup # Perform backup
+    clibato restore # Restore last backup
 
 ## Installation
 
-TODO.
+Clibato can easily be installed using [pip](https://pip.pypa.io/).
+
+   pip install clibato
+
+Once installed, you can run it as `clibato` or `python -m clibato`.
 
 ## Configuration
 
@@ -45,7 +59,7 @@ To perform a backup, run the following command:
 
 ### Restore
 
-To restore the previous backup, run the following command:
+To restore the last backup, run the following command:
 
     clibato restore
 
