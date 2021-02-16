@@ -19,7 +19,7 @@ sandbox:
 
 ## Run lint
 lint:
-	pylint clibato test
+	pylint setup.py clibato test
 
 ## Run tests
 test:

@@ -6,8 +6,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 with open("requirements.txt", "r") as fh:
     install_requires = fh.read().splitlines()
 
-github_url = "https://github.com/jigarius/clibato"
-author_url = "https://jigarius.com/"
+GITHUB_URL = "https://github.com/jigarius/clibato"
+AUTHOR_URL = "https://jigarius.com/"
 
 setuptools.setup(
     name="clibato",
@@ -18,7 +18,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     license='GNU LGPL v2.1',
-    url=github_url,
+    url=GITHUB_URL,
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
@@ -26,8 +26,8 @@ setuptools.setup(
     ],
     keywords='cli backup restore dotfile utility',
     project_urls={
-        "Documentation": github_url + '#readme',
-        "Author": author_url,
+        "Documentation": GITHUB_URL + '#readme',
+        "Author": AUTHOR_URL,
         "Tracker": "https://github.com/jigarius/clibato/issues"
     },
     packages=setuptools.find_packages(exclude=['test']),
