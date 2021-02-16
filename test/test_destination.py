@@ -1,8 +1,8 @@
 import os
 import unittest
 
-from support import FileSystem
 from clibato import Content, ConfigError, Destination, Directory, Repository
+from .support import FileSystem
 
 
 class TestDestination(unittest.TestCase):
