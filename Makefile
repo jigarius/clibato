@@ -1,4 +1,4 @@
-.PHONY: install sandbox lint test release
+.PHONY: install sandbox lint test build release
 
 ## Install dependencies.
 install:
@@ -25,10 +25,12 @@ lint:
 test:
 	nosetests --rednose
 
-## Build and upload a release
-release:
+## Prepare a build
+build:
 	rm -rf clibato.egg-info/*
 	rm -rf dist/*
-	pip install twine
 	python setup.py sdist
+
+## Make a release
+release: build
 	twine upload dist/*
