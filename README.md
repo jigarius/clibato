@@ -3,7 +3,7 @@
 Clibato is a simple backup/restore tool. I created it to help me backup
 and restore my `.dot` files, and to have fun with Python 🐍.
 
->The name Clibato stands for (CLI) (ba)ckup (to)ol.
+The name Clibato stands for (CLI) (ba)ckup (to)ol.
 
 ## Quick start
 
