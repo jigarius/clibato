@@ -1,9 +1,13 @@
-# Dev files.
+# Development files.
 sandbox
 .clibato.yml
 
+# Build files.
+dist
+*.egg-info
+
 # Miscellaneous.
+__pycache__
 .coverage
 .idea
 .DS_Store
-__pycache__
