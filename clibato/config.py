@@ -1,13 +1,15 @@
 """Clibato Configuration"""
 
+import logging
 import os
 from typing import List, Optional
 import yaml
 
 from .error import ConfigError
-from .logger import Logger
 from .content import Content
 from .destination import Destination
+
+logger = logging.getLogger('clibato')
 
 
 class Config:
@@ -81,7 +83,7 @@ class Config:
         :param path: path/to/config.yml
         :return: A Config object.
         """
-        Logger.debug(f'Loading configuration: {path}')
+        logger.info('Loading configuration: %s', path)
         with open(path, 'r') as stream:
             try:
                 data = yaml.safe_load(stream)
@@ -107,20 +109,20 @@ class Config:
             if os.path.isfile(path):
                 return path
 
-            Logger.debug(message % path)
+            logger.debug(message, path)
             return None
 
         relative_path = os.path.join(os.getcwd(), path)
         if os.path.isfile(relative_path):
             return relative_path
 
-        Logger.debug(message % relative_path)
+        logger.debug(message, relative_path)
 
         home_path = os.path.expanduser(f'~/{path}')
         if os.path.isfile(home_path):
             return home_path
 
-        Logger.debug(message % home_path)
+        logger.debug(message, home_path)
 
         return None
 

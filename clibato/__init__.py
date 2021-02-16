@@ -2,12 +2,14 @@ from shutil import copyfile
 import sys
 import os
 import argparse
+import logging
 
 from .error import *
-from .logger import Logger
 from .destination import Destination, Directory, Repository
 from .content import Content
 from .config import Config
+
+logger = logging.getLogger('clibato')
 
 
 class Clibato:
@@ -23,17 +25,19 @@ class Clibato:
         """Executes the CLI"""
         self._args = Clibato._main_argparser().parse_args()
 
+        self._init_logger()
+
         if not self._args.action:
             print("Run 'clibato --help' for help.")
             return
 
-        Logger.debug(f'Running action: {self._args.action}')
+        logger.debug('Running action: %s', self._args.action)
 
         try:
             method = getattr(self, self._args.action)
             method()
         except (ConfigError, ActionError) as error:
-            Logger.error(error)
+            logger.error(error)
             sys.exit(1)
 
         sys.exit(0)
@@ -75,6 +79,16 @@ class Clibato:
         if not self._config:
             path = Config.locate(self._args.config_file)
             self._config = Config.from_file(path)
+
+    def _init_logger(self) -> None:
+        level = logging.WARNING
+        if self._args.verbose:
+            level = logging.DEBUG
+
+        logging.basicConfig(
+            level=level,
+            format="%(levelname)s: %(message)s"
+        )
 
     @staticmethod
     def _main_argparser():

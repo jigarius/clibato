@@ -1,9 +1,11 @@
 from shutil import copyfile
+import logging
 import os
 from git import Repo, Actor
 
-from .error import ConfigError
-from .logger import Logger
+from .error import ActionError, ConfigError
+
+logger = logging.getLogger('clibato')
 
 
 class Destination:
@@ -71,7 +73,7 @@ class Directory(Destination):
                 # Ensure backup directory exists.
                 backup_dir = os.path.dirname(backup_path)
                 if not os.path.isdir(backup_dir):
-                    Logger.debug(f'Created directory: {backup_dir}')
+                    logger.debug('Created directory: %s', backup_dir)
                     os.makedirs(backup_dir)
 
                 copyfile(
@@ -79,9 +81,9 @@ class Directory(Destination):
                     backup_path
                 )
 
-                Logger.info(f'Backed up: {content.source_path()}')
+                logger.info('Backed up: %s', content.source_path())
             except FileNotFoundError as error:
-                Logger.error(error)
+                logger.error(error)
 
     def restore(self, contents):
         for content in contents:
@@ -90,9 +92,9 @@ class Directory(Destination):
                     content.backup_path(self._path),
                     content.source_path()
                 )
-                Logger.info(f'Restored: {content.source_path()}')
+                logger.info('Restored: %s', content.source_path())
             except FileNotFoundError:
-                Logger.error(f'Backup not found: {content.backup_path()}')
+                logger.error('Backup not found: %s', content.backup_path())
 
     def _validate(self):
         if not self._path:
@@ -137,9 +139,10 @@ class Repository(Directory):
         repo = self._repo
 
         if repo.is_dirty():
-            Logger.error(f'Uncommitted changes found in: {self._path}')
-            Logger.info('Commit or discard all changes and try again.')
-            return
+            raise ActionError(
+                f'Uncommitted changes found in: {self._path}.'
+                'Commit or discard all changes and try again.'
+            )
 
         super().backup(contents)
 
@@ -149,7 +152,7 @@ class Repository(Directory):
             index.add(content.backup_path())
 
         change_count = len(repo.index.diff('HEAD'))
-        Logger.info(f'{change_count} change(s) detected.')
+        logger.info('%d change(s) detected.', change_count)
 
         if change_count == 0:
             return
@@ -181,11 +184,11 @@ class Repository(Directory):
 
         if 'origin' in repo.remotes:
             if repo.remotes.origin.url != self._remote:
-                Logger.debug(f'Removing incorrect remote: {repo.remotes.origin.url}')
+                logger.info('Removing incorrect remote: %s', repo.remotes.origin.url)
                 repo.delete_remote(repo.remotes.origin)
 
         if 'origin' not in repo.remotes:
-            Logger.info(f'Adding remote: {self._remote} (origin)')
+            logger.info('Creating remote: %s (origin)', self._remote)
             repo.create_remote('origin', self._remote)
 
     def _git_pull(self):
@@ -195,15 +198,15 @@ class Repository(Directory):
         remote.fetch()
 
         if self._branch not in repo.branches:
-            Logger.info(f'Creating branch: {self._branch}')
+            logger.info('Creating branch: %s', self._branch)
             self._git_commit('Initial commit')
             repo.create_head(self._branch)
 
         if repo.active_branch != self._branch:
-            Logger.info(f'Switching branch: {self._branch}')
+            logger.info('Switching branch: %s', self._branch)
             repo.heads[self._branch].checkout()
 
     def _git_push(self):
         """Push commits to remote."""
-        Logger.info(f'Pushing commits to origin {self._branch}.')
+        logger.info('Pushing commits to origin/%s.', self._branch)
         self._repo.remotes.origin.push(self._branch)
