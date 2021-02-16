@@ -5,6 +5,7 @@ services:
     build:
       - echo "Installing dependencies..."
       - make install
+      - make sandbox
       - pip install -e .
     overrides:
       environment:
