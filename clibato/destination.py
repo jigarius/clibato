@@ -88,13 +88,19 @@ class Directory(Destination):
     def restore(self, contents):
         for content in contents:
             try:
+                # Ensure restore directory exists.
+                restore_dir = os.path.dirname(content.source_path())
+                if not os.path.isdir(restore_dir):
+                    logger.debug('Created directory: %s', restore_dir)
+                    os.makedirs(restore_dir)
+
                 copyfile(
                     content.backup_path(self._path),
                     content.source_path()
                 )
                 logger.info('Restored: %s', content.source_path())
-            except FileNotFoundError:
-                logger.error('Backup not found: %s', content.backup_path())
+            except FileNotFoundError as error:
+                logger.error(error)
 
     def _validate(self):
         if not self._path:
