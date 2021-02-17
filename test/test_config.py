@@ -196,20 +196,6 @@ class TestConfig(TestCase):
         """.locate() returns None if config file is not found"""
         self.assertIsNone(Config.locate('/tmp/.clibato.yml'))
 
-    def test_absolute_path_with_home_path(self):
-        """.absolute_path() converts ~/path to $HOME/path"""
-        self.assertEqual(
-            os.path.expanduser('~/.clibato.yml'),
-            Config.absolute_path('~/.clibato.yml')
-        )
-
-    def test_absolute_path_with_relative_path(self):
-        """.absolute_path() converts path/to/file to $CWD/path/to/file"""
-        self.assertEqual(
-            os.path.join(os.getcwd(), '.clibato.yml'),
-            Config.absolute_path('.clibato.yml')
-        )
-
     def test_contents(self):
         """.contents()"""
         self.assertEqual(

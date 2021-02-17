@@ -2,6 +2,7 @@
 
 import logging
 import os
+from pathlib import Path
 from typing import List, Optional
 import yaml
 
@@ -125,28 +126,3 @@ class Config:
         logger.debug(message, home_path)
 
         return None
-
-    @staticmethod
-    def absolute_path(path: str) -> str:
-        """
-        Converts a config path to an absolute path.
-
-        Example
-        ------
-        Input: ~/.clibato.yml
-        Output: $HOME/.clibato.yml
-
-        Example:
-        ------
-        Input: .clibato.yml
-        Output: $CWD/.clibato.yml
-
-        :param path: Config path.
-        :return: Absolute path to config file.
-        """
-        path = os.path.expanduser(path)
-
-        if os.path.isabs(path):
-            return path
-
-        return os.path.join(os.getcwd(), path)
