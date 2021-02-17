@@ -59,17 +59,8 @@ class Config:
             if not isinstance(data[key], dict):
                 raise ConfigError('Config has illegal value for: %s' % key)
 
-        contents = []
-        for backup_path in data['contents']:
-            source_path = data['contents'][backup_path]
-
-            if not isinstance(source_path, str) and (source_path is not None):
-                raise ConfigError(f'Illegal value for contents/{backup_path}: {source_path}')
-
-            contents.append(Content(backup_path, source_path))
-
         return Config(
-            contents,
+            Content.from_dict(data['contents']),
             Destination.from_dict(data['destination'])
         )
 

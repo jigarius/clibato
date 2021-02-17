@@ -41,3 +41,23 @@ class Content:
         self._source_path = self._source_path.expanduser()
         if not self._source_path.is_absolute():
             raise ConfigError(f"Source path invalid: {self._source_path}")
+
+    @staticmethod
+    def from_dict(data: dict):
+        """
+        Create Content objects from a dictionary.
+
+        The keys of the dictionary should be the backup paths, and the values,
+        if any, will be treated as source paths.
+
+        :param data: A dictionary.
+        :return: A list of Content objects.
+        """
+        contents = []
+        for backup_path in data:
+            source_path = data[backup_path]
+            if not isinstance(source_path, str) and (source_path is not None):
+                raise ConfigError(f'Illegal source path for {backup_path}: {source_path}')
+            contents.append(Content(backup_path, source_path))
+
+        return contents

@@ -21,6 +21,18 @@ class TestContent(unittest.TestCase):
             Content('done.txt', str(Path('~', 'done.txt')))
         )
 
+    def test_from_dict(self):
+        """.from_dict()"""
+        self.assertEqual(
+            [Content('.bashrc', None)],
+            Content.from_dict({'.bashrc': None})
+        )
+
+    def test_from_dict_source_path_cannot_be_dictionary(self):
+        """.from_dict() fails if content entry is a dictionary"""
+        with self.assertRaisesRegex(ConfigError, 'Illegal source path for .bashrc: {}'):
+            Content.from_dict({'.bashrc': {}})
+
     def test_backup_path(self):
         """.backup_path() works"""
         subject = Content('.bashrc')

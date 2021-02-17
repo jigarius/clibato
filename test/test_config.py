@@ -63,20 +63,6 @@ class TestConfig(TestCase):
             })
         )
 
-    def test_from_dict_content_entry_cannot_be_dictionary(self):
-        """.from_dict() fails if content entry is a dictionary"""
-        message = 'Illegal value for contents/.bashrc: {}'
-        with self.assertRaisesRegex(ConfigError, message):
-            Config.from_dict({
-                'contents': {
-                    '.bashrc': {}
-                },
-                'destination': {
-                    'type': 'directory',
-                    'path': tempfile.gettempdir()
-                }
-            })
-
     def test_from_dict_cannot_contain_illegal_keys(self):
         """.from_dict() fails if when extra keys are found"""
         message = 'Config has illegal keys: bar, foo'
