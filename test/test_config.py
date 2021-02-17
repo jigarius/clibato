@@ -122,7 +122,10 @@ class TestConfig(TestCase):
         """.from_file()"""
         with self.assertLogs('clibato') as context:
             self.assertEqual(
-                TestConfig._build_config(),
+                Config(
+                    contents=[Content('.bashrc'), Content('.zshrc')],
+                    destination=Directory(path='/tmp')
+                ),
                 Config.from_file(self._FIXTURE_PATH)
             )
 
