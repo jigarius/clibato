@@ -1,6 +1,8 @@
 from shutil import copyfile
 from pathlib import Path
+import os
 import tempfile
+import unittest
 
 from clibato import Clibato, Content, Directory, Config, ConfigError
 from .support import TestCase
@@ -115,6 +117,7 @@ class TestConfig(TestCase):
             with self.assertRaisesRegex(ConfigError, message):
                 Config.from_dict(data)
 
+    @unittest.skipIf(os.name == 'nt', 'Fixture contains posix paths only')
     def test_from_file(self):
         """.from_file()"""
         with self.assertLogs('clibato') as context:
