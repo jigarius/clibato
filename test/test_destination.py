@@ -120,30 +120,33 @@ class TestDirectory(TestCase):
         backup_dir = tempfile.TemporaryDirectory()
         backup_path = pathlib.Path(backup_dir.name)
 
-        FileSystem.write_file(source_path / '.bunny', 'I am a bunny')
-        FileSystem.write_file(source_path / 'hole' / '.wabbit', 'I am a wabbit')
+        bunny_path = '.bunny'
+        wabbit_path = os.path.join('hole', '.wabbit')
+
+        FileSystem.write_file(source_path / bunny_path, 'I am a bunny')
+        FileSystem.write_file(source_path / wabbit_path, 'I am a wabbit')
 
         subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as context:
             subject.backup([
-                Content('.bunny', source_path / '.bunny'),
-                Content(os.path.join('hole', '.wabbit'), source_path / 'hole' / '.wabbit')
+                Content('.bunny', source_path / bunny_path),
+                Content(wabbit_path, source_path / wabbit_path)
             ])
 
         self.assert_length(context.records, 2)
         self.assert_log_record(
             context.records[0],
             level='INFO',
-            message="Backed up: %s" % (source_path / '.bunny')
+            message="Backed up: %s" % (source_path / bunny_path)
         )
         self.assert_log_record(
             context.records[1],
             level='INFO',
-            message="Backed up: %s" % (source_path / 'hole' / '.wabbit')
+            message="Backed up: %s" % (source_path / wabbit_path)
         )
 
-        self.assert_file_contents(backup_path / '.bunny', 'I am a bunny')
-        self.assert_file_contents(backup_path / 'hole' / '.wabbit', 'I am a wabbit')
+        self.assert_file_contents(backup_path / bunny_path, 'I am a bunny')
+        self.assert_file_contents(backup_path / wabbit_path, 'I am a wabbit')
 
     def test_backup_file_not_found(self):
         """.backup() logs and continues if a file is not found"""
@@ -153,29 +156,32 @@ class TestDirectory(TestCase):
         backup_dir = tempfile.TemporaryDirectory()
         backup_path = pathlib.Path(backup_dir.name)
 
-        FileSystem.write_file(source_path / 'hole' / '.wabbit', 'I am a wabbit')
+        bunny_path = '.bunny'
+        wabbit_path = os.path.join('hole', '.wabbit')
+
+        FileSystem.write_file(source_path / wabbit_path, 'I am a wabbit')
 
         subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as context:
             subject.backup([
-                Content('.bunny', source_path / '.bunny'),
-                Content(os.path.join('hole', '.wabbit'), source_path / 'hole' / '.wabbit')
+                Content('.bunny', source_path / bunny_path),
+                Content(wabbit_path, source_path / 'hole' / '.wabbit')
             ])
 
         self.assert_length(context.records, 2)
         self.assert_log_record(
             context.records[0],
             level='ERROR',
-            message="[Errno 2] No such file or directory: '%s'" % (source_path / '.bunny')
+            message="[Errno 2] No such file or directory: '%s'" % (source_path / bunny_path)
         )
         self.assert_log_record(
             context.records[1],
             level='INFO',
-            message="Backed up: %s" % (source_path / 'hole' / '.wabbit')
+            message="Backed up: %s" % (source_path / wabbit_path)
         )
 
-        self.assert_file_not_exists(backup_path / '.bunny')
-        self.assert_file_contents(backup_path / 'hole' / '.wabbit', 'I am a wabbit')
+        self.assert_file_not_exists(backup_path / bunny_path)
+        self.assert_file_contents(backup_path / wabbit_path, 'I am a wabbit')
 
     def test_restore(self):
         """.restore()"""
@@ -185,30 +191,33 @@ class TestDirectory(TestCase):
         backup_dir = tempfile.TemporaryDirectory()
         backup_path = pathlib.Path(backup_dir.name)
 
-        FileSystem.write_file(backup_path / '.bunny', 'I am a bunny')
-        FileSystem.write_file(backup_path / 'hole' / '.wabbit', 'I am a wabbit')
+        bunny_path = '.bunny'
+        wabbit_path = os.path.join('hole', '.wabbit')
+
+        FileSystem.write_file(backup_path / bunny_path, 'I am a bunny')
+        FileSystem.write_file(backup_path / wabbit_path, 'I am a wabbit')
 
         subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as context:
             subject.restore([
-                Content('.bunny', source_path / '.bunny'),
-                Content(os.path.join('hole', '.wabbit'), source_path / 'hole' / '.wabbit')
+                Content(bunny_path, source_path / bunny_path),
+                Content(wabbit_path, source_path / wabbit_path)
             ])
 
         self.assert_length(context.records, 2)
         self.assert_log_record(
             context.records[0],
             level='INFO',
-            message="Restored: %s" % (source_path / '.bunny')
+            message="Restored: %s" % (source_path / bunny_path)
         )
         self.assert_log_record(
             context.records[1],
             level='INFO',
-            message="Restored: %s" % (source_path / 'hole' / '.wabbit')
+            message="Restored: %s" % (source_path / wabbit_path)
         )
 
-        self.assert_file_contents(source_path / '.bunny', 'I am a bunny')
-        self.assert_file_contents(source_path / 'hole' / '.wabbit', 'I am a wabbit')
+        self.assert_file_contents(source_path / bunny_path, 'I am a bunny')
+        self.assert_file_contents(source_path / wabbit_path, 'I am a wabbit')
 
     def test_restore_file_not_found(self):
         """.restore() logs and continues if a file is not found"""
@@ -218,29 +227,32 @@ class TestDirectory(TestCase):
         backup_dir = tempfile.TemporaryDirectory()
         backup_path = pathlib.Path(backup_dir.name)
 
-        FileSystem.write_file(backup_path / 'hole' / '.wabbit', 'I am a wabbit')
+        bunny_path = '.bunny'
+        wabbit_path = os.path.join('hole', '.wabbit')
+
+        FileSystem.write_file(backup_path / wabbit_path, 'I am a wabbit')
 
         subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as context:
             subject.restore([
-                Content('.bunny', source_path / '.bunny'),
-                Content(os.path.join('hole', '.wabbit'), source_path / 'hole' / '.wabbit')
+                Content('.bunny', source_path / bunny_path),
+                Content(wabbit_path, source_path / 'hole' / '.wabbit')
             ])
 
         self.assert_length(context.records, 2)
         self.assert_log_record(
             context.records[0],
             level='ERROR',
-            message="[Errno 2] No such file or directory: '%s'" % (backup_path / '.bunny')
+            message="[Errno 2] No such file or directory: '%s'" % (backup_path / bunny_path)
         )
         self.assert_log_record(
             context.records[1],
             level='INFO',
-            message="Restored: %s" % (source_path / 'hole' / '.wabbit')
+            message="Restored: %s" % (source_path / wabbit_path)
         )
 
-        self.assert_file_not_exists(source_path / '.bunny')
-        self.assert_file_contents(source_path / 'hole' / '.wabbit', 'I am a wabbit')
+        self.assert_file_not_exists(source_path / bunny_path)
+        self.assert_file_contents(source_path / wabbit_path, 'I am a wabbit')
 
 
 class TestRepository(unittest.TestCase):
