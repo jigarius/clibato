@@ -298,3 +298,11 @@ class TestRepository(TestCase):
         message = 'Remote cannot be empty'
         with self.assertRaisesRegex(ConfigError, message):
             Repository('/tmp', '')
+
+    @unittest.skip('TODO')
+    def test_backup(self):
+        """.backup()"""
+
+    @unittest.skip('TODO')
+    def test_restore(self):
+        """.backup()"""
