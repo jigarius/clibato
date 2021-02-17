@@ -14,10 +14,10 @@ services:
 tooling:
   clibato:
     service: main
-    cmd: clibato
   python:
     service: main
-    cmd: python3
+  make:
+    service: main
   lint:
     service: main
     cmd: make lint
