@@ -164,37 +164,37 @@ class TestConfig(TestCase):
     def test_locate_with_absolute_path(self):
         """.locate() can detect config with absolute paths"""
         self.assertEqual(
-            str(self._FIXTURE_PATH),
+            self._FIXTURE_PATH,
             Config.locate(self._FIXTURE_PATH)
         )
 
     def test_locate_with_relative_path(self):
         """.locate() can detect config with relative paths"""
-        original_cwd = os.getcwd()
+        original_cwd = Path.cwd()
         os.chdir(Clibato.ROOT / 'test')
 
         self.assertEqual(
-            str(self._FIXTURE_PATH),
-            Config.locate(os.path.join('fixtures', 'clibato.test.yml'))
+            self._FIXTURE_PATH,
+            Config.locate(Path('fixtures', 'clibato.test.yml'))
         )
 
         os.chdir(original_cwd)
 
     def test_locate_with_home_path(self):
         """.locate() can detect config with ~/ paths"""
-        path = os.path.expanduser('~/clibato.test.yml')
+        path = Path.home() / 'clibato.test.yml'
         copyfile(self._FIXTURE_PATH, path)
 
         self.assertEqual(
             path,
-            Config.locate('clibato.test.yml')
+            Config.locate(Path('clibato.test.yml'))
         )
 
-        os.remove(path)
+        path.unlink()
 
     def test_locate_with_non_existent_file(self):
         """.locate() returns None if config file is not found"""
-        self.assertIsNone(Config.locate('/tmp/.clibato.yml'))
+        self.assertIsNone(Config.locate(Path('tmp', '.clibato.yml')))
 
     def test_contents(self):
         """.contents()"""

@@ -1,7 +1,6 @@
 """Clibato Configuration"""
 
 import logging
-import os
 from pathlib import Path
 from typing import List, Optional
 import yaml
@@ -94,7 +93,7 @@ class Config:
         return Config.from_dict(data)
 
     @staticmethod
-    def locate(path: str) -> Optional[str]:
+    def locate(path: Path) -> Optional[Path]:
         """
         Looks up a config file and returns its absolute path.
 
@@ -103,26 +102,23 @@ class Config:
         :param path: some/config.yml.
         :return: /path/to/some/config.yml if found.
         """
-        path = os.path.expanduser(path)
+        path = path.expanduser()
         message = 'Config not found at %s'
 
-        if os.path.isabs(path):
-            if os.path.isfile(path):
+        if path.is_absolute():
+            if path.is_file():
                 return path
-
             logger.debug(message, path)
             return None
 
-        relative_path = os.path.join(os.getcwd(), path)
-        if os.path.isfile(relative_path):
+        relative_path = path.resolve()
+        if relative_path.is_file():
             return relative_path
-
         logger.debug(message, relative_path)
 
-        home_path = os.path.expanduser(f'~/{path}')
-        if os.path.isfile(home_path):
+        home_path = Path.home() / path
+        if home_path.is_file():
             return home_path
-
         logger.debug(message, home_path)
 
         return None
