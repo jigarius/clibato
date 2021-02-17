@@ -1,7 +1,7 @@
+from pathlib import Path
 import os
 import shutil
 import logging
-import pathlib
 import unittest
 
 
@@ -12,7 +12,7 @@ class FileSystem:
         raise NotImplementedError()
 
     @staticmethod
-    def write_file(path: pathlib.Path, data: str = '', append=False):
+    def write_file(path: Path, data: str = '', append=False):
         """
         Writes data to a file.
 
@@ -33,7 +33,7 @@ class FileSystem:
         file.close()
 
     @staticmethod
-    def read_file(path: pathlib.Path) -> str:
+    def read_file(path: Path) -> str:
         """
         Read data from a file.
 
@@ -49,7 +49,7 @@ class FileSystem:
         return result
 
     @staticmethod
-    def remove(path: pathlib.Path) -> None:
+    def remove(path: Path) -> None:
         """
         Removes the specified file or directory.
 
@@ -64,9 +64,9 @@ class FileSystem:
             path.unlink()
 
     @staticmethod
-    def _normalize_path(path) -> pathlib.Path:
-        if not isinstance(path, pathlib.Path):
-            path = pathlib.Path(path)
+    def _normalize_path(path) -> Path:
+        if not isinstance(path, Path):
+            path = Path(path)
 
         return path.expanduser()
 
@@ -82,7 +82,7 @@ class TestCase(unittest.TestCase):
         :param path: New CWD.
         :return: Old CWD.
         """
-        old_cwd = pathlib.Path.cwd()
+        old_cwd = Path.cwd()
         os.chdir(path)
         return old_cwd
 
@@ -110,31 +110,31 @@ class TestCase(unittest.TestCase):
 
         self.assertEqual(expectation, real, 'Log record mismatch')
 
-    def assert_file_exists(self, path: pathlib.Path) -> None:
+    def assert_file_exists(self, path: Path) -> None:
         """
         Asserts that the file exists.
 
         :param path: File path.
         :return: None.
         """
-        if not isinstance(path, pathlib.Path):
-            path = pathlib.Path(path)
+        if not isinstance(path, Path):
+            path = Path(path)
 
         self.assertTrue(path.is_file(), f"Expected file to exist, but it doesn't exist: {path}")
 
-    def assert_file_not_exists(self, path: pathlib.Path) -> None:
+    def assert_file_not_exists(self, path: Path) -> None:
         """
         Asserts that the file doesn't exist.
 
         :param path: File path.
         :return: None.
         """
-        if not isinstance(path, pathlib.Path):
-            path = pathlib.Path(path)
+        if not isinstance(path, Path):
+            path = Path(path)
 
         self.assertFalse(path.is_file(), f"Expected file to not exist, but it exists: {path}")
 
-    def assert_file_contents(self, path: pathlib.Path, contents) -> None:
+    def assert_file_contents(self, path: Path, contents) -> None:
         """
         Asserts whether the file has the expected contents.
 
