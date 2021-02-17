@@ -61,19 +61,19 @@ class Clibato:
 
     def backup(self):
         """Action: Create backup"""
-        self._ensure_config()
+        self._init_config()
 
         dest = self._config.destination()
         dest.backup(self._config.contents())
 
     def restore(self):
         """Action: Restore backup"""
-        self._ensure_config()
+        self._init_config()
 
         dest = self._config.destination()
         dest.restore(self._config.contents())
 
-    def _ensure_config(self):
+    def _init_config(self):
         if not self._config:
             path = Config.locate(self._args.config_path)
             self._config = Config.from_file(path)
