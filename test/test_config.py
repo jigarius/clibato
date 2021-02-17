@@ -1,4 +1,5 @@
 from shutil import copyfile
+from pathlib import Path
 import os
 
 from clibato import Clibato, Content, Directory, Config, ConfigError
@@ -8,7 +9,7 @@ from .support import TestCase
 class TestConfig(TestCase):
     """Test clibato.Config"""
 
-    _FIXTURE_PATH = os.path.join(Clibato.ROOT, 'test', 'fixtures', 'clibato.test.yml')
+    _FIXTURE_PATH = Path(__file__).parent / 'fixtures' / 'clibato.test.yml'
 
     def test__eq__(self):
         """.__eq__()"""
@@ -163,17 +164,17 @@ class TestConfig(TestCase):
     def test_locate_with_absolute_path(self):
         """.locate() can detect config with absolute paths"""
         self.assertEqual(
-            self._FIXTURE_PATH,
+            str(self._FIXTURE_PATH),
             Config.locate(self._FIXTURE_PATH)
         )
 
     def test_locate_with_relative_path(self):
         """.locate() can detect config with relative paths"""
         original_cwd = os.getcwd()
-        os.chdir(os.path.join(Clibato.ROOT, 'test'))
+        os.chdir(Clibato.ROOT / 'test')
 
         self.assertEqual(
-            self._FIXTURE_PATH,
+            str(self._FIXTURE_PATH),
             Config.locate(os.path.join('fixtures', 'clibato.test.yml'))
         )
 

@@ -1,4 +1,5 @@
 from shutil import copyfile
+from pathlib import Path
 import sys
 import os
 import argparse
@@ -15,7 +16,7 @@ logger = logging.getLogger('clibato')
 class Clibato:
     """Clibato Controller"""
 
-    ROOT = os.path.dirname(os.path.dirname(__file__))
+    ROOT = Path(__file__).parent.parent
 
     def __init__(self):
         self._args = None
