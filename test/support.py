@@ -22,6 +22,8 @@ class FileSystem:
         :return: None
         """
         path = FileSystem._normalize_path(path)
+        if not path.parent.is_dir():
+            os.makedirs(path.parent)
         mode = 'a' if append else 'w'
 
         parent = FileSystem._normalize_path(os.path.dirname(path))
