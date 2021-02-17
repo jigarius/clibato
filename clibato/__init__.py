@@ -98,7 +98,11 @@ class Clibato:
     @staticmethod
     def _main_argparser():
         common_parser = Clibato._common_argparser()
-        main_parser = argparse.ArgumentParser(prog='clibato', parents=[common_parser])
+        main_parser = argparse.ArgumentParser(
+            prog='clibato',
+            usage='clibato [-v] [-c ~/.clibato.yml] ACTION',
+            parents=[common_parser]
+        )
 
         subparsers = main_parser.add_subparsers(dest='action')
         subparsers.add_parser('init', help='Initialize configuration', parents=[common_parser])
