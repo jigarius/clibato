@@ -1,5 +1,4 @@
-import os
-
+from pathlib import Path
 from .error import ConfigError
 
 
@@ -7,8 +6,12 @@ class Content:
     """Clibato Content: An item for backup/restore."""
 
     def __init__(self, backup_path: str, source_path: str = None):
-        self._backup_path = backup_path
-        self._source_path = source_path or f'~/{self._backup_path}'
+        self._backup_path = Path(backup_path)
+
+        if source_path:
+            self._source_path = Path(source_path)
+        else:
+            self._source_path = Path.home() / self._backup_path
 
         self._validate()
 
@@ -19,28 +22,22 @@ class Content:
             self.backup_path() == other.backup_path()
         )
 
-    def source_path(self) -> str:
+    def source_path(self) -> Path:
         """Path to source file."""
         return self._source_path
 
-    def backup_path(self, prefix: str = '') -> str:
+    def backup_path(self) -> Path:
         """Path to backup file."""
-        if prefix and not prefix.endswith('/'):
-            prefix += '/'
-
-        return f"{prefix}{self._backup_path}"
+        return self._backup_path
 
     def _validate(self):
-        if os.path.isabs(self._backup_path):
+        if self._backup_path.is_absolute():
             raise ConfigError(f'Backup path cannot be absolute: {self._backup_path}')
 
-        backup_path_parts = self._backup_path.split('/')
-
-        for illegal_part in ['.', '..', '~']:
-            if illegal_part in backup_path_parts:
+        for illegal_part in ['..', '~']:
+            if illegal_part in self._backup_path.parts:
                 raise ConfigError(f'Backup path cannot contain: {illegal_part}')
 
-        self._source_path = os.path.expanduser(self._source_path)
-
-        if not os.path.isabs(self._source_path):
+        self._source_path = self._source_path.expanduser()
+        if not self._source_path.is_absolute():
             raise ConfigError(f"Source path invalid: {self._source_path}")

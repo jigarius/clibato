@@ -1,6 +1,6 @@
 import os
 import unittest
-
+from pathlib import Path
 from clibato import Content, ConfigError
 
 
@@ -11,60 +11,43 @@ class TestContent(unittest.TestCase):
 
     def test__eq__(self):
         """.__eq__()"""
-        subject = Content('todo.txt', '/var/todo.txt')
+        source_path = str(Path('~', 'todo.txt'))
+        subject = Content('todo.txt', source_path)
 
         self.assertEqual(
             subject,
-            Content('todo.txt', '/var/todo.txt')
+            Content('todo.txt', source_path)
         )
 
         self.assertNotEqual(
             subject,
-            Content('done.txt', '/var/www/todo.txt')
-        )
-
-        self.assertNotEqual(
-            subject,
-            Content('todo.txt', '/var/www/todo.txt')
+            Content('done.txt', str(Path('~', 'done.txt')))
         )
 
     def test_backup_path(self):
         """.backup_path() works"""
         subject = Content('.bashrc')
 
-        self.assertEqual(
-            '.bashrc',
-            subject.backup_path()
-        )
+        self.assertEqual(Path('.bashrc'), subject.backup_path())
 
-    def test_backup_path_with_prefix(self):
-        """.backup_path() works with a prefix"""
-        subject = Content('.bashrc')
-
-        self.assertEqual(
-            '/backup/.bashrc',
-            subject.backup_path('/backup')
-        )
-
-    def test_source_path(self):
+    def test_source_path_with_absolute_path(self):
         """.new() works with absolute source paths"""
-        subject = Content('todo.txt', '/users/jigarius/todo.txt')
+        source_path = Path('/', 'todo.txt')
+        subject = Content('todo.txt', str(source_path))
 
-        self.assertEqual(
-            '/users/jigarius/todo.txt',
-            subject.source_path()
-        )
+        self.assertEqual(source_path, subject.source_path())
 
     def test_source_path_with_tilde(self):
         """.new() works with source paths starting with tilde"""
-        subject = Content('todo.txt', '~/Documents/todo.txt')
+        source_path = Path('~', 'Documents', 'todo.txt')
+        subject = Content('todo.txt', str(source_path))
 
         self.assertEqual(
-            os.path.join(self._HOME_PATH, 'Documents', 'todo.txt'),
+            source_path.expanduser().absolute(),
             subject.source_path()
         )
 
-    def test_source_path_cannot_be_relative(self):
+    def test_source_path_with_relative_path(self):
         """.new() raises if source_path is relative"""
         message = 'Source path invalid: Documents/todo.txt'
         with self.assertRaisesRegex(ConfigError, message):
@@ -72,10 +55,10 @@ class TestContent(unittest.TestCase):
 
     def test_source_path_when_empty(self):
         """.new() works when source_path is empty"""
-        subject = Content('todo.txt', '')
+        subject = Content('.bashrc', '')
 
         self.assertEqual(
-            os.path.join(self._HOME_PATH, 'todo.txt'),
+            Path('~', '.bashrc').expanduser(),
             subject.source_path()
         )
 
@@ -84,7 +67,7 @@ class TestContent(unittest.TestCase):
         subject = Content('.bashrc')
 
         self.assertEqual(
-            os.path.join(self._HOME_PATH, '.bashrc'),
+            Path('~', '.bashrc').expanduser(),
             subject.source_path()
         )
 
@@ -92,13 +75,13 @@ class TestContent(unittest.TestCase):
         """.new() raises if backup path is not absolute"""
         message = 'Backup path cannot be absolute: /.bashrc'
         with self.assertRaisesRegex(ConfigError, message):
-            Content('/.bashrc')
+            Content(str(Path('/', '.bashrc')))
 
     def test_backup_path_cannot_contain_illegal_elements(self):
         """.new() raises if backup path contains illegal elements"""
-        illegal_parts = ['~', '.', '..']
+        illegal_parts = ['~', '..']
 
         for part in illegal_parts:
             message = f'Backup path cannot contain: {part}'
             with self.assertRaisesRegex(ConfigError, message):
-                Content(f'{part}/.bashrc')
+                Content(str(Path(part, '.bashrc')))
