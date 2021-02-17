@@ -45,15 +45,11 @@ class Clibato:
 
     def init(self):
         """Action: Initialize configuration"""
-        path = Config.absolute_path(self._args.config_file)
-
-        if os.path.isfile(path):
+        path = self._args.config_path.expanduser().resolve()
+        if path.is_file():
             raise ActionError(f'Configuration already exists: {path}')
 
-        copyfile(
-            os.path.join(Clibato.ROOT, '.clibato.example.yml'),
-            path
-        )
+        copyfile(Clibato.ROOT / '.clibato.example.yml', path)
 
         print('Configuration created: %s' % path)
         print('')
@@ -78,7 +74,7 @@ class Clibato:
 
     def _ensure_config(self):
         if not self._config:
-            path = Config.locate(self._args.config_file)
+            path = Config.locate(self._args.config_path)
             self._config = Config.from_file(path)
 
     def _init_logger(self) -> None:
@@ -115,9 +111,10 @@ class Clibato:
         )
         common_parser.add_argument(
             '--config-file',
+            type=Path,
             default=Config.DEFAULT_FILENAME,
             action='store',
-            dest='config_file',
+            dest='config_path',
             help='A Clibato configuration file (YML).'
         )
 
