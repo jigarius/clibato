@@ -1,5 +1,4 @@
 from pathlib import Path
-import os
 import tempfile
 import unittest
 
@@ -116,7 +115,7 @@ class TestDirectory(TestCase):
         backup_path = Path(backup_dir.name)
 
         bunny_path = '.bunny'
-        wabbit_path = os.path.join('hole', '.wabbit')
+        wabbit_path = str(Path('hole', '.wabbit'))
 
         FileSystem.write_file(source_path / bunny_path, 'I am a bunny')
         FileSystem.write_file(source_path / wabbit_path, 'I am a wabbit')
@@ -152,7 +151,7 @@ class TestDirectory(TestCase):
         backup_path = Path(backup_dir.name)
 
         bunny_path = '.bunny'
-        wabbit_path = os.path.join('hole', '.wabbit')
+        wabbit_path = str(Path('hole', '.wabbit'))
 
         FileSystem.write_file(source_path / wabbit_path, 'I am a wabbit')
 
@@ -187,7 +186,7 @@ class TestDirectory(TestCase):
         backup_path = Path(backup_dir.name)
 
         bunny_path = '.bunny'
-        wabbit_path = os.path.join('hole', '.wabbit')
+        wabbit_path = str(Path('hole', '.wabbit'))
 
         FileSystem.write_file(backup_path / bunny_path, 'I am a bunny')
         FileSystem.write_file(backup_path / wabbit_path, 'I am a wabbit')
@@ -223,7 +222,7 @@ class TestDirectory(TestCase):
         backup_path = Path(backup_dir.name)
 
         bunny_path = '.bunny'
-        wabbit_path = os.path.join('hole', '.wabbit')
+        wabbit_path = str(Path('hole', '.wabbit'))
 
         FileSystem.write_file(backup_path / wabbit_path, 'I am a wabbit')
 
