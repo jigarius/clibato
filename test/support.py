@@ -74,6 +74,18 @@ class FileSystem:
 class TestCase(unittest.TestCase):
     """Clibato Test Case"""
 
+    @staticmethod
+    def chdir(path: str) -> str:
+        """
+        Changes the working directory.
+
+        :param path: New CWD.
+        :return: Old CWD.
+        """
+        old_cwd = pathlib.Path.cwd()
+        os.chdir(path)
+        return old_cwd
+
     def assert_length(self, item, length: int) -> None:
         """
         Assert whether an item has an expected length
