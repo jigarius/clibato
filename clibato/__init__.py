@@ -87,13 +87,13 @@ class Clibato:
 
     def _init_logger(self) -> None:
         level = logging.WARNING
-        if self._args.verbose:
+
+        if self._args.verbose == 1:
+            level = logging.INFO
+        elif self._args.verbose > 1:
             level = logging.DEBUG
 
-        logging.basicConfig(
-            level=level,
-            format="%(levelname)s: %(message)s"
-        )
+        logging.basicConfig(level=level, format="%(levelname)s: %(message)s")
 
     @staticmethod
     def _main_argparser():
@@ -118,8 +118,8 @@ class Clibato:
         common_parser.add_argument(
             '-v',
             '--verbose',
-            default=False,
-            action='store_true',
+            default=0,
+            action='count',
             dest='verbose',
             help='Enable verbose output.'
         )
