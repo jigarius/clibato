@@ -110,6 +110,13 @@ class TestCase(unittest.TestCase):
 
         self.assertEqual(expectation, real, 'Log record mismatch')
 
+    def assert_is_subclass(self, subject, parent):
+        """Asserts whether the subject is a subclass of the parent."""
+        self.assertTrue(
+            issubclass(subject, parent),
+            f'{subject} is not a subclass of {parent}'
+        )
+
     def assert_file_exists(self, path: Path) -> None:
         """
         Asserts that the file exists.
