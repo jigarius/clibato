@@ -8,7 +8,7 @@ The name Clibato stands for (CLI) (ba)ckup (to)ol.
 ## Quick start
 
     pip install clibato # Installation
-    clibato init --config-file=~/.clibato.yml
+    clibato init --config=~/.clibato.yml
     vim ~/.clibato.yml # Configuration (required)
     clibato backup # Perform backup
     clibato restore # Restore last backup
@@ -27,24 +27,24 @@ To use the tool, start by creating a configuration file. The `~/.clibato.yml`
 will automatically be detected so, it is the recommended location. However,
 you can place your configuration anywhere.
 
-    clibato init --config-file=~/.clibato.yml
+    clibato init --config=~/.clibato.yml
 
 The generated file contains comments to help you with the configuration.
 
 ### Auto-detection
 
-If `--config-file` is not specified, the following locations will be searched:
+If `--config` is not specified, the following locations will be searched:
 
   - The directory from which the command was issued, i.e. `./.clibato.yml`.
   - The user's home directory, i.e. `~/.clibato.yml`.
 
 If your configuration is not in one of those locations, you can use the
-`--config-file` flag with other `clibato` commands.
+`--config` flag with other `clibato` commands.
 
 ### Suggestions
 
   * Place your config in `~/.clibato.yml`.
-    * This way, you don't have to specify `--config-file` all the time.
+    * This way, you don't have to specify `--config` all the time.
   * Include your `.clibato.yml` in your backup.
 
 ## Usage

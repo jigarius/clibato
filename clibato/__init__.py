@@ -111,7 +111,7 @@ class Clibato:
             help='Enable verbose output.'
         )
         common_parser.add_argument(
-            '--config-file',
+            '--config',
             type=Path,
             default=Config.DEFAULT_FILENAME,
             action='store',
