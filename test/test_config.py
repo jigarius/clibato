@@ -36,12 +36,12 @@ class TestConfig(TestCase):
         )
 
         # Difference in destination
-        dir = tempfile.TemporaryDirectory()
+        tempdir = tempfile.TemporaryDirectory()
         self.assertNotEqual(
             subject,
             Config(
                 contents=[Content('.bashrc'), Content('.zshrc')],
-                destination=Directory(path=dir.name)
+                destination=Directory(path=tempdir.name)
             )
         )
 
