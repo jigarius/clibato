@@ -46,6 +46,20 @@ class Destination:
         except TypeError as error:
             raise ConfigError(error) from error
 
+    @staticmethod
+    def _ensure_directory(path: Path) -> None:
+        """
+        Creates the directory if it doesn't exist
+
+        :param path: Directory path.
+        :return: None
+        """
+        if path.is_dir():
+            return
+
+        logger.debug('Creating directory: %s', path)
+        os.makedirs(path)
+
 
 class Directory(Destination):
     """Destination type: Directory"""
@@ -70,18 +84,8 @@ class Directory(Destination):
         for content in contents:
             try:
                 backup_path = self._path / content.backup_path()
-
-                # Ensure backup directory exists.
-                backup_dir = os.path.dirname(backup_path)
-                if not os.path.isdir(backup_dir):
-                    logger.debug('Created directory: %s', backup_dir)
-                    os.makedirs(backup_dir)
-
-                copyfile(
-                    content.source_path(),
-                    backup_path
-                )
-
+                Destination._ensure_directory(backup_path.parent)
+                copyfile(content.source_path(), backup_path)
                 logger.info('Backed up: %s', content.source_path())
             except FileNotFoundError as error:
                 logger.error(error)
@@ -89,16 +93,8 @@ class Directory(Destination):
     def restore(self, contents):
         for content in contents:
             try:
-                # Ensure restore directory exists.
-                restore_dir = os.path.dirname(content.source_path())
-                if not os.path.isdir(restore_dir):
-                    logger.debug('Created directory: %s', restore_dir)
-                    os.makedirs(restore_dir)
-
-                copyfile(
-                    self._path / content.backup_path(),
-                    content.source_path()
-                )
+                Destination._ensure_directory(content.source_path().parent)
+                copyfile(self._path / content.backup_path(), content.source_path())
                 logger.info('Restored: %s', content.source_path())
             except FileNotFoundError as error:
                 logger.error(error)
