@@ -1,5 +1,5 @@
+from pathlib import Path
 import os
-import pathlib
 import tempfile
 import unittest
 
@@ -20,27 +20,31 @@ class TestDestination(unittest.TestCase):
         """.from_dict() works with a valid dict"""
         subject = Destination.from_dict({
             'type': 'directory',
-            'path': '/tmp'
+            'path': tempfile.gettempdir()
         })
 
         self.assertEqual(
             subject,
-            Directory('/tmp')
+            Directory(path=tempfile.gettempdir())
         )
 
     def test_from_dict_with_illegal_type(self):
         """.from_dict() fails with an invalid dict"""
-        message = 'Illegal type: foobar'
-        with self.assertRaisesRegex(ConfigError, message):
+        with self.assertRaisesRegex(ConfigError, 'Illegal type: foobar'):
             Destination.from_dict({'type': 'foobar'})
 
     def test_from_dict_with_arg_mismatch(self):
         """.from_dict() fails with on argument mismatch"""
-        with self.assertRaises(ConfigError):
+        with self.assertRaises(ConfigError) as context:
             Destination.from_dict({
                 'type': 'directory',
                 'remote': 'git@github.com:jigarius/clibato.git'
             })
+
+        self.assertEqual(
+            "__init__() got an unexpected keyword argument 'remote'",
+            str(context.exception)
+        )
 
 
 class TestDirectory(TestCase):
@@ -48,41 +52,32 @@ class TestDirectory(TestCase):
 
     def test_new(self):
         """Instance creation."""
-        subject = Directory('/tmp')
+        subject = Directory(path=tempfile.gettempdir())
 
         self.assertIsInstance(subject, Directory)
 
     def test__eq__(self):
         """__eq__()"""
-        subject = Directory('/tmp')
+        subject = Directory(path=tempfile.gettempdir())
 
-        self.assertEqual(
-            subject,
-            Directory('/tmp')
-        )
+        self.assertEqual(subject, Directory(path=tempfile.gettempdir()))
 
-        self.assertNotEqual(
-            subject,
-            Directory('~/')
-        )
+        self.assertNotEqual(subject, Directory(path=str(Path.home())))
 
         self.assertNotEqual(
             subject,
-            Repository('/tmp', 'git@github.com:bunny/wabbit.git')
+            Repository(tempfile.gettempdir(), 'git@github.com:bunny/wabbit.git')
         )
 
     def test_inheritance(self):
         """Directory must extend Destination"""
-        self.assertTrue(issubclass(
-            Directory,
-            Destination
-        ))
+        self.assert_is_subclass(Directory, Destination)
 
     def test_path(self):
         """.path()"""
-        subject = Directory('/tmp')
+        subject = Directory(tempfile.gettempdir())
 
-        self.assertEqual('/tmp', subject.path())
+        self.assertEqual(Path(tempfile.gettempdir()), subject.path())
 
     def test_path_cannot_be_empty(self):
         """Path cannot be empty"""
@@ -104,21 +99,21 @@ class TestDirectory(TestCase):
 
     def test_path_has_tilde(self):
         """Path can contain tilde (~)"""
-        backup_path = pathlib.Path.home() / 'backup'
-        backup_path.mkdir()
-        subject = Directory('~/backup')
+        backup_path = Path.home() / 'backup'
+        backup_path.mkdir(exist_ok=True)
+        subject = Directory(str(backup_path))
 
-        self.assertEqual(os.path.expanduser('~/backup'), subject.path())
+        self.assertEqual(Path('~', 'backup').expanduser(), subject.path())
 
         backup_path.rmdir()
 
     def test_backup(self):
         """.backup()"""
         source_dir = tempfile.TemporaryDirectory()
-        source_path = pathlib.Path(source_dir.name)
+        source_path = Path(source_dir.name)
 
         backup_dir = tempfile.TemporaryDirectory()
-        backup_path = pathlib.Path(backup_dir.name)
+        backup_path = Path(backup_dir.name)
 
         bunny_path = '.bunny'
         wabbit_path = os.path.join('hole', '.wabbit')
@@ -129,7 +124,7 @@ class TestDirectory(TestCase):
         subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as context:
             subject.backup([
-                Content('.bunny', source_path / bunny_path),
+                Content(bunny_path, source_path / bunny_path),
                 Content(wabbit_path, source_path / wabbit_path)
             ])
 
@@ -151,10 +146,10 @@ class TestDirectory(TestCase):
     def test_backup_file_not_found(self):
         """.backup() logs and continues if a file is not found"""
         source_dir = tempfile.TemporaryDirectory()
-        source_path = pathlib.Path(source_dir.name)
+        source_path = Path(source_dir.name)
 
         backup_dir = tempfile.TemporaryDirectory()
-        backup_path = pathlib.Path(backup_dir.name)
+        backup_path = Path(backup_dir.name)
 
         bunny_path = '.bunny'
         wabbit_path = os.path.join('hole', '.wabbit')
@@ -186,10 +181,10 @@ class TestDirectory(TestCase):
     def test_restore(self):
         """.restore()"""
         source_dir = tempfile.TemporaryDirectory()
-        source_path = pathlib.Path(source_dir.name)
+        source_path = Path(source_dir.name)
 
         backup_dir = tempfile.TemporaryDirectory()
-        backup_path = pathlib.Path(backup_dir.name)
+        backup_path = Path(backup_dir.name)
 
         bunny_path = '.bunny'
         wabbit_path = os.path.join('hole', '.wabbit')
@@ -222,10 +217,10 @@ class TestDirectory(TestCase):
     def test_restore_file_not_found(self):
         """.restore() logs and continues if a file is not found"""
         source_dir = tempfile.TemporaryDirectory()
-        source_path = pathlib.Path(source_dir.name)
+        source_path = Path(source_dir.name)
 
         backup_dir = tempfile.TemporaryDirectory()
-        backup_path = pathlib.Path(backup_dir.name)
+        backup_path = Path(backup_dir.name)
 
         bunny_path = '.bunny'
         wabbit_path = os.path.join('hole', '.wabbit')
@@ -235,8 +230,8 @@ class TestDirectory(TestCase):
         subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as context:
             subject.restore([
-                Content('.bunny', source_path / bunny_path),
-                Content(wabbit_path, source_path / 'hole' / '.wabbit')
+                Content(bunny_path, source_path / bunny_path),
+                Content(wabbit_path, source_path / wabbit_path)
             ])
 
         self.assert_length(context.records, 2)
@@ -255,7 +250,7 @@ class TestDirectory(TestCase):
         self.assert_file_contents(source_path / wabbit_path, 'I am a wabbit')
 
 
-class TestRepository(unittest.TestCase):
+class TestRepository(TestCase):
     """Test destination.Repository"""
 
     def test_new(self):
@@ -272,26 +267,26 @@ class TestRepository(unittest.TestCase):
 
     def test__eq__(self):
         """__eq__()"""
-        subject = Repository('/tmp', 'git@github.com:bunny/wabbit.git')
+        subject = Repository(tempfile.gettempdir(), 'git@github.com:bunny/wabbit.git')
 
         self.assertEqual(
             subject,
-            Repository('/tmp', 'git@github.com:bunny/wabbit.git')
+            Repository(tempfile.gettempdir(), 'git@github.com:bunny/wabbit.git')
         )
 
         self.assertNotEqual(
             subject,
-            Repository('/tmp', 'git@github.com:bucky/wabbit.git')
+            Repository(tempfile.gettempdir(), 'git@github.com:bucky/wabbit.git')
         )
 
         self.assertNotEqual(
             subject,
-            Directory('/tmp')
+            Directory(tempfile.gettempdir())
         )
 
     def test_inheritance(self):
         """Repository must extend Directory"""
-        self.assertTrue(issubclass(Repository, Directory))
+        self.assert_is_subclass(Repository, Destination)
 
     def test_path_cannot_be_empty(self):
         """Path cannot be empty"""

@@ -1,4 +1,5 @@
 from shutil import copyfile
+from pathlib import Path
 import logging
 import os
 from git import Repo, Actor
@@ -49,7 +50,7 @@ class Destination:
 class Directory(Destination):
     """Destination type: Directory"""
 
-    def __init__(self, path):
+    def __init__(self, path: str):
         super().__init__()
 
         self._path = path
@@ -68,7 +69,7 @@ class Directory(Destination):
     def backup(self, contents):
         for content in contents:
             try:
-                backup_path = content.backup_path(self._path)
+                backup_path = self._path / content.backup_path()
 
                 # Ensure backup directory exists.
                 backup_dir = os.path.dirname(backup_path)
@@ -95,7 +96,7 @@ class Directory(Destination):
                     os.makedirs(restore_dir)
 
                 copyfile(
-                    content.backup_path(self._path),
+                    self._path / content.backup_path(),
                     content.source_path()
                 )
                 logger.info('Restored: %s', content.source_path())
@@ -106,12 +107,12 @@ class Directory(Destination):
         if not self._path:
             raise ConfigError('Path cannot be empty')
 
-        self._path = os.path.expanduser(self._path)
+        self._path = Path(self._path).expanduser()
 
-        if not os.path.isabs(self._path):
+        if not self._path.is_absolute():
             raise ConfigError(f'Path is not absolute: {self._path}')
 
-        if not os.path.isdir(self._path):
+        if not self._path.is_dir():
             raise ConfigError(f'Path is not a directory: {self._path}')
 
 
