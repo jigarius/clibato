@@ -1,4 +1,3 @@
-import os
 import unittest
 from pathlib import Path
 from clibato import Content, ConfigError
@@ -6,8 +5,6 @@ from clibato import Content, ConfigError
 
 class TestContent(unittest.TestCase):
     """Test clibato.Content"""
-
-    _HOME_PATH = os.path.expanduser('~')
 
     def test__eq__(self):
         """.__eq__()"""
