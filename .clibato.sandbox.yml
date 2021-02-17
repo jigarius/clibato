@@ -1,0 +1,15 @@
+# Example: .clibato.yml
+# ======
+#
+# For use with Docker setup during development.
+contents:
+  .bashrc:
+  .vimrc:
+  Documents/todo.txt:
+destination:
+  type: "repository"
+  path: "/app/sandbox"
+  remote: "git@gitlab.com:jigarius/dotfiles.git"
+  branch: 'test'
+  user_name: 'Jigarius'
+  user_mail: 'hello@jigarius.com'

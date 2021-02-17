@@ -16,6 +16,9 @@ sandbox:
 	mkdir -p ~/Documents
 	echo 'Accumulate apples' > ~/Documents/todo.txt
 	echo 'Boil bananas' >> ~/Documents/todo.txt
+	# Create sandbox directory
+	mkdir -p /app/sandbox
+	ln -s /app/.clibato.sandbox.yml ~/.clibato.yml
 
 ## Run lint
 lint:
