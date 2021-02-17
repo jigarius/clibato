@@ -76,7 +76,7 @@ class Clibato:
     def version(self):
         """Action: Version"""
         print(f'Clibato v{self.VERSION}')
-        if (self._args.verbose):
+        if self._args.verbose:
             print('Author: Jigarius | jigarius.com')
             print('GitHub: github.com/jigarius/clibato')
 
