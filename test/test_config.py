@@ -1,5 +1,6 @@
 from shutil import copyfile
 from pathlib import Path
+import tempfile
 
 from clibato import Clibato, Content, Directory, Config, ConfigError
 from .support import TestCase
@@ -19,7 +20,7 @@ class TestConfig(TestCase):
             },
             'destination': {
                 'type': 'directory',
-                'path': '/tmp',
+                'path': tempfile.gettempdir(),
             }
         })
 
@@ -32,7 +33,7 @@ class TestConfig(TestCase):
                 },
                 'destination': {
                     'type': 'directory',
-                    'path': '/tmp',
+                    'path': tempfile.gettempdir(),
                 }
             })
         )
@@ -43,16 +44,17 @@ class TestConfig(TestCase):
             Config.from_dict({
                 'contents': {
                     '.bashrc': None,
-                    '.zshrc': '/tmp/.zshrc'
+                    'todo.txt': str(Path.home() / 'Documents' / 'todo.txt')
                 },
                 'destination': {
                     'type': 'directory',
-                    'path': '/tmp',
+                    'path': tempfile.gettempdir(),
                 }
             })
         )
 
         # Difference in destination
+        dir = tempfile.TemporaryDirectory()
         self.assertNotEqual(
             subject,
             Config.from_dict({
@@ -62,7 +64,7 @@ class TestConfig(TestCase):
                 },
                 'destination': {
                     'type': 'directory',
-                    'path': '/var',
+                    'path': dir.name,
                 }
             })
         )
@@ -78,7 +80,7 @@ class TestConfig(TestCase):
                 },
                 'destination': {
                     'type': 'directory',
-                    'path': '/tmp'
+                    'path': tempfile.gettempdir()
                 }
             })
         )
@@ -93,7 +95,7 @@ class TestConfig(TestCase):
                 },
                 'destination': {
                     'type': 'directory',
-                    'path': '/tmp'
+                    'path': tempfile.gettempdir()
                 }
             })
 
@@ -109,7 +111,7 @@ class TestConfig(TestCase):
                 },
                 'destination': {
                     'type': 'directory',
-                    'path': '/tmp'
+                    'path': tempfile.gettempdir()
                 }
             })
 
@@ -128,7 +130,7 @@ class TestConfig(TestCase):
                 },
                 'destination': {
                     'type': 'directory',
-                    'path': '/tmp'
+                    'path': tempfile.gettempdir()
                 }
             }
             data[key] = 'oops'
@@ -155,9 +157,13 @@ class TestConfig(TestCase):
     def test_from_file_with_non_existent_file(self):
         """.from_file() fails for if file doesn't exist"""
         with self.assertRaises(FileNotFoundError):
+            config_file = tempfile.NamedTemporaryFile(suffix='.clibato.yml')
+            config_file.close()
+
+            self.assert_file_not_exists(config_file.name)
             self.assertEqual(
                 TestConfig._build_config(),
-                Config.from_file('/tmp/.clibato.yml')
+                Config.from_file(config_file.name)
             )
 
     def test_locate_with_absolute_path(self):
@@ -207,7 +213,7 @@ class TestConfig(TestCase):
     def test_destination(self):
         """.destination()"""
         self.assertEqual(
-            Directory('/tmp'),
+            Directory(tempfile.gettempdir()),
             TestConfig._build_config().destination()
         )
 
@@ -217,6 +223,6 @@ class TestConfig(TestCase):
             Content('.bashrc'),
             Content('.zshrc'),
         ]
-        destination = destination or Directory('/tmp')
+        destination = destination or Directory(path=tempfile.gettempdir())
 
         return Config(contents, destination)
