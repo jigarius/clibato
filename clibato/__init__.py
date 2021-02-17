@@ -116,6 +116,7 @@ class Clibato:
     def _common_argparser():
         common_parser = argparse.ArgumentParser(add_help=False)
         common_parser.add_argument(
+            '-v',
             '--verbose',
             default=False,
             action='store_true',
@@ -123,6 +124,7 @@ class Clibato:
             help='Enable verbose output.'
         )
         common_parser.add_argument(
+            '-c',
             '--config',
             type=Path,
             default=Config.DEFAULT_FILENAME,
