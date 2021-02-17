@@ -13,60 +13,36 @@ class TestConfig(TestCase):
 
     def test__eq__(self):
         """.__eq__()"""
-        subject = Config.from_dict({
-            'contents': {
-                '.bashrc': None,
-                '.zshrc': None
-            },
-            'destination': {
-                'type': 'directory',
-                'path': tempfile.gettempdir(),
-            }
-        })
+        subject = Config(
+            contents=[Content('.bashrc'), Content('.zshrc')],
+            destination=Directory(path=tempfile.gettempdir())
+        )
 
         self.assertEqual(
             subject,
-            Config.from_dict({
-                'contents': {
-                    '.bashrc': None,
-                    '.zshrc': None
-                },
-                'destination': {
-                    'type': 'directory',
-                    'path': tempfile.gettempdir(),
-                }
-            })
+            Config(
+                contents=[Content('.bashrc'), Content('.zshrc')],
+                destination=Directory(path=tempfile.gettempdir())
+            )
         )
 
-        # Difference in content
+        # Difference in contents
         self.assertNotEqual(
             subject,
-            Config.from_dict({
-                'contents': {
-                    '.bashrc': None,
-                    'todo.txt': str(Path.home() / 'Documents' / 'todo.txt')
-                },
-                'destination': {
-                    'type': 'directory',
-                    'path': tempfile.gettempdir(),
-                }
-            })
+            Config(
+                contents=[Content('.bashrc'), Content('.todo.txt')],
+                destination=Directory(path=tempfile.gettempdir())
+            ),
         )
 
         # Difference in destination
         dir = tempfile.TemporaryDirectory()
         self.assertNotEqual(
             subject,
-            Config.from_dict({
-                'contents': {
-                    '.bashrc': None,
-                    '.zshrc': None
-                },
-                'destination': {
-                    'type': 'directory',
-                    'path': dir.name,
-                }
-            })
+            Config(
+                contents=[Content('.bashrc'), Content('.zshrc')],
+                destination=Directory(path=dir.name)
+            )
         )
 
     def test_from_dict(self):
