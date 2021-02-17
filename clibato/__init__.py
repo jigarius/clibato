@@ -73,6 +73,13 @@ class Clibato:
         dest = self._config.destination()
         dest.restore(self._config.contents())
 
+    def version(self):
+        """Action: Version"""
+        print(f'Clibato v{self.VERSION}')
+        if (self._args.verbose):
+            print('Author: Jigarius | jigarius.com')
+            print('GitHub: github.com/jigarius/clibato')
+
     def _init_config(self):
         if not self._config:
             path = Config.locate(self._args.config_path)
@@ -97,6 +104,7 @@ class Clibato:
         subparsers.add_parser('init', help='Initialize configuration', parents=[common_parser])
         subparsers.add_parser('backup', help='Create backup', parents=[common_parser])
         subparsers.add_parser('restore', help='Restore backup', parents=[common_parser])
+        subparsers.add_parser('version', help='Version information', parents=[common_parser])
 
         return main_parser
 
