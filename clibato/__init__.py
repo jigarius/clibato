@@ -1,5 +1,6 @@
 from shutil import copyfile
 from pathlib import Path
+from typing import List
 import sys
 import os
 import argparse
@@ -23,11 +24,11 @@ class Clibato:
         self._args = None
         self._config = None
 
-    def execute(self):
+    def execute(self, args=List[str]):
         """Executes the CLI"""
-        self._args = Clibato._main_argparser().parse_args()
-
+        self._args = Clibato.parse_args(args)
         self._init_logger()
+        logger.debug('Received arguments: %s', ' '.join(args))
 
         if not self._args.action:
             print("Run 'clibato --help' for help.")
@@ -94,6 +95,20 @@ class Clibato:
             level = logging.DEBUG
 
         logging.basicConfig(level=level, format="%(levelname)s: %(message)s")
+
+    @staticmethod
+    def parse_args(args) -> argparse.Namespace:
+        """
+        Parse CLI arguments, i.e. ARGV.
+
+        Example
+        ------
+        Clibato.parse_args(sys.argv[1:])
+
+        :param args: CLI arguments, except the program name.
+        :return: Arguments parsed with argparse.
+        """
+        return Clibato._main_argparser().parse_args(args)
 
     @staticmethod
     def _main_argparser():
