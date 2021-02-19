@@ -1,15 +1,15 @@
-from shutil import copyfile
-from pathlib import Path
-from typing import List, Optional
-import sys
-import os
 import argparse
 import logging
+import os
+import sys
+from pathlib import Path
+from shutil import copyfile
+from typing import List, Optional
 
-from .error import *
-from .destination import Destination, Directory, Repository
-from .content import Content
 from .config import Config
+from .content import Content
+from .destination import Destination, Directory, Repository
+from .error import *
 
 logger = logging.getLogger('clibato')
 

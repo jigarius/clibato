@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import List, Optional
 import yaml
 
-from .error import ConfigError
 from .content import Content
 from .destination import Destination
+from .error import ConfigError
 
 logger = logging.getLogger('clibato')
 

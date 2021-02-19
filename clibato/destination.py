@@ -1,7 +1,7 @@
-from shutil import copyfile
-from pathlib import Path
 import logging
 import os
+from pathlib import Path
+from shutil import copyfile
 from git import Repo, Actor
 
 from .error import ActionError, ConfigError
