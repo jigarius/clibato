@@ -51,7 +51,7 @@ class TestClibato(TestCase):
             app.execute(['init', '-c', str(config_path)])
 
         expected = linesep.join([
-            f'Configuration created: {config_path}',
+            f'Configuration created: {config_path.resolve()}',
             '',
             'Modify the file as per your requirements.',
             'Once done, you can run the following commands.',
@@ -66,6 +66,7 @@ class TestClibato(TestCase):
     def test_init_config_file_already_exists(self):
         """Test: clibato init logs error if config file already exists"""
         config_file = NamedTemporaryFile(suffix='.clibato.yml')
+        config_path = Path(config_file.name).resolve()
 
         with self.assertLogs('clibato', logging.ERROR) as cm:
             app = Clibato()
@@ -74,7 +75,7 @@ class TestClibato(TestCase):
         self.assert_length(cm.records, 1)
         self.assert_log_record(
             cm.records[0],
-            message=f'Configuration already exists: {config_file.name}',
+            message=f'Configuration already exists: {config_path}',
             level='ERROR'
         )
 
