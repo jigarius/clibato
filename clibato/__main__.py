@@ -8,8 +8,8 @@ from clibato import Clibato
 def main():
     """Clibato Entrypoint"""
     app = Clibato()
-    app.execute(sys.argv[1:])
-    sys.exit(0)
+    success = app.execute(sys.argv[1:])
+    sys.exit(0 if success else 1)
 
 
 if __name__ == '__main__':

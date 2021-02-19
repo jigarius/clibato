@@ -23,7 +23,7 @@ class Clibato:
     def __init__(self):
         self._args = None
 
-    def execute(self, args=List[str]):
+    def execute(self, args=List[str]) -> bool:
         """Executes the CLI"""
         self._args = Clibato.parse_args(args)
         self._init_logger()
@@ -31,7 +31,7 @@ class Clibato:
 
         if not self._args.action:
             print("Run 'clibato --help' for help.")
-            return
+            return True
 
         logger.debug('Running action: %s', self._args.action)
 
@@ -40,7 +40,9 @@ class Clibato:
             method()
         except (ConfigError, ActionError) as error:
             logger.error(error)
-            sys.exit(1)
+            return False
+
+        return True
 
     def init(self):
         """Action: Initialize configuration"""
