@@ -1,6 +1,7 @@
 from contextlib import redirect_stdout
-from os import linesep
 from io import StringIO
+from os import linesep
+from pathlib import Path
 import unittest
 from clibato import Clibato
 from .support import TestCase
@@ -16,7 +17,7 @@ class TestClibato(TestCase):
             args = Clibato.parse_args([action])
             self.assertEqual(action, args.action)
 
-    def test_parse_args_arg_verbose(self):
+    def test_parse_args_reads_arg_verbose(self):
         """.parse_args() understands the long and short --verbose flag"""
         args = Clibato.parse_args(['version', '--verbose'])
         self.assertEqual(1, args.verbose)
@@ -26,6 +27,16 @@ class TestClibato(TestCase):
 
         args = Clibato.parse_args(['version', '-vv'])
         self.assertEqual(2, args.verbose)
+
+    def test_parse_args_reads_arg_config(self):
+        """.parse_args() understands the long and short --config argument"""
+        config_path = Path('~', '.clibato.yml')
+
+        args = Clibato.parse_args(['init', '--config', str(config_path)])
+        self.assertEqual(config_path, args.config_path)
+
+        args = Clibato.parse_args(['init', '-c', str(config_path)])
+        self.assertEqual(config_path, args.config_path)
 
     @unittest.skip('TODO')
     def test_init(self):
