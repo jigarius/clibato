@@ -18,7 +18,7 @@ class TestClibato(TestCase):
             self.assertEqual(action, args.action)
 
     def test_parse_args_reads_arg_verbose(self):
-        """.parse_args() understands the long and short --verbose flag"""
+        """.parse_args() understands the --verbose and -v arguments"""
         args = Clibato.parse_args(['version', '--verbose'])
         self.assertEqual(1, args.verbose)
 
@@ -29,7 +29,7 @@ class TestClibato(TestCase):
         self.assertEqual(2, args.verbose)
 
     def test_parse_args_reads_arg_config(self):
-        """.parse_args() understands the long and short --config argument"""
+        """.parse_args() understands the --config and -c arguments"""
         config_path = Path('~', '.clibato.yml')
 
         args = Clibato.parse_args(['init', '--config', str(config_path)])
