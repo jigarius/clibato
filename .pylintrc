@@ -4,6 +4,11 @@
 # paths.
 ignore=.git
 
+[BASIC]
+
+# Good variable names which should always be accepted, separated by a comma
+good-names=_,i,j,k,e,ex,cm
+
 [MESSAGES CONTROL]
 
 # Disable the message, report, category or checker with the given id(s). You

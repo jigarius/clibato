@@ -106,7 +106,7 @@ class TestConfig(TestCase):
     @unittest.skipIf(os.name == 'nt', 'Fixture contains posix paths only')
     def test_from_file(self):
         """.from_file()"""
-        with self.assertLogs('clibato') as context:
+        with self.assertLogs('clibato') as cm:
             self.assertEqual(
                 Config(
                     contents=[Content('.bashrc'), Content('.zshrc')],
@@ -115,9 +115,9 @@ class TestConfig(TestCase):
                 Config.from_file(self._FIXTURE_PATH)
             )
 
-        self.assert_length(context.records, 1)
+        self.assert_length(cm.records, 1)
         self.assert_log_record(
-            context.records[0],
+            cm.records[0],
             level='INFO',
             message=f'Loading configuration: {self._FIXTURE_PATH}'
         )

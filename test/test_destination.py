@@ -34,7 +34,7 @@ class TestDestination(unittest.TestCase):
 
     def test_from_dict_with_arg_mismatch(self):
         """.from_dict() fails with on argument mismatch"""
-        with self.assertRaises(ConfigError) as context:
+        with self.assertRaises(ConfigError) as cm:
             Destination.from_dict({
                 'type': 'directory',
                 'remote': 'git@github.com:jigarius/clibato.git'
@@ -42,7 +42,7 @@ class TestDestination(unittest.TestCase):
 
         self.assertEqual(
             "__init__() got an unexpected keyword argument 'remote'",
-            str(context.exception)
+            str(cm.exception)
         )
 
 
@@ -121,20 +121,20 @@ class TestDirectory(TestCase):
         FileSystem.write_file(source_path / wabbit_path, 'I am a wabbit')
 
         subject = Directory(backup_dir.name)
-        with self.assertLogs('clibato', None) as context:
+        with self.assertLogs('clibato', None) as cm:
             subject.backup([
                 Content(bunny_path, source_path / bunny_path),
                 Content(wabbit_path, source_path / wabbit_path)
             ])
 
-        self.assert_length(context.records, 2)
+        self.assert_length(cm.records, 2)
         self.assert_log_record(
-            context.records[0],
+            cm.records[0],
             level='INFO',
             message="Backed up: %s" % (source_path / bunny_path)
         )
         self.assert_log_record(
-            context.records[1],
+            cm.records[1],
             level='INFO',
             message="Backed up: %s" % (source_path / wabbit_path)
         )
@@ -156,20 +156,20 @@ class TestDirectory(TestCase):
         FileSystem.write_file(source_path / wabbit_path, 'I am a wabbit')
 
         subject = Directory(backup_dir.name)
-        with self.assertLogs('clibato', None) as context:
+        with self.assertLogs('clibato', None) as cm:
             subject.backup([
                 Content('.bunny', source_path / bunny_path),
                 Content(wabbit_path, source_path / 'hole' / '.wabbit')
             ])
 
-        self.assert_length(context.records, 2)
+        self.assert_length(cm.records, 2)
         self.assert_log_record(
-            context.records[0],
+            cm.records[0],
             level='ERROR',
             message="[Errno 2] No such file or directory: '%s'" % (source_path / bunny_path)
         )
         self.assert_log_record(
-            context.records[1],
+            cm.records[1],
             level='INFO',
             message="Backed up: %s" % (source_path / wabbit_path)
         )
@@ -192,20 +192,20 @@ class TestDirectory(TestCase):
         FileSystem.write_file(backup_path / wabbit_path, 'I am a wabbit')
 
         subject = Directory(backup_dir.name)
-        with self.assertLogs('clibato', None) as context:
+        with self.assertLogs('clibato', None) as cm:
             subject.restore([
                 Content(bunny_path, source_path / bunny_path),
                 Content(wabbit_path, source_path / wabbit_path)
             ])
 
-        self.assert_length(context.records, 2)
+        self.assert_length(cm.records, 2)
         self.assert_log_record(
-            context.records[0],
+            cm.records[0],
             level='INFO',
             message="Restored: %s" % (source_path / bunny_path)
         )
         self.assert_log_record(
-            context.records[1],
+            cm.records[1],
             level='INFO',
             message="Restored: %s" % (source_path / wabbit_path)
         )
@@ -227,20 +227,20 @@ class TestDirectory(TestCase):
         FileSystem.write_file(backup_path / wabbit_path, 'I am a wabbit')
 
         subject = Directory(backup_dir.name)
-        with self.assertLogs('clibato', None) as context:
+        with self.assertLogs('clibato', None) as cm:
             subject.restore([
                 Content(bunny_path, source_path / bunny_path),
                 Content(wabbit_path, source_path / wabbit_path)
             ])
 
-        self.assert_length(context.records, 2)
+        self.assert_length(cm.records, 2)
         self.assert_log_record(
-            context.records[0],
+            cm.records[0],
             level='ERROR',
             message="[Errno 2] No such file or directory: '%s'" % (backup_path / bunny_path)
         )
         self.assert_log_record(
-            context.records[1],
+            cm.records[1],
             level='INFO',
             message="Restored: %s" % (source_path / wabbit_path)
         )

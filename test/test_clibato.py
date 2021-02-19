@@ -67,13 +67,13 @@ class TestClibato(TestCase):
         """Test: clibato init logs error if config file already exists"""
         config_file = NamedTemporaryFile(suffix='.clibato.yml')
 
-        with self.assertLogs('clibato', logging.ERROR) as context:
+        with self.assertLogs('clibato', logging.ERROR) as cm:
             app = Clibato()
             app.execute(['init', '-c', config_file.name])
 
-        self.assert_length(context.records, 1)
+        self.assert_length(cm.records, 1)
         self.assert_log_record(
-            context.records[0],
+            cm.records[0],
             message=f'Configuration already exists: {config_file.name}',
             level='ERROR'
         )
