@@ -6,19 +6,7 @@ install:
 
 ## Prepare sandbox for development.
 sandbox:
-	# Create .bashrc
-	echo "PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\] \$$ '" >> ~/.bashrc
-	echo "alias ll='ls -lh'" >> ~/.bashrc
-	# Create .vimrc
-	echo 'set number' > ~/.vimrc
-	echo 'syntax on' >> ~/.vimrc
-	# Create todo.txt
-	mkdir -p ~/Documents
-	echo 'Accumulate apples' > ~/Documents/todo.txt
-	echo 'Boil bananas' >> ~/Documents/todo.txt
-	# Create sandbox directory
-	mkdir -p /app/sandbox
-	ln -s /app/.clibato.sandbox.yml ~/.clibato.yml
+	cp -r /app/.sandbox/* ~/
 
 ## Run lint
 lint:

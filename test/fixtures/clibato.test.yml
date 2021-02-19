@@ -1,6 +1,7 @@
 contents:
   .bashrc:
   .zshrc:
+  Documents/todo.txt:
 destination:
   type: "directory"
   path: "/tmp"
