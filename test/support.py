@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from pathlib import Path
 import os
 import shutil
@@ -77,6 +78,7 @@ class TestCase(unittest.TestCase):
     """Clibato Test Case"""
 
     @staticmethod
+    @contextmanager
     def chdir(path: str) -> str:
         """
         Changes the working directory.
@@ -86,7 +88,8 @@ class TestCase(unittest.TestCase):
         """
         old_cwd = Path.cwd()
         os.chdir(path)
-        return old_cwd
+        yield
+        os.chdir(old_cwd)
 
     def assert_length(self, item, length: int) -> None:
         """

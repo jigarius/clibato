@@ -143,14 +143,11 @@ class TestConfig(TestCase):
 
     def test_locate_with_relative_path(self):
         """.locate() can detect config with relative paths"""
-        old_cwd = self.chdir(Clibato.ROOT / 'test')
-
-        self.assertEqual(
-            self._FIXTURE_PATH,
-            Config.locate(Path('fixtures', 'clibato.test.yml'))
-        )
-
-        self.chdir(old_cwd)
+        with self.chdir(Clibato.ROOT / 'test'):
+            self.assertEqual(
+                self._FIXTURE_PATH,
+                Config.locate(Path('fixtures', 'clibato.test.yml'))
+            )
 
     def test_locate_with_home_path(self):
         """.locate() can detect config with ~/ paths"""

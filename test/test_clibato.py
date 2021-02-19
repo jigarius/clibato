@@ -79,7 +79,6 @@ class TestClibato(TestCase):
             level='ERROR'
         )
 
-
     @unittest.skip('TODO')
     def test_backup(self):
         """Test: clibato backup"""
