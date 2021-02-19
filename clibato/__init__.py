@@ -1,6 +1,6 @@
 from shutil import copyfile
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 import sys
 import os
 import argparse
@@ -22,7 +22,6 @@ class Clibato:
 
     def __init__(self):
         self._args = None
-        self._config = None
 
     def execute(self, args=List[str]):
         """Executes the CLI"""
@@ -60,17 +59,15 @@ class Clibato:
 
     def backup(self):
         """Action: Create backup"""
-        self._init_config()
-
-        dest = self._config.destination()
-        dest.backup(self._config.contents())
+        config = self.config()
+        dest = config.destination()
+        dest.backup(config.contents())
 
     def restore(self):
         """Action: Restore backup"""
-        self._init_config()
-
-        dest = self._config.destination()
-        dest.restore(self._config.contents())
+        config = self.config()
+        dest = config.destination()
+        dest.restore(config.contents())
 
     def version(self):
         """Action: Version"""
@@ -79,10 +76,14 @@ class Clibato:
             print('Author: Jigarius | jigarius.com')
             print('GitHub: github.com/jigarius/clibato')
 
-    def _init_config(self):
-        if not self._config:
-            path = Config.locate(self._args.config_path)
-            self._config = Config.from_file(path)
+    def config(self) -> Optional[Config]:
+        """
+        Get Config based on the --config argument.
+
+        :return: A Config object.
+        """
+        path = Config.locate(self._args.config_path)
+        return Config.from_file(path)
 
     def _init_logger(self) -> None:
         level = logging.WARNING
