@@ -43,8 +43,6 @@ class Clibato:
             logger.error(error)
             sys.exit(1)
 
-        sys.exit(0)
-
     def init(self):
         """Action: Initialize configuration"""
         path = self._args.config_path.expanduser().resolve()
