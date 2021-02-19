@@ -1,7 +1,9 @@
 from contextlib import redirect_stdout
 from io import StringIO
+import logging
 from os import linesep
 from pathlib import Path
+from tempfile import TemporaryDirectory, NamedTemporaryFile
 import unittest
 from clibato import Clibato
 from .support import TestCase
@@ -38,9 +40,44 @@ class TestClibato(TestCase):
         args = Clibato.parse_args(['init', '-c', str(config_path)])
         self.assertEqual(config_path, args.config_path)
 
-    @unittest.skip('TODO')
     def test_init(self):
-        """Test: clibato init"""
+        """Test: clibato init -c /path/to/.clibato.yml"""
+        config_dir = TemporaryDirectory()
+        config_path = Path(config_dir.name, '.clibato.yml')
+
+        stdout = StringIO()
+        with redirect_stdout(stdout) as output:
+            app = Clibato()
+            app.execute(['init', '-c', str(config_path)])
+
+        expected = linesep.join([
+            f'Configuration created: {config_path}',
+            '',
+            'Modify the file as per your requirements.',
+            'Once done, you can run the following commands.',
+            '',
+            'clibato backup: Perform a backup.',
+            'clibato restore: Restore the last backup.',
+            ''
+        ])
+
+        self.assertEqual(expected, output.getvalue())
+
+    def test_init_config_file_already_exists(self):
+        """Test: clibato init logs error if config file already exists"""
+        config_file = NamedTemporaryFile(suffix='.clibato.yml')
+
+        with self.assertLogs('clibato', logging.ERROR) as context:
+            app = Clibato()
+            app.execute(['init', '-c', config_file.name])
+
+        self.assert_length(context.records, 1)
+        self.assert_log_record(
+            context.records[0],
+            message=f'Configuration already exists: {config_file.name}',
+            level='ERROR'
+        )
+
 
     @unittest.skip('TODO')
     def test_backup(self):
@@ -67,9 +104,10 @@ class TestClibato(TestCase):
             app.execute(['version', '-v'])
 
         expected = linesep.join([
-            "Clibato v%s" % Clibato.VERSION,
-            "Author: Jigarius | jigarius.com",
-            "GitHub: github.com/jigarius/clibato"
-        ]) + linesep
+            f'Clibato v{Clibato.VERSION}',
+            'Author: Jigarius | jigarius.com',
+            'GitHub: github.com/jigarius/clibato',
+            ''
+        ])
 
         self.assertEqual(expected, output.getvalue())

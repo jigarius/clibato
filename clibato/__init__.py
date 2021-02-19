@@ -56,8 +56,9 @@ class Clibato:
         print('')
         print('Modify the file as per your requirements.')
         print('Once done, you can run the following commands.')
-        print('clibato backup: Perform a backup')
-        print('clibato restore: Restore previous backup')
+        print('')
+        print('clibato backup: Perform a backup.')
+        print('clibato restore: Restore the last backup.')
 
     def backup(self):
         """Action: Create backup"""
