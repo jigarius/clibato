@@ -102,16 +102,6 @@ class TestClibato(TestCase):
             level='INFO',
             message=f'Loading configuration: {config_file.name}'
         )
-        self.assert_log_record(
-            cm.records[1],
-            level='INFO',
-            message="Backed up: %s" % (source_path / self.BUNNY_PATH)
-        )
-        self.assert_log_record(
-            cm.records[2],
-            level='INFO',
-            message="Backed up: %s" % (source_path / self.WABBIT_PATH)
-        )
 
         self.assert_file_contents(backup_path / self.BUNNY_PATH, 'I am a bunny')
         self.assert_file_contents(backup_path / self.WABBIT_PATH, 'I am a wabbit')
@@ -139,16 +129,6 @@ class TestClibato(TestCase):
             cm.records[0],
             level='INFO',
             message=f'Loading configuration: {config_file.name}'
-        )
-        self.assert_log_record(
-            cm.records[1],
-            level='INFO',
-            message="Restored: %s" % (source_path / self.BUNNY_PATH)
-        )
-        self.assert_log_record(
-            cm.records[2],
-            level='INFO',
-            message="Restored: %s" % (source_path / self.WABBIT_PATH)
         )
 
         self.assert_file_contents(source_path / self.BUNNY_PATH, 'I am a bunny')
