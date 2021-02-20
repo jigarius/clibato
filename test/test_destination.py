@@ -3,7 +3,7 @@ from tempfile import gettempdir, TemporaryDirectory
 import unittest
 
 from clibato import Content, ConfigError, Destination, Directory, Repository
-from .support import TestCase, FileSystem
+from .support import TestCase
 
 
 class TestDestination(unittest.TestCase):
@@ -115,8 +115,9 @@ class TestDirectory(TestCase):
         bunny_path = '.bunny'
         wabbit_path = str(Path('hole', '.wabbit'))
 
-        FileSystem.write_file(source_path / bunny_path, 'I am a bunny')
-        FileSystem.write_file(source_path / wabbit_path, 'I am a wabbit')
+        (source_path / bunny_path).write_text('I am a bunny')
+        (source_path / wabbit_path).parent.mkdir()
+        (source_path / wabbit_path).write_text('I am a wabbit')
 
         subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as cm:
@@ -149,7 +150,8 @@ class TestDirectory(TestCase):
         bunny_path = '.bunny'
         wabbit_path = str(Path('hole', '.wabbit'))
 
-        FileSystem.write_file(source_path / wabbit_path, 'I am a wabbit')
+        (source_path / wabbit_path).parent.mkdir()
+        (source_path / wabbit_path).write_text('I am a wabbit')
 
         subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as cm:
@@ -182,8 +184,9 @@ class TestDirectory(TestCase):
         bunny_path = '.bunny'
         wabbit_path = str(Path('hole', '.wabbit'))
 
-        FileSystem.write_file(backup_path / bunny_path, 'I am a bunny')
-        FileSystem.write_file(backup_path / wabbit_path, 'I am a wabbit')
+        (backup_path / bunny_path).write_text('I am a bunny')
+        (backup_path / wabbit_path).parent.mkdir()
+        (backup_path / wabbit_path).write_text('I am a wabbit')
 
         subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as cm:
@@ -216,7 +219,8 @@ class TestDirectory(TestCase):
         bunny_path = '.bunny'
         wabbit_path = str(Path('hole', '.wabbit'))
 
-        FileSystem.write_file(backup_path / wabbit_path, 'I am a wabbit')
+        (backup_path / wabbit_path).parent.mkdir()
+        (backup_path / wabbit_path).write_text('I am a wabbit')
 
         subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as cm:

@@ -155,4 +155,4 @@ class TestCase(unittest.TestCase):
         :return: None.
         """
         self.assert_file_exists(path)
-        self.assertEqual(contents, FileSystem.read_file(path))
+        self.assertEqual(contents, path.read_text())
