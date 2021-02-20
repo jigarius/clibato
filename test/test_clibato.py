@@ -80,25 +80,15 @@ class TestClibato(TestCase):
 
     def test_backup(self):
         """Test: clibato backup -v -c /path/to/config.yml"""
-        source_dir = TemporaryDirectory()
-        source_path = Path(source_dir.name)
-        backup_dir = TemporaryDirectory()
-        backup_path = Path(backup_dir.name)
-        bunny_path = '.bunny'
-        wabbit_path = str(Path('hole', '.wabbit'))
-
-        (source_path / bunny_path).write_text('I am a bunny')
-        (source_path / wabbit_path).parent.mkdir()
-        (source_path / wabbit_path).write_text('I am a wabbit')
-
+        source_path, backup_path = self.create_file_fixtures(location='source')
         config_file = self.create_clibato_config({
             'contents': {
-                bunny_path: str(source_path / bunny_path),
-                wabbit_path: str(source_path / wabbit_path)
+                self.BUNNY_PATH: str(source_path / self.BUNNY_PATH),
+                self.WABBIT_PATH: str(source_path / self.WABBIT_PATH)
             },
             'destination': {
                 'type': 'directory',
-                'path': backup_dir.name
+                'path': str(backup_path)
             }
         })
 
@@ -115,38 +105,28 @@ class TestClibato(TestCase):
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Backed up: %s" % (source_path / bunny_path)
+            message="Backed up: %s" % (source_path / self.BUNNY_PATH)
         )
         self.assert_log_record(
             cm.records[2],
             level='INFO',
-            message="Backed up: %s" % (source_path / wabbit_path)
+            message="Backed up: %s" % (source_path / self.WABBIT_PATH)
         )
 
-        self.assert_file_contents(backup_path / bunny_path, 'I am a bunny')
-        self.assert_file_contents(backup_path / wabbit_path, 'I am a wabbit')
+        self.assert_file_contents(backup_path / self.BUNNY_PATH, 'I am a bunny')
+        self.assert_file_contents(backup_path / self.WABBIT_PATH, 'I am a wabbit')
 
     def test_restore(self):
         """Test: clibato restore -v -c /path/to/config.yml"""
-        source_dir = TemporaryDirectory()
-        source_path = Path(source_dir.name)
-        backup_dir = TemporaryDirectory()
-        backup_path = Path(backup_dir.name)
-        bunny_path = '.bunny'
-        wabbit_path = str(Path('hole', '.wabbit'))
-
-        (backup_path / bunny_path).write_text('I am a bunny')
-        (backup_path / wabbit_path).parent.mkdir()
-        (backup_path / wabbit_path).write_text('I am a wabbit')
-
+        source_path, backup_path = self.create_file_fixtures(location='backup')
         config_file = self.create_clibato_config({
             'contents': {
-                bunny_path: str(source_path / bunny_path),
-                wabbit_path: str(source_path / wabbit_path)
+                self.BUNNY_PATH: str(source_path / self.BUNNY_PATH),
+                self.WABBIT_PATH: str(source_path / self.WABBIT_PATH)
             },
             'destination': {
                 'type': 'directory',
-                'path': backup_dir.name
+                'path': str(backup_path)
             }
         })
 
@@ -163,16 +143,16 @@ class TestClibato(TestCase):
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Restored: %s" % (source_path / bunny_path)
+            message="Restored: %s" % (source_path / self.BUNNY_PATH)
         )
         self.assert_log_record(
             cm.records[2],
             level='INFO',
-            message="Restored: %s" % (source_path / wabbit_path)
+            message="Restored: %s" % (source_path / self.WABBIT_PATH)
         )
 
-        self.assert_file_contents(source_path / bunny_path, 'I am a bunny')
-        self.assert_file_contents(source_path / wabbit_path, 'I am a wabbit')
+        self.assert_file_contents(source_path / self.BUNNY_PATH, 'I am a bunny')
+        self.assert_file_contents(source_path / self.WABBIT_PATH, 'I am a wabbit')
 
     def test_version(self):
         """Test: clibato version"""

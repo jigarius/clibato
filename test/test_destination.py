@@ -1,5 +1,5 @@
 from pathlib import Path
-from tempfile import gettempdir, TemporaryDirectory
+from tempfile import gettempdir
 import unittest
 
 from clibato import Content, ConfigError, Destination, Directory, Repository
@@ -108,141 +108,109 @@ class TestDirectory(TestCase):
 
     def test_backup(self):
         """.backup()"""
-        source_dir = TemporaryDirectory()
-        source_path = Path(source_dir.name)
-        backup_dir = TemporaryDirectory()
-        backup_path = Path(backup_dir.name)
-        bunny_path = '.bunny'
-        wabbit_path = str(Path('hole', '.wabbit'))
+        source_path, backup_path = self.create_file_fixtures(location='source')
+        subject = Directory(path=str(backup_path))
 
-        (source_path / bunny_path).write_text('I am a bunny')
-        (source_path / wabbit_path).parent.mkdir()
-        (source_path / wabbit_path).write_text('I am a wabbit')
-
-        subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as cm:
             subject.backup([
-                Content(bunny_path, source_path / bunny_path),
-                Content(wabbit_path, source_path / wabbit_path)
+                Content(self.BUNNY_PATH, source_path / self.BUNNY_PATH),
+                Content(self.WABBIT_PATH, source_path / self.WABBIT_PATH)
             ])
 
         self.assert_length(cm.records, 2)
         self.assert_log_record(
             cm.records[0],
             level='INFO',
-            message="Backed up: %s" % (source_path / bunny_path)
+            message="Backed up: %s" % (source_path / self.BUNNY_PATH)
         )
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Backed up: %s" % (source_path / wabbit_path)
+            message="Backed up: %s" % (source_path / self.WABBIT_PATH)
         )
 
-        self.assert_file_contents(backup_path / bunny_path, 'I am a bunny')
-        self.assert_file_contents(backup_path / wabbit_path, 'I am a wabbit')
+        self.assert_file_contents(backup_path / self.BUNNY_PATH, 'I am a bunny')
+        self.assert_file_contents(backup_path / self.WABBIT_PATH, 'I am a wabbit')
 
     def test_backup_file_not_found(self):
         """.backup() logs and continues if a file is not found"""
-        source_dir = TemporaryDirectory()
-        source_path = Path(source_dir.name)
-        backup_dir = TemporaryDirectory()
-        backup_path = Path(backup_dir.name)
-        bunny_path = '.bunny'
-        wabbit_path = str(Path('hole', '.wabbit'))
+        source_path, backup_path = self.create_file_fixtures(location='source')
+        skunk_path = '.skunk'
+        subject = Directory(path=str(backup_path))
 
-        (source_path / wabbit_path).parent.mkdir()
-        (source_path / wabbit_path).write_text('I am a wabbit')
-
-        subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as cm:
             subject.backup([
-                Content('.bunny', source_path / bunny_path),
-                Content(wabbit_path, source_path / 'hole' / '.wabbit')
+                Content(skunk_path, source_path / skunk_path),
+                Content(self.WABBIT_PATH, source_path / self.WABBIT_PATH)
             ])
 
         self.assert_length(cm.records, 2)
         self.assert_log_record(
             cm.records[0],
             level='ERROR',
-            message="[Errno 2] No such file or directory: '%s'" % (source_path / bunny_path)
+            message="[Errno 2] No such file or directory: '%s'" % (source_path / skunk_path)
         )
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Backed up: %s" % (source_path / wabbit_path)
+            message="Backed up: %s" % (source_path / self.WABBIT_PATH)
         )
 
-        self.assert_file_not_exists(backup_path / bunny_path)
-        self.assert_file_contents(backup_path / wabbit_path, 'I am a wabbit')
+        self.assert_file_not_exists(backup_path / skunk_path)
+        self.assert_file_contents(backup_path / self.WABBIT_PATH, 'I am a wabbit')
 
     def test_restore(self):
         """.restore()"""
-        source_dir = TemporaryDirectory()
-        source_path = Path(source_dir.name)
-        backup_dir = TemporaryDirectory()
-        backup_path = Path(backup_dir.name)
-        bunny_path = '.bunny'
-        wabbit_path = str(Path('hole', '.wabbit'))
+        source_path, backup_path = self.create_file_fixtures(location='backup')
+        subject = Directory(path=str(backup_path))
 
-        (backup_path / bunny_path).write_text('I am a bunny')
-        (backup_path / wabbit_path).parent.mkdir()
-        (backup_path / wabbit_path).write_text('I am a wabbit')
-
-        subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as cm:
             subject.restore([
-                Content(bunny_path, source_path / bunny_path),
-                Content(wabbit_path, source_path / wabbit_path)
+                Content(self.BUNNY_PATH, source_path / self.BUNNY_PATH),
+                Content(self.WABBIT_PATH, source_path / self.WABBIT_PATH)
             ])
 
         self.assert_length(cm.records, 2)
         self.assert_log_record(
             cm.records[0],
             level='INFO',
-            message="Restored: %s" % (source_path / bunny_path)
+            message="Restored: %s" % (source_path / self.BUNNY_PATH)
         )
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Restored: %s" % (source_path / wabbit_path)
+            message="Restored: %s" % (source_path / self.WABBIT_PATH)
         )
 
-        self.assert_file_contents(source_path / bunny_path, 'I am a bunny')
-        self.assert_file_contents(source_path / wabbit_path, 'I am a wabbit')
+        self.assert_file_contents(source_path / self.BUNNY_PATH, 'I am a bunny')
+        self.assert_file_contents(source_path / self.WABBIT_PATH, 'I am a wabbit')
 
     def test_restore_file_not_found(self):
         """.restore() logs and continues if a file is not found"""
-        source_dir = TemporaryDirectory()
-        source_path = Path(source_dir.name)
-        backup_dir = TemporaryDirectory()
-        backup_path = Path(backup_dir.name)
-        bunny_path = '.bunny'
-        wabbit_path = str(Path('hole', '.wabbit'))
+        source_path, backup_path = self.create_file_fixtures(location='backup')
+        skunk_path = '.skunk'
+        subject = Directory(path=str(backup_path))
 
-        (backup_path / wabbit_path).parent.mkdir()
-        (backup_path / wabbit_path).write_text('I am a wabbit')
-
-        subject = Directory(backup_dir.name)
         with self.assertLogs('clibato', None) as cm:
             subject.restore([
-                Content(bunny_path, source_path / bunny_path),
-                Content(wabbit_path, source_path / wabbit_path)
+                Content(skunk_path, source_path / skunk_path),
+                Content(self.WABBIT_PATH, source_path / self.WABBIT_PATH)
             ])
 
         self.assert_length(cm.records, 2)
         self.assert_log_record(
             cm.records[0],
             level='ERROR',
-            message="[Errno 2] No such file or directory: '%s'" % (backup_path / bunny_path)
+            message="[Errno 2] No such file or directory: '%s'" % (backup_path / skunk_path)
         )
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Restored: %s" % (source_path / wabbit_path)
+            message="Restored: %s" % (source_path / self.WABBIT_PATH)
         )
 
-        self.assert_file_not_exists(source_path / bunny_path)
-        self.assert_file_contents(source_path / wabbit_path, 'I am a wabbit')
+        self.assert_file_not_exists(source_path / skunk_path)
+        self.assert_file_contents(source_path / self.WABBIT_PATH, 'I am a wabbit')
 
 
 class TestRepository(TestCase):

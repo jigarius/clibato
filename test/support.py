@@ -2,13 +2,30 @@ from contextlib import contextmanager
 from pathlib import Path
 import os
 import logging
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
+from typing import Tuple
 import unittest
 import yaml
 
 
 class TestCase(unittest.TestCase):
     """Clibato Test Case"""
+
+    BUNNY_PATH = '.bunny'
+    WABBIT_PATH = str(Path('hole', '.wabbit'))
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self._fixtures = None
+        self._source_path = None
+        self._backup_path = None
+
+    def tearDown(self) -> None:
+        # Temporary objects will automatically be cleaned once all existing
+        # references are removed.
+        self._fixtures = None
+        self._source_path = None
+        self._backup_path = None
 
     @staticmethod
     @contextmanager
@@ -102,3 +119,34 @@ class TestCase(unittest.TestCase):
         with open(config_file.name, 'w') as fh:
             yaml.dump(data, fh)
         return config_file
+
+    def create_file_fixtures(self, location: str) -> Tuple[Path, Path]:
+        """
+        Prepares fixtures for backup/restore testing.
+
+        Files created:
+        $location/.bunny
+        $location/hole/.wabbit
+
+        :param location: One of "source" or "backup".
+        :return: Paths to 2 directories: source_path and backup_path.
+        """
+        if self._fixtures is not None:
+            raise RuntimeError('Fixtures can only be created once.')
+
+        self._fixtures = []
+
+        source_dir = TemporaryDirectory()
+        self._fixtures.append(source_dir)
+        source_path = Path(source_dir.name)
+
+        backup_dir = TemporaryDirectory()
+        self._fixtures.append(backup_dir)
+        backup_path = Path(backup_dir.name)
+
+        target_path = backup_path if location == 'backup' else source_path
+        (target_path / self.BUNNY_PATH).write_text('I am a bunny')
+        (target_path / self.WABBIT_PATH).parent.mkdir()
+        (target_path / self.WABBIT_PATH).write_text('I am a wabbit')
+
+        return source_path, backup_path
