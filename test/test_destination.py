@@ -1,5 +1,5 @@
 from pathlib import Path
-import tempfile
+from tempfile import gettempdir, TemporaryDirectory
 import unittest
 
 from clibato import Content, ConfigError, Destination, Directory, Repository
@@ -19,12 +19,12 @@ class TestDestination(unittest.TestCase):
         """.from_dict() works with a valid dict"""
         subject = Destination.from_dict({
             'type': 'directory',
-            'path': tempfile.gettempdir()
+            'path': gettempdir()
         })
 
         self.assertEqual(
             subject,
-            Directory(path=tempfile.gettempdir())
+            Directory(path=gettempdir())
         )
 
     def test_from_dict_with_illegal_type(self):
@@ -51,21 +51,21 @@ class TestDirectory(TestCase):
 
     def test_new(self):
         """Instance creation."""
-        subject = Directory(path=tempfile.gettempdir())
+        subject = Directory(path=gettempdir())
 
         self.assertIsInstance(subject, Directory)
 
     def test__eq__(self):
         """__eq__()"""
-        subject = Directory(path=tempfile.gettempdir())
+        subject = Directory(path=gettempdir())
 
-        self.assertEqual(subject, Directory(path=tempfile.gettempdir()))
+        self.assertEqual(subject, Directory(path=gettempdir()))
 
         self.assertNotEqual(subject, Directory(path=str(Path.home())))
 
         self.assertNotEqual(
             subject,
-            Repository(tempfile.gettempdir(), 'git@github.com:bunny/wabbit.git')
+            Repository(gettempdir(), 'git@github.com:bunny/wabbit.git')
         )
 
     def test_inheritance(self):
@@ -74,9 +74,9 @@ class TestDirectory(TestCase):
 
     def test_path(self):
         """.path()"""
-        subject = Directory(tempfile.gettempdir())
+        subject = Directory(gettempdir())
 
-        self.assertEqual(Path(tempfile.gettempdir()), subject.path())
+        self.assertEqual(Path(gettempdir()), subject.path())
 
     def test_path_cannot_be_empty(self):
         """Path cannot be empty"""
@@ -108,12 +108,10 @@ class TestDirectory(TestCase):
 
     def test_backup(self):
         """.backup()"""
-        source_dir = tempfile.TemporaryDirectory()
+        source_dir = TemporaryDirectory()
         source_path = Path(source_dir.name)
-
-        backup_dir = tempfile.TemporaryDirectory()
+        backup_dir = TemporaryDirectory()
         backup_path = Path(backup_dir.name)
-
         bunny_path = '.bunny'
         wabbit_path = str(Path('hole', '.wabbit'))
 
@@ -144,12 +142,10 @@ class TestDirectory(TestCase):
 
     def test_backup_file_not_found(self):
         """.backup() logs and continues if a file is not found"""
-        source_dir = tempfile.TemporaryDirectory()
+        source_dir = TemporaryDirectory()
         source_path = Path(source_dir.name)
-
-        backup_dir = tempfile.TemporaryDirectory()
+        backup_dir = TemporaryDirectory()
         backup_path = Path(backup_dir.name)
-
         bunny_path = '.bunny'
         wabbit_path = str(Path('hole', '.wabbit'))
 
@@ -179,12 +175,10 @@ class TestDirectory(TestCase):
 
     def test_restore(self):
         """.restore()"""
-        source_dir = tempfile.TemporaryDirectory()
+        source_dir = TemporaryDirectory()
         source_path = Path(source_dir.name)
-
-        backup_dir = tempfile.TemporaryDirectory()
+        backup_dir = TemporaryDirectory()
         backup_path = Path(backup_dir.name)
-
         bunny_path = '.bunny'
         wabbit_path = str(Path('hole', '.wabbit'))
 
@@ -215,12 +209,10 @@ class TestDirectory(TestCase):
 
     def test_restore_file_not_found(self):
         """.restore() logs and continues if a file is not found"""
-        source_dir = tempfile.TemporaryDirectory()
+        source_dir = TemporaryDirectory()
         source_path = Path(source_dir.name)
-
-        backup_dir = tempfile.TemporaryDirectory()
+        backup_dir = TemporaryDirectory()
         backup_path = Path(backup_dir.name)
-
         bunny_path = '.bunny'
         wabbit_path = str(Path('hole', '.wabbit'))
 
@@ -266,21 +258,21 @@ class TestRepository(TestCase):
 
     def test__eq__(self):
         """__eq__()"""
-        subject = Repository(tempfile.gettempdir(), 'git@github.com:bunny/wabbit.git')
+        subject = Repository(gettempdir(), 'git@github.com:bunny/wabbit.git')
 
         self.assertEqual(
             subject,
-            Repository(tempfile.gettempdir(), 'git@github.com:bunny/wabbit.git')
+            Repository(gettempdir(), 'git@github.com:bunny/wabbit.git')
         )
 
         self.assertNotEqual(
             subject,
-            Repository(tempfile.gettempdir(), 'git@github.com:bucky/wabbit.git')
+            Repository(gettempdir(), 'git@github.com:bucky/wabbit.git')
         )
 
         self.assertNotEqual(
             subject,
-            Directory(tempfile.gettempdir())
+            Directory(gettempdir())
         )
 
     def test_inheritance(self):
