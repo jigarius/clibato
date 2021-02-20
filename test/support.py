@@ -1,79 +1,10 @@
 from contextlib import contextmanager
 from pathlib import Path
 import os
-import shutil
 import logging
 from tempfile import NamedTemporaryFile
 import unittest
 import yaml
-
-
-class FileSystem:
-    """File System Helper"""
-
-    def __init__(self):
-        raise NotImplementedError()
-
-    @staticmethod
-    def write_file(path: Path, data: str = '', append=False):
-        """
-        Writes data to a file.
-
-        :param path: File path.
-        :param data: Data to write.
-        :param append: Whether to write in append mode.
-        :return: None
-        """
-        path = FileSystem._normalize_path(path)
-        if not path.parent.is_dir():
-            os.makedirs(path.parent)
-        mode = 'a' if append else 'w'
-
-        parent = FileSystem._normalize_path(os.path.dirname(path))
-        if not parent.is_dir():
-            parent.mkdir()
-
-        file = open(path, mode)
-        file.write(data)
-        file.close()
-
-    @staticmethod
-    def read_file(path: Path) -> str:
-        """
-        Read data from a file.
-
-        :param path: File path.
-        :return: File contents.
-        """
-        path = FileSystem._normalize_path(path)
-
-        file = open(path, 'r')
-        result = file.read()
-        file.close()
-
-        return result
-
-    @staticmethod
-    def remove(path: Path) -> None:
-        """
-        Removes the specified file or directory.
-
-        :param path: Path to a file or a directory
-        :return: None
-        """
-        path = FileSystem._normalize_path(path)
-
-        if path.is_dir():
-            shutil.rmtree(path)
-        elif path.is_file():
-            path.unlink()
-
-    @staticmethod
-    def _normalize_path(path) -> Path:
-        if not isinstance(path, Path):
-            path = Path(path)
-
-        return path.expanduser()
 
 
 class TestCase(unittest.TestCase):
