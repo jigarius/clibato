@@ -92,7 +92,7 @@ class TestClibato(TestCase):
             }
         })
 
-        with self.assertLogs('clibato', logging.INFO) as cm:
+        with self.assertLogs('clibato', logging.INFO) as cm, redirect_stdout(StringIO()) as output:
             app = Clibato()
             app.execute(['backup', '-v', '-c', config_file.name])
 
@@ -105,6 +105,9 @@ class TestClibato(TestCase):
 
         self.assert_file_contents(backup_path / self.BUNNY_PATH, 'I am a bunny')
         self.assert_file_contents(backup_path / self.WABBIT_PATH, 'I am a wabbit')
+
+        expected = linesep.join(['Backup completed.', ''])
+        self.assertEqual(expected, output.getvalue())
 
     def test_restore(self):
         """Test: clibato restore -v -c /path/to/config.yml"""
@@ -120,7 +123,7 @@ class TestClibato(TestCase):
             }
         })
 
-        with self.assertLogs('clibato', logging.INFO) as cm:
+        with self.assertLogs('clibato', logging.INFO) as cm, redirect_stdout(StringIO()) as output:
             app = Clibato()
             app.execute(['restore', '-v', '-c', config_file.name])
 
@@ -134,10 +137,12 @@ class TestClibato(TestCase):
         self.assert_file_contents(source_path / self.BUNNY_PATH, 'I am a bunny')
         self.assert_file_contents(source_path / self.WABBIT_PATH, 'I am a wabbit')
 
+        expected = linesep.join(['Restore completed.', ''])
+        self.assertEqual(expected, output.getvalue())
+
     def test_version(self):
         """Test: clibato version"""
-        stdout = StringIO()
-        with redirect_stdout(stdout) as output:
+        with redirect_stdout(StringIO()) as output:
             app = Clibato()
             app.execute(['version'])
 
@@ -145,8 +150,7 @@ class TestClibato(TestCase):
 
     def test_version_verbose(self):
         """Test: clibato version --verbose"""
-        stdout = StringIO()
-        with redirect_stdout(stdout) as output:
+        with redirect_stdout(StringIO()) as output:
             app = Clibato()
             app.execute(['version', '-v'])
 

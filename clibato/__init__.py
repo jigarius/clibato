@@ -66,11 +66,15 @@ class Clibato:
         dest = config.destination()
         dest.backup(config.contents())
 
+        print('Backup completed.')
+
     def restore(self):
         """Action: Restore backup"""
         config = self.config()
         dest = config.destination()
         dest.restore(config.contents())
+
+        print('Restore completed.')
 
     def version(self):
         """Action: Version"""
