@@ -4,7 +4,6 @@ import logging
 from os import linesep
 from pathlib import Path
 from tempfile import TemporaryDirectory, NamedTemporaryFile
-import unittest
 from clibato import Clibato
 from .support import TestCase
 
@@ -79,13 +78,101 @@ class TestClibato(TestCase):
             level='ERROR'
         )
 
-    @unittest.skip('TODO')
     def test_backup(self):
-        """Test: clibato backup"""
+        """Test: clibato backup -v -c /path/to/config.yml"""
+        source_dir = TemporaryDirectory()
+        source_path = Path(source_dir.name)
+        backup_dir = TemporaryDirectory()
+        backup_path = Path(backup_dir.name)
+        bunny_path = '.bunny'
+        wabbit_path = str(Path('hole', '.wabbit'))
 
-    @unittest.skip('TODO')
+        (source_path / bunny_path).write_text('I am a bunny')
+        (source_path / wabbit_path).parent.mkdir()
+        (source_path / wabbit_path).write_text('I am a wabbit')
+
+        config_file = self.create_clibato_config({
+            'contents': {
+                bunny_path: str(source_path / bunny_path),
+                wabbit_path: str(source_path / wabbit_path)
+            },
+            'destination': {
+                'type': 'directory',
+                'path': backup_dir.name
+            }
+        })
+
+        with self.assertLogs('clibato', logging.INFO) as cm:
+            app = Clibato()
+            app.execute(['backup', '-v', '-c', config_file.name])
+
+        self.assert_length(cm.records, 3)
+        self.assert_log_record(
+            cm.records[0],
+            level='INFO',
+            message=f'Loading configuration: {config_file.name}'
+        )
+        self.assert_log_record(
+            cm.records[1],
+            level='INFO',
+            message="Backed up: %s" % (source_path / bunny_path)
+        )
+        self.assert_log_record(
+            cm.records[2],
+            level='INFO',
+            message="Backed up: %s" % (source_path / wabbit_path)
+        )
+
+        self.assert_file_contents(backup_path / bunny_path, 'I am a bunny')
+        self.assert_file_contents(backup_path / wabbit_path, 'I am a wabbit')
+
     def test_restore(self):
-        """Test: clibato restore"""
+        """Test: clibato restore -v -c /path/to/config.yml"""
+        source_dir = TemporaryDirectory()
+        source_path = Path(source_dir.name)
+        backup_dir = TemporaryDirectory()
+        backup_path = Path(backup_dir.name)
+        bunny_path = '.bunny'
+        wabbit_path = str(Path('hole', '.wabbit'))
+
+        (backup_path / bunny_path).write_text('I am a bunny')
+        (backup_path / wabbit_path).parent.mkdir()
+        (backup_path / wabbit_path).write_text('I am a wabbit')
+
+        config_file = self.create_clibato_config({
+            'contents': {
+                bunny_path: str(source_path / bunny_path),
+                wabbit_path: str(source_path / wabbit_path)
+            },
+            'destination': {
+                'type': 'directory',
+                'path': backup_dir.name
+            }
+        })
+
+        with self.assertLogs('clibato', logging.INFO) as cm:
+            app = Clibato()
+            app.execute(['restore', '-v', '-c', config_file.name])
+
+        self.assert_length(cm.records, 3)
+        self.assert_log_record(
+            cm.records[0],
+            level='INFO',
+            message=f'Loading configuration: {config_file.name}'
+        )
+        self.assert_log_record(
+            cm.records[1],
+            level='INFO',
+            message="Restored: %s" % (source_path / bunny_path)
+        )
+        self.assert_log_record(
+            cm.records[2],
+            level='INFO',
+            message="Restored: %s" % (source_path / wabbit_path)
+        )
+
+        self.assert_file_contents(source_path / bunny_path, 'I am a bunny')
+        self.assert_file_contents(source_path / wabbit_path, 'I am a wabbit')
 
     def test_version(self):
         """Test: clibato version"""

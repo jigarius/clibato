@@ -7,7 +7,7 @@ ignore=.git
 [BASIC]
 
 # Good variable names which should always be accepted, separated by a comma
-good-names=_,i,j,k,e,ex,cm
+good-names=_,i,j,k,e,ex,cm,fh
 
 [MESSAGES CONTROL]
 

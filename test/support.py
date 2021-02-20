@@ -3,7 +3,9 @@ from pathlib import Path
 import os
 import shutil
 import logging
+from tempfile import NamedTemporaryFile
 import unittest
+import yaml
 
 
 class FileSystem:
@@ -156,3 +158,16 @@ class TestCase(unittest.TestCase):
         """
         self.assert_file_exists(path)
         self.assertEqual(contents, path.read_text())
+
+    @staticmethod
+    def create_clibato_config(data: dict) -> NamedTemporaryFile():
+        """
+        Creates a temporary YAML containing the provided config.
+
+        :param data: Configuration as a dictionary
+        :return: NamedTemporaryFile
+        """
+        config_file = NamedTemporaryFile(suffix='.clibato.yml')
+        with open(config_file.name, 'w') as fh:
+            yaml.dump(data, fh)
+        return config_file
