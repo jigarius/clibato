@@ -111,6 +111,16 @@ class TestCase(unittest.TestCase):
         self.assert_file_exists(path)
         self.assertEqual(contents, path.read_text())
 
+    def assert_output(self, expected, real):
+        """
+        Asserts console output equality, removing \r.
+
+        :param expected: Expected output.
+        :param real: Real output.
+        :return: None
+        """
+        self.assertMultiLineEqual(expected, real.replace('\r\n', '\n'))
+
     @staticmethod
     def create_clibato_config(data: dict) -> NamedTemporaryFile():
         """
