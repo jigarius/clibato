@@ -18,7 +18,7 @@ class Clibato:
     """Clibato Controller"""
 
     ROOT = Path(__file__).parent.parent
-    VERSION = "0.9.0"
+    VERSION = "1.0.0.b1"
 
     def __init__(self):
         self._args = None
