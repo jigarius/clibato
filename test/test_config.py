@@ -1,8 +1,6 @@
 from shutil import copyfile
 from pathlib import Path
-import os
 import tempfile
-import unittest
 
 from clibato import Clibato, Content, Directory, Config, ConfigError
 from .support import TestCase
