@@ -130,12 +130,12 @@ class TestDirectory(TestCase):
         self.assert_log_record(
             cm.records[0],
             level='INFO',
-            message="Backed up: %s" % (source_path / self.BUNNY_PATH)
+            message=f'Backed up: {source_path / self.BUNNY_PATH}'
         )
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Backed up: %s" % (source_path / self.WABBIT_PATH)
+            message=f'Backed up: {source_path / self.WABBIT_PATH}'
         )
 
         self.assert_file_contents(backup_path / self.BUNNY_PATH, 'I am a bunny')
@@ -157,12 +157,12 @@ class TestDirectory(TestCase):
         self.assert_log_record(
             cm.records[0],
             level='ERROR',
-            message="[Errno 2] No such file or directory: '%s'" % (source_path / skunk_path)
+            message=f"[Errno 2] No such file or directory: '{source_path / skunk_path}'"
         )
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Backed up: %s" % (source_path / self.WABBIT_PATH)
+            message=f'Backed up: {source_path / self.WABBIT_PATH}'
         )
 
         self.assert_file_not_exists(backup_path / skunk_path)
@@ -183,12 +183,12 @@ class TestDirectory(TestCase):
         self.assert_log_record(
             cm.records[0],
             level='INFO',
-            message="Restored: %s" % (source_path / self.BUNNY_PATH)
+            message=f'Restored: {source_path / self.BUNNY_PATH}'
         )
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Restored: %s" % (source_path / self.WABBIT_PATH)
+            message=f'Restored: {source_path / self.WABBIT_PATH}'
         )
 
         self.assert_file_contents(source_path / self.BUNNY_PATH, 'I am a bunny')
@@ -210,12 +210,12 @@ class TestDirectory(TestCase):
         self.assert_log_record(
             cm.records[0],
             level='ERROR',
-            message="[Errno 2] No such file or directory: '%s'" % (backup_path / skunk_path)
+            message=f"[Errno 2] No such file or directory: '{backup_path / skunk_path}'"
         )
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Restored: %s" % (source_path / self.WABBIT_PATH)
+            message=f'Restored: {source_path / self.WABBIT_PATH}'
         )
 
         self.assert_file_not_exists(source_path / skunk_path)
