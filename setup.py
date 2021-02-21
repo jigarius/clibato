@@ -32,7 +32,7 @@ setuptools.setup(
         "Tracker": "https://github.com/jigarius/clibato/issues"
     },
     packages=setuptools.find_packages(exclude=['test']),
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     install_requires=install_requires,
     entry_points={
         'console_scripts': ['clibato=clibato.__main__:main'],
