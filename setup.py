@@ -31,7 +31,7 @@ setuptools.setup(
         "Author": AUTHOR_URL,
         "Tracker": "https://github.com/jigarius/clibato/issues"
     },
-    packages=setuptools.find_packages(exclude=['test']),
+    packages=setuptools.find_packages('clibato', exclude=['test']),
     python_requires='>=3.6',
     install_requires=install_requires,
     entry_points={
