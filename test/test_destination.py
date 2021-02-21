@@ -228,7 +228,7 @@ class TestRepository(TestCase):
     def test_new(self):
         """Instance creation."""
         subject = Repository(
-            '/tmp',
+            gettempdir(),
             'git@github.com:jigarius/clibato.git',
             'backup',
             'Jigarius',
@@ -270,7 +270,7 @@ class TestRepository(TestCase):
         """Remote cannot be empty"""
         message = 'Remote cannot be empty'
         with self.assertRaisesRegex(ConfigError, message):
-            Repository('/tmp', '')
+            Repository(gettempdir(), '')
 
     @unittest.skip('TODO')
     def test_backup(self):

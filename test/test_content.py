@@ -41,7 +41,7 @@ class TestContent(unittest.TestCase):
 
     def test_source_path_with_absolute_path(self):
         """.new() works with absolute source paths"""
-        source_path = Path('/', 'todo.txt')
+        source_path = Path('/', 'todo.txt').absolute()
         subject = Content('todo.txt', str(source_path))
 
         self.assertEqual(source_path, subject.source_path())
