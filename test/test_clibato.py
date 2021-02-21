@@ -39,6 +39,22 @@ class TestClibato(TestCase):
         args = Clibato.parse_args(['init', '-c', str(config_path)])
         self.assertEqual(config_path, args.config_path)
 
+    def test_config_file_not_found(self):
+        """.execute() shows error when config file can't be located"""
+        config_path = 'missing.config.yml'
+
+        with self.assertLogs('clibato', logging.ERROR) as cm:
+            app = Clibato()
+            result = app.execute(['backup', '-c', str(config_path)])
+
+        self.assertFalse(result)
+        self.assert_length(cm.records, 1)
+        self.assert_log_record(
+            cm.records[0],
+            level='ERROR',
+            message=f'Configuration not found: {config_path}'
+        )
+
     def test_init(self):
         """Test: clibato init -c /path/to/.clibato.yml"""
         config_dir = TemporaryDirectory()
