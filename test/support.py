@@ -60,8 +60,12 @@ class TestCase(unittest.TestCase):
         :param level: Expected level name, e.g. INFO, WARNING, ERROR.
         :return: None
         """
-        expectation = {'level': level, 'message': message}
-        real = {'level': record.levelname, 'message': record.message}
+        expectation = f'{level}: {message}'
+        real = f'{record.levelname}: {record.message}'
+
+        # For some reason, Windows path-separator gets escaped twice?
+        if os.name == 'nt':
+            real = real.replace('\\\\', '\\')
 
         self.assertEqual(expectation, real, 'Log record mismatch')
 
