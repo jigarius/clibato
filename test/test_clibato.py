@@ -1,7 +1,6 @@
 from contextlib import redirect_stdout
 from io import StringIO
 import logging
-from os import linesep
 from pathlib import Path
 from tempfile import TemporaryDirectory, NamedTemporaryFile
 from clibato import Clibato
@@ -65,7 +64,7 @@ class TestClibato(TestCase):
             app = Clibato()
             app.execute(['init', '-c', str(config_path)])
 
-        expected = linesep.join([
+        expected = '\n'.join([
             f'Configuration created: {config_path.resolve()}',
             '',
             'Modify the file as per your requirements.',
@@ -140,20 +139,20 @@ class TestClibato(TestCase):
 
         with self.assertLogs('clibato', logging.INFO) as cm, redirect_stdout(StringIO()) as output:
             app = Clibato()
-            app.execute(['restore', '-v', '-c', config_file.name])
+            app.execute(['restore', '-v', '-c', config_path])
 
         self.assert_length(cm.records, 3)
         self.assert_log_record(
             cm.records[0],
             level='INFO',
-            message=f'Loading configuration: {config_file.name}'
+            message=f'Loading configuration: {config_path}'
         )
 
         self.assert_file_contents(source_path / self.BUNNY_PATH, 'I am a bunny')
         self.assert_file_contents(source_path / self.WABBIT_PATH, 'I am a wabbit')
 
-        expected = linesep.join(['Restore completed.', ''])
-        self.assertEqual(expected, output.getvalue())
+        expected = '\n'.join(['Restore completed.', ''])
+        self.assert_output(expected, output.getvalue())
 
     def test_version(self):
         """Test: clibato version"""
@@ -161,7 +160,7 @@ class TestClibato(TestCase):
             app = Clibato()
             app.execute(['version'])
 
-        self.assertEqual(f'Clibato v{Clibato.VERSION}\n', output.getvalue())
+        self.assert_output(f'Clibato v{Clibato.VERSION}\n', output.getvalue())
 
     def test_version_verbose(self):
         """Test: clibato version --verbose"""
@@ -169,11 +168,11 @@ class TestClibato(TestCase):
             app = Clibato()
             app.execute(['version', '-v'])
 
-        expected = linesep.join([
+        expected = '\n'.join([
             f'Clibato v{Clibato.VERSION}',
             'Author: Jigarius | jigarius.com',
             'GitHub: github.com/jigarius/clibato',
             ''
         ])
 
-        self.assertEqual(expected, output.getvalue())
+        self.assert_output(expected, output.getvalue())
