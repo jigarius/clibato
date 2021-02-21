@@ -97,7 +97,7 @@ class TestClibato(TestCase):
     def test_backup(self):
         """Test: clibato backup -v -c /path/to/config.yml"""
         source_path, backup_path = self.create_file_fixtures(location='source')
-        config_file = self.create_clibato_config({
+        config_path = self.create_clibato_config({
             'contents': {
                 self.BUNNY_PATH: str(source_path / self.BUNNY_PATH),
                 self.WABBIT_PATH: str(source_path / self.WABBIT_PATH)
@@ -110,25 +110,24 @@ class TestClibato(TestCase):
 
         with self.assertLogs('clibato', logging.INFO) as cm, redirect_stdout(StringIO()) as output:
             app = Clibato()
-            app.execute(['backup', '-v', '-c', config_file.name])
+            app.execute(['backup', '-v', '-c', config_path])
 
         self.assert_length(cm.records, 3)
         self.assert_log_record(
             cm.records[0],
             level='INFO',
-            message=f'Loading configuration: {config_file.name}'
+            message=f'Loading configuration: {config_path}'
         )
 
         self.assert_file_contents(backup_path / self.BUNNY_PATH, 'I am a bunny')
         self.assert_file_contents(backup_path / self.WABBIT_PATH, 'I am a wabbit')
 
-        expected = linesep.join(['Backup completed.', ''])
-        self.assertEqual(expected, output.getvalue())
+        self.assert_output('Backup completed.\n', output.getvalue())
 
     def test_restore(self):
         """Test: clibato restore -v -c /path/to/config.yml"""
         source_path, backup_path = self.create_file_fixtures(location='backup')
-        config_file = self.create_clibato_config({
+        config_path = self.create_clibato_config({
             'contents': {
                 self.BUNNY_PATH: str(source_path / self.BUNNY_PATH),
                 self.WABBIT_PATH: str(source_path / self.WABBIT_PATH)
