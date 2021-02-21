@@ -14,7 +14,7 @@ lint:
 
 ## Run tests
 test:
-	nosetests --rednose
+	nosetests --rednose test/*.py
 
 ## Prepare a build
 build:
