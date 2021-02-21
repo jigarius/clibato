@@ -90,6 +90,9 @@ class Clibato:
         :return: A Config object.
         """
         path = Config.locate(self._args.config_path)
+        if path is None:
+            raise ConfigError(f'Configuration not found: {self._args.config_path}')
+
         return Config.from_file(path)
 
     def _init_logger(self) -> None:
