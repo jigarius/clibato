@@ -80,21 +80,30 @@ class TestDirectory(TestCase):
 
     def test_path_cannot_be_empty(self):
         """Path cannot be empty"""
-        message = 'Path cannot be empty'
-        with self.assertRaisesRegex(ConfigError, message):
+        with self.assertRaisesRegex(ConfigError, 'Path cannot be empty'):
             Directory('')
 
     def test_path_must_be_absolute(self):
         """Path must be absolute"""
-        message = 'Path is not absolute: foo/bar'
-        with self.assertRaisesRegex(ConfigError, message):
-            Directory('foo/bar')
+        path = Path('foo', 'bar')
+        with self.assertRaises(ConfigError) as cm:
+            Directory(str(path))
+
+        self.assertEqual(
+            f'Path is not absolute: {path}',
+            str(cm.exception).strip("'")
+        )
 
     def test_path_must_be_directory(self):
         """Path must be a directory that exists"""
-        message = 'Path is not a directory: /tmp/foo'
-        with self.assertRaisesRegex(ConfigError, message):
-            Directory('/tmp/foo')
+        path = Path(gettempdir(), 'foo').resolve()
+        with self.assertRaises(ConfigError) as cm:
+            Directory(path=str(path))
+
+        self.assertEqual(
+            f'Path is not a directory: {path}',
+            str(cm.exception).strip("'")
+        )
 
     def test_path_has_tilde(self):
         """Path can contain tilde (~)"""
@@ -121,12 +130,12 @@ class TestDirectory(TestCase):
         self.assert_log_record(
             cm.records[0],
             level='INFO',
-            message="Backed up: %s" % (source_path / self.BUNNY_PATH)
+            message=f'Backed up: {source_path / self.BUNNY_PATH}'
         )
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Backed up: %s" % (source_path / self.WABBIT_PATH)
+            message=f'Backed up: {source_path / self.WABBIT_PATH}'
         )
 
         self.assert_file_contents(backup_path / self.BUNNY_PATH, 'I am a bunny')
@@ -148,12 +157,12 @@ class TestDirectory(TestCase):
         self.assert_log_record(
             cm.records[0],
             level='ERROR',
-            message="[Errno 2] No such file or directory: '%s'" % (source_path / skunk_path)
+            message=f"[Errno 2] No such file or directory: '{source_path / skunk_path}'"
         )
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Backed up: %s" % (source_path / self.WABBIT_PATH)
+            message=f'Backed up: {source_path / self.WABBIT_PATH}'
         )
 
         self.assert_file_not_exists(backup_path / skunk_path)
@@ -174,12 +183,12 @@ class TestDirectory(TestCase):
         self.assert_log_record(
             cm.records[0],
             level='INFO',
-            message="Restored: %s" % (source_path / self.BUNNY_PATH)
+            message=f'Restored: {source_path / self.BUNNY_PATH}'
         )
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Restored: %s" % (source_path / self.WABBIT_PATH)
+            message=f'Restored: {source_path / self.WABBIT_PATH}'
         )
 
         self.assert_file_contents(source_path / self.BUNNY_PATH, 'I am a bunny')
@@ -201,12 +210,12 @@ class TestDirectory(TestCase):
         self.assert_log_record(
             cm.records[0],
             level='ERROR',
-            message="[Errno 2] No such file or directory: '%s'" % (backup_path / skunk_path)
+            message=f"[Errno 2] No such file or directory: '{backup_path / skunk_path}'"
         )
         self.assert_log_record(
             cm.records[1],
             level='INFO',
-            message="Restored: %s" % (source_path / self.WABBIT_PATH)
+            message=f'Restored: {source_path / self.WABBIT_PATH}'
         )
 
         self.assert_file_not_exists(source_path / skunk_path)
@@ -219,7 +228,7 @@ class TestRepository(TestCase):
     def test_new(self):
         """Instance creation."""
         subject = Repository(
-            '/tmp',
+            gettempdir(),
             'git@github.com:jigarius/clibato.git',
             'backup',
             'Jigarius',
@@ -261,7 +270,7 @@ class TestRepository(TestCase):
         """Remote cannot be empty"""
         message = 'Remote cannot be empty'
         with self.assertRaisesRegex(ConfigError, message):
-            Repository('/tmp', '')
+            Repository(gettempdir(), '')
 
     @unittest.skip('TODO')
     def test_backup(self):

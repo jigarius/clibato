@@ -1,8 +1,6 @@
 from shutil import copyfile
 from pathlib import Path
-import os
 import tempfile
-import unittest
 
 from clibato import Clibato, Content, Directory, Config, ConfigError
 from .support import TestCase
@@ -103,27 +101,33 @@ class TestConfig(TestCase):
             with self.assertRaisesRegex(ConfigError, message):
                 Config.from_dict(data)
 
-    @unittest.skipIf(os.name == 'nt', 'Fixture contains posix paths only')
     def test_from_file(self):
         """.from_file()"""
+        config_path = self.create_clibato_config({
+            'contents': {
+                '.bashrc': None,
+                '.vimrc': None,
+            },
+            'destination': {
+                'type': 'directory',
+                'path': tempfile.gettempdir()
+            }
+        })
+
         with self.assertLogs('clibato') as cm:
             self.assertEqual(
                 Config(
-                    contents=[
-                        Content('.bashrc'),
-                        Content('.zshrc'),
-                        Content('Documents/todo.txt')
-                    ],
-                    destination=Directory(path='/tmp'),
+                    contents=[Content('.bashrc'), Content('.vimrc')],
+                    destination=Directory(path=tempfile.gettempdir()),
                 ),
-                Config.from_file(self._FIXTURE_PATH)
+                Config.from_file(config_path)
             )
 
         self.assert_length(cm.records, 1)
         self.assert_log_record(
             cm.records[0],
             level='INFO',
-            message=f'Loading configuration: {self._FIXTURE_PATH}'
+            message=f'Loading configuration: {config_path}'
         )
 
     def test_from_file_with_non_existent_file(self):

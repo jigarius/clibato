@@ -17,15 +17,18 @@ class TestCase(unittest.TestCase):
     def __init__(self, *args):
         super().__init__(*args)
         self._fixtures = None
-        self._source_path = None
-        self._backup_path = None
+
+    def setUp(self) -> None:
+        self._fixtures = []
 
     def tearDown(self) -> None:
-        # Temporary objects will automatically be cleaned once all existing
-        # references are removed.
+        for fixture in self._fixtures:
+            path = Path(fixture.name)
+            if path.is_file():
+                path.unlink()
+
+        # TemporaryDirectory will be deleted when no references exist.
         self._fixtures = None
-        self._source_path = None
-        self._backup_path = None
 
     @staticmethod
     @contextmanager
@@ -60,8 +63,12 @@ class TestCase(unittest.TestCase):
         :param level: Expected level name, e.g. INFO, WARNING, ERROR.
         :return: None
         """
-        expectation = {'level': level, 'message': message}
-        real = {'level': record.levelname, 'message': record.message}
+        expectation = f'{level}: {message}'
+        real = f'{record.levelname}: {record.message}'
+
+        # For some reason, Windows path-separator gets escaped twice?
+        if os.name == 'nt':
+            real = real.replace('\\\\', '\\')
 
         self.assertEqual(expectation, real, 'Log record mismatch')
 
@@ -107,18 +114,30 @@ class TestCase(unittest.TestCase):
         self.assert_file_exists(path)
         self.assertEqual(contents, path.read_text())
 
-    @staticmethod
-    def create_clibato_config(data: dict) -> NamedTemporaryFile():
+    def assert_output(self, expected, real):
+        """
+        Asserts console output equality, removing \r.
+
+        :param expected: Expected output.
+        :param real: Real output.
+        :return: None
+        """
+        self.assertMultiLineEqual(expected, real.replace('\r\n', '\n'))
+
+    def create_clibato_config(self, data: dict) -> str:
         """
         Creates a temporary YAML containing the provided config.
 
         :param data: Configuration as a dictionary
-        :return: NamedTemporaryFile
+        :return: Path to a temporary config file.
         """
-        config_file = NamedTemporaryFile(suffix='.clibato.yml')
-        with open(config_file.name, 'w') as fh:
-            yaml.dump(data, fh)
-        return config_file
+        file = NamedTemporaryFile('w', suffix='.clibato.yml', delete=False)
+        file.write(yaml.safe_dump(data))
+        file.close()
+
+        self._fixtures.append(file)
+
+        return file.name
 
     def create_file_fixtures(self, location: str) -> Tuple[Path, Path]:
         """
@@ -131,11 +150,6 @@ class TestCase(unittest.TestCase):
         :param location: One of "source" or "backup".
         :return: Paths to 2 directories: source_path and backup_path.
         """
-        if self._fixtures is not None:
-            raise RuntimeError('Fixtures can only be created once.')
-
-        self._fixtures = []
-
         source_dir = TemporaryDirectory()
         self._fixtures.append(source_dir)
         source_path = Path(source_dir.name)

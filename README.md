@@ -75,8 +75,8 @@ contents:
   .bashrc:
   .clibato.yml:
 destination:
-  type: "directory"
-  path: "~/backup/clibato"
+  type: 'directory'
+  path: '~/backup/clibato'
 ```
 
 ### Backup to a Git repository
@@ -86,8 +86,8 @@ contents:
   .bashrc:
   .clibato.yml:
 destination:
-  type: "repository"
-  path: "~/backup/clibato"
-  remote: "git@gitlab.com:jigarius/dotfiles.git"
+  type: 'repository'
+  path: '~/backup/clibato'
+  remote: 'git@gitlab.com:jigarius/dotfiles.git'
   branch: 'main'
 ```
