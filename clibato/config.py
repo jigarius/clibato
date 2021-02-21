@@ -65,7 +65,7 @@ class Config:
         )
 
     @staticmethod
-    def from_file(path):
+    def from_file(path: Path):
         """
         Create Config object from a YAML file.
 
@@ -75,11 +75,13 @@ class Config:
         :return: A Config object.
         """
         logger.info('Loading configuration: %s', path)
-        with open(path, 'r') as stream:
-            try:
-                data = yaml.safe_load(stream)
-            except yaml.YAMLError as error:
-                raise ConfigError(error) from error
+
+        try:
+            data = open(str(path), 'r').read()
+            logger.debug(data)
+            data = yaml.safe_load(data)
+        except yaml.YAMLError as error:
+            raise ConfigError(error) from error
 
         return Config.from_dict(data)
 
