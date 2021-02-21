@@ -80,21 +80,30 @@ class TestDirectory(TestCase):
 
     def test_path_cannot_be_empty(self):
         """Path cannot be empty"""
-        message = 'Path cannot be empty'
-        with self.assertRaisesRegex(ConfigError, message):
+        with self.assertRaisesRegex(ConfigError, 'Path cannot be empty'):
             Directory('')
 
     def test_path_must_be_absolute(self):
         """Path must be absolute"""
-        message = 'Path is not absolute: foo/bar'
-        with self.assertRaisesRegex(ConfigError, message):
-            Directory('foo/bar')
+        path = Path('foo', 'bar')
+        with self.assertRaises(ConfigError) as cm:
+            Directory(str(path))
+
+        self.assertEqual(
+            f'Path is not absolute: {path}',
+            str(cm.exception).strip("'")
+        )
 
     def test_path_must_be_directory(self):
         """Path must be a directory that exists"""
-        message = 'Path is not a directory: /tmp/foo'
-        with self.assertRaisesRegex(ConfigError, message):
-            Directory('/tmp/foo')
+        path = Path(gettempdir(), 'foo').resolve()
+        with self.assertRaises(ConfigError) as cm:
+            Directory(path=str(path))
+
+        self.assertEqual(
+            f'Path is not a directory: {path}',
+            str(cm.exception).strip("'")
+        )
 
     def test_path_has_tilde(self):
         """Path can contain tilde (~)"""

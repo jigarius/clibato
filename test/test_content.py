@@ -58,9 +58,14 @@ class TestContent(unittest.TestCase):
 
     def test_source_path_with_relative_path(self):
         """.new() raises if source_path is relative"""
-        message = 'Source path invalid: Documents/todo.txt'
-        with self.assertRaisesRegex(ConfigError, message):
-            Content('todo.txt', 'Documents/todo.txt')
+        path = Path('Documents', 'todo.txt')
+        with self.assertRaises(ConfigError) as cm:
+            Content('todo.txt', path)
+
+        self.assertEqual(
+            f'Source path invalid: {path}',
+            str(cm.exception).strip("'")
+        )
 
     def test_source_path_when_empty(self):
         """.new() works when source_path is empty"""
@@ -82,9 +87,14 @@ class TestContent(unittest.TestCase):
 
     def test_backup_path_cannot_be_absolute(self):
         """.new() raises if backup path is not absolute"""
-        message = 'Backup path cannot be absolute: /.bashrc'
-        with self.assertRaisesRegex(ConfigError, message):
-            Content(str(Path('/', '.bashrc')))
+        path = str(Path('/', 'Documents', '.bashrc').absolute())
+        with self.assertRaises(ConfigError) as cm:
+            Content(path)
+
+        self.assertEqual(
+            f'Backup path cannot be absolute: {path}',
+            str(cm.exception).strip("'")
+        )
 
     def test_backup_path_cannot_contain_illegal_elements(self):
         """.new() raises if backup path contains illegal elements"""
