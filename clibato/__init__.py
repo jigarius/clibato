@@ -3,7 +3,6 @@ import logging
 from pathlib import Path
 from shutil import copyfile
 from typing import List, Optional
-from pkg_resources import get_distribution
 
 from .config import Config
 from .content import Content
@@ -76,7 +75,8 @@ class Clibato:
 
     def version(self):
         """Action: Version"""
-        version = get_distribution('clibato').version
+        with open(self.ROOT / 'VERSION') as fh:
+            version = fh.readline().strip()
         print(f'Clibato v{version}')
         if self._args.verbose:
             print('Author: Jigarius | jigarius.com')

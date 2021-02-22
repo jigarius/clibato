@@ -6,6 +6,9 @@ with open("README.md", "r", encoding="utf-8") as fh:
 with open("requirements.txt", "r") as fh:
     install_requires = fh.read().splitlines()
 
+with open("VERSION", "r") as fh:
+    install_requires = fh.readline().strip()
+
 GITHUB_URL = "https://github.com/jigarius/clibato"
 AUTHOR_URL = "https://jigarius.com/"
 
