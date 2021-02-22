@@ -17,7 +17,7 @@ The name Clibato stands for (CLI) (ba)ckup (to)ol.
 
 Clibato can easily be installed using [pip](https://pip.pypa.io/).
 
-   pip install clibato
+    pip install clibato
 
 Once installed, you can run it as `clibato` or `python -m clibato`.
 
