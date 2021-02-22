@@ -3,6 +3,7 @@ from io import StringIO
 import logging
 from pathlib import Path
 from tempfile import TemporaryDirectory, NamedTemporaryFile
+from pkg_resources import get_distribution
 from clibato import Clibato
 from .support import TestCase
 
@@ -160,7 +161,8 @@ class TestClibato(TestCase):
             app = Clibato()
             app.execute(['version'])
 
-        self.assert_output(f'Clibato v{Clibato.VERSION}\n', output.getvalue())
+        version = get_distribution('clibato').version
+        self.assert_output(f'Clibato v{version}\n', output.getvalue())
 
     def test_version_verbose(self):
         """Test: clibato version --verbose"""
@@ -168,8 +170,9 @@ class TestClibato(TestCase):
             app = Clibato()
             app.execute(['version', '-v'])
 
+        version = get_distribution('clibato').version
         expected = '\n'.join([
-            f'Clibato v{Clibato.VERSION}',
+            f'Clibato v{version}',
             'Author: Jigarius | jigarius.com',
             'GitHub: github.com/jigarius/clibato',
             ''

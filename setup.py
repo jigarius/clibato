@@ -1,5 +1,4 @@
 import setuptools
-from clibato import Clibato
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -12,7 +11,7 @@ AUTHOR_URL = "https://jigarius.com/"
 
 setuptools.setup(
     name="clibato",
-    version=Clibato.VERSION,
+    version='1.0.1',
     author="Jigar Mehta",
     author_email="hello@jigarius.com",
     description="A tool to backup/restore simple files, e.g. dot files.",
@@ -31,7 +30,7 @@ setuptools.setup(
         "Author": AUTHOR_URL,
         "Tracker": "https://github.com/jigarius/clibato/issues"
     },
-    packages=setuptools.find_packages('clibato', exclude=['test']),
+    packages=setuptools.find_packages(),
     python_requires='>=3.6',
     install_requires=install_requires,
     entry_points={

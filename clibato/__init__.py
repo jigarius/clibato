@@ -1,10 +1,9 @@
 import argparse
 import logging
-import os
-import sys
 from pathlib import Path
 from shutil import copyfile
 from typing import List, Optional
+from pkg_resources import get_distribution
 
 from .config import Config
 from .content import Content
@@ -18,7 +17,6 @@ class Clibato:
     """Clibato Controller"""
 
     ROOT = Path(__file__).parent.parent
-    VERSION = "1.0.0"
 
     def __init__(self):
         self._args = None
@@ -78,7 +76,8 @@ class Clibato:
 
     def version(self):
         """Action: Version"""
-        print(f'Clibato v{self.VERSION}')
+        version = get_distribution('clibato').version
+        print(f'Clibato v{version}')
         if self._args.verbose:
             print('Author: Jigarius | jigarius.com')
             print('GitHub: github.com/jigarius/clibato')
